@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pro-Tech web application.">
+
+  <title>Pro-Tech</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js"></script>
+
+  <!-- Firebase Initialization -->
+  <script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg",
+      authDomain: "signin-example-b56ee.firebaseapp.com",
+      projectId: "signin-example-b56ee",
+      storageBucket: "signin-example-b56ee.appspot.com",
+      messagingSenderId: "989890578847",
+      appId: "1:989890578847:android:039450145d92cefd9d95aa"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    console.log('Firebase initialized');
+  </script>
+</head>
+
+<body>
+  <h1>Welcome to Pro-Tech</h1>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

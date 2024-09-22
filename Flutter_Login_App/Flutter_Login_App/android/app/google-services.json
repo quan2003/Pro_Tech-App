@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "989890578847",
+    "project_id": "signin-example-b56ee",
+    "storage_bucket": "signin-example-b56ee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989890578847:android:039450145d92cefd9d95aa",
+        "android_client_info": {
+          "package_name": "com.hrcodeexperts.flutter_login"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -33,6 +33,13 @@ dependencies:
   fl_chart:
   csv:
   syncfusion_flutter_gauges: ^27.1.48
+  health: ^11.0.0
+  pedometer: ^4.0.2
+  flutter_activity_recognition: ^4.0.0
+  permission_handler: ^11.3.1
+  percent_indicator: ^4.2.3
+  sensors_plus: ^6.0.1
+
 
 dev_dependencies:
   flutter_test:

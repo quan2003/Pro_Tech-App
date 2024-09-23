@@ -36,7 +36,7 @@ class AppRoutes {
   static final routes = [
     GetPage(
       name: SIGNINSCREEN,
-      page: () => SignInScreen(),
+      page: () => const SignInScreen(),
     ),
     GetPage(
       name: HOMESCREEN,
@@ -44,11 +44,11 @@ class AppRoutes {
     ),
     GetPage(
       name: HOMEFIRSTSCREEN,
-      page: () => HomeFirst(),
+      page: () => const HomeFirst(),
     ),
     GetPage(
       name: TERMSANDCONDITIONS,
-      page: () => TermsAndConditionsScreen(),
+      page: () => const TermsAndConditionsScreen(),
     ),
     GetPage(
       name: STEP_GOAL_SCREEN,

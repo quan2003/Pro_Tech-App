@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_login_app/views/screens/BMIScreen.dart';
+
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
+import 'package:flutter_login_app/views/screens/StepTrackerScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +14,7 @@ import '../controller/BMIController.dart';
 import 'AccountDataScreen.dart';
 import 'AboutUsScreen.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+import '../controller/StepTrackingService.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -22,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final StepTrackingService stepController = Get.put(StepTrackingService());
   final BMIController bmiController = Get.put(BMIController());
 
   // BottomNavigationBar index
@@ -32,6 +35,12 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // _stepService.initialize();
   }
 
   // Method to fetch user data from Firestore
@@ -193,13 +202,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: Text('Thông báo'),
                   onTap: () {
                     // Navigate to Notification Settings
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.apps),
-                  title: Text('Ứng dụng sức khỏe'),
-                  onTap: () {
-                    // Navigate to Health Apps
                   },
                 ),
                 ListTile(
@@ -438,6 +440,100 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+                    // New Health Goals Section
+                    SizedBox(height: 20),
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            // Section Header
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Mục tiêu của tôi',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(Icons.settings,
+                                    color: Colors.grey), // Settings icon
+                              ],
+                            ),
+                            SizedBox(height: 16),
+
+                            // List of health goals
+                            // _buildHealthGoal(
+                            //   onTap: () {
+                            //     Get.to(() => StepTrackingScreen());
+                            //   },
+                            //   icon: Icons.bloodtype,
+                            //   label: 'HA • tháng này',
+                            //   value: '0 / 5',
+                            //   color: Colors.redAccent,
+                            // ),
+                            // _buildHealthGoal(
+                            //   onTap: () {
+                            //     Get.to(() => StepTrackingScreen());
+                            //   },
+                            //   icon: Icons.local_fire_department,
+                            //   label: 'Khai báo một cơn đau',
+                            //   value: 'Đau thắt ngực',
+                            //   color: Colors.orange,
+                            // ),
+                            // _buildHealthGoal(
+                            //   onTap: () {
+                            //     Get.to(() => StepTrackingScreen());
+                            //   },
+                            //   icon: Icons.scale,
+                            //   label: 'Cân nặng • tuần này',
+                            //   value: '1 / 3',
+                            //   color: Colors.blue,
+                            // ),
+//                             Obx(() => stepController.isLoading.value
+//   ? CircularProgressIndicator()
+//   : Text(stepController.stepCountString)
+// ),
+                            Obx(() {
+                              return _buildHealthGoal(
+                                onTap: () async {
+                                  // Điều hướng đến StepTrackingScreen và chờ kết quả
+                                  final steps =
+                                      await Get.to(() => StepTrackingScreen());
+
+                                  // Kiểm tra và cập nhật số bước nếu có
+                                  if (steps != null) {
+                                    stepController.steps.value =
+                                        steps; // Cập nhật số bước
+                                  }
+                                },
+                                icon: Icons.directions_walk,
+                                label: 'Bước • hôm nay',
+                                value: stepController
+                                    .stepCountString, // Hiển thị số bước
+                                color: Colors.pinkAccent,
+                              );
+                            }),
+
+                            // _buildHealthGoal(
+                            //   onTap: () {
+                            //     Get.to(() => StepTrackingScreen());
+                            //   },
+                            //   icon: Icons.timer,
+                            //   label: 'Thời gian hồi phục',
+                            //   value: '9m • 83% hồi phục',
+                            //   color: Colors.teal,
+                            // ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -471,6 +567,57 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildHealthGoal({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 30),
+                SizedBox(width: 15),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.grey[400],
+              size: 18,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

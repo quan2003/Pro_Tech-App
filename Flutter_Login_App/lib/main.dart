@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_login_app/views/Routes/AppRoutes.dart';
 import 'package:get/get.dart';
+// import 'package:flutter_login_app/views/controller/StepTrackingService.dart';
 
 // Hàm xử lý thông báo khi ứng dụng ở nền
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -15,11 +16,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //  Get.put(() => StepTrackingService());
 
   // Khởi tạo Firebase cho các nền tảng khác nhau
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
-      options: FirebaseOptions(
+      options: const FirebaseOptions(
         apiKey:
             "AIzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg", // Được cung cấp từ hình ảnh
         authDomain:
@@ -48,6 +50,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(

@@ -74,6 +74,6 @@ var isLoading = true.obs;
   // Getter to return the step count as a formatted string
   String get stepCountString {
     print("Current step count: ${steps.value}"); // In ra giá trị hiện tại
-    return "${steps.value} bước"; // Trả về số bước dưới dạng chuỗi
+    return "${steps.value} bước / 5000"; // Trả về số bước dưới dạng chuỗi
   }
 }

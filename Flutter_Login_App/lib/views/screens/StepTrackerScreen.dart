@@ -373,18 +373,22 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
                 IconButton(
                   icon: Icon(Icons.arrow_back_ios, color: Colors.black),
                   onPressed: () {
-                    _navigateDay(false); // Điều hướng lùi
+                    _navigateDay(false); // Navigate back
                   },
                 ),
-                Text(
-                  _currentPeriod,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Expanded(
+                  // Wrap Text inside Expanded
+                  child: Text(
+                    _currentPeriod,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center, // Center text
+                  ),
                 ),
                 IconButton(
                   icon: Icon(Icons.arrow_forward_ios, color: Colors.black),
                   onPressed: _currentDate.isBefore(DateTime.now())
                       ? () {
-                          _navigateDay(true); // Điều hướng tiến
+                          _navigateDay(true); // Navigate forward
                         }
                       : null,
                 ),

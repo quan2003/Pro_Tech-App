@@ -467,35 +467,33 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             SizedBox(height: 16),
-
-                            // List of health goals
-                            // _buildHealthGoal(
-                            //   onTap: () {
-                            //     Get.to(() => StepTrackingScreen());
-                            //   },
-                            //   icon: Icons.bloodtype,
-                            //   label: 'HA • tháng này',
-                            //   value: '0 / 5',
-                            //   color: Colors.redAccent,
-                            // ),
-                            // _buildHealthGoal(
-                            //   onTap: () {
-                            //     Get.to(() => StepTrackingScreen());
-                            //   },
-                            //   icon: Icons.local_fire_department,
-                            //   label: 'Khai báo một cơn đau',
-                            //   value: 'Đau thắt ngực',
-                            //   color: Colors.orange,
-                            // ),
-                            // _buildHealthGoal(
-                            //   onTap: () {
-                            //     Get.to(() => StepTrackingScreen());
-                            //   },
-                            //   icon: Icons.scale,
-                            //   label: 'Cân nặng • tuần này',
-                            //   value: '1 / 3',
-                            //   color: Colors.blue,
-                            // ),
+                            _buildHealthGoal(
+                              onTap: () {
+                                Get.to(() => StepTrackingScreen());
+                              },
+                              icon: Icons.bloodtype,
+                              label: 'HA • tháng này',
+                              value: '0 / 5',
+                              color: Colors.redAccent,
+                            ),
+                            _buildHealthGoal(
+                              onTap: () {
+                                Get.to(() => StepTrackingScreen());
+                              },
+                              icon: Icons.local_fire_department,
+                              label: 'Khai báo một cơn đau',
+                              value: 'Đau thắt ngực',
+                              color: Colors.orange,
+                            ),
+                            _buildHealthGoal(
+                              onTap: () {
+                                Get.to(() => StepTrackingScreen());
+                              },
+                              icon: Icons.scale,
+                              label: 'Cân nặng • tuần này',
+                              value: '1 / 3',
+                              color: Colors.blue,
+                            ),
 //                             Obx(() => stepController.isLoading.value
 //   ? CircularProgressIndicator()
 //   : Text(stepController.stepCountString)
@@ -521,15 +519,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             }),
 
-                            // _buildHealthGoal(
-                            //   onTap: () {
-                            //     Get.to(() => StepTrackingScreen());
-                            //   },
-                            //   icon: Icons.timer,
-                            //   label: 'Thời gian hồi phục',
-                            //   value: '9m • 83% hồi phục',
-                            //   color: Colors.teal,
-                            // ),
+                            _buildHealthGoal(
+                              onTap: () {
+                                Get.to(() => StepTrackingScreen());
+                              },
+                              icon: Icons.timer,
+                              label: 'Thời gian hồi phục',
+                              value: '9m • 83% hồi phục',
+                              color: Colors.teal,
+                            ),
                           ],
                         ),
                       ),

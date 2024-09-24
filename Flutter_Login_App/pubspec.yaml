@@ -30,7 +30,7 @@ dependencies:
   url_launcher: ^6.0.20
   shared_preferences:
   firebase_messaging:
-  fl_chart:
+  fl_chart: ^0.69.0
   csv:
   syncfusion_flutter_gauges: ^27.1.48
   health: ^11.0.0
@@ -39,6 +39,8 @@ dependencies:
   permission_handler: ^11.3.1
   percent_indicator: ^4.2.3
   sensors_plus: ^6.0.1
+  animated_text_kit: ^4.2.2
+
 
 
 dev_dependencies:

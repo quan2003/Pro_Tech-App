@@ -21,7 +21,6 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
 
-    // Initialize the AnimationController and Animations
     _controller = AnimationController(
       duration: Duration(seconds: 2),
       vsync: this,
@@ -35,7 +34,6 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
       CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
     );
 
-    // Start the animations when the screen builds
     _controller.forward();
   }
 
@@ -49,124 +47,121 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final SignInController controller = Get.put(SignInController());
     final size = MediaQuery.of(context).size;
-    final bottomPadding = size.height * 0.05; // 5% of screen height
+    final isSmallScreen = size.width < 600;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background with gradient to match the logo's colors
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFC4E1F5), Color(0xFF00A9E0)], // Light blue gradient background
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFC4E1F5), Color(0xFF00A9E0)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
               ),
-            ),
-          ),
-          FadeTransition(
-            opacity: _fadeAnimation,
-            child: FlutterLogin(
-              onSignup: (val) async {
-                await controller.handleSignup(val);
-                return null;
-              },
-              logo: AssetImage('assets/images/AppLogo.png'), // Use the provided logo
-              title: "Pro-Tech",
-              initialAuthMode: AuthMode.login,
-              userType: LoginUserType.email,
-              onLogin: (LoginData val) async {
-                try {
-                  await controller.handleLogin(val);
-                  // Navigate to TermsAndConditionsScreen if login is successful
-                  Navigator.of(context).push(_createRoute());
-                  return null;
-                } catch (e) {
-                  return e.toString();
-                }
-              },
-              onRecoverPassword: (val) async {
-                await controller.handlePasswordRecovery(val);
-                return null;
-              },
-              theme: LoginTheme(
-                primaryColor: Color(0xFF00A9E0), // Primary blue color from the logo
-                accentColor: Color(0xFFF4583E), // Accent orange color from the logo
-                errorColor: Colors.deepOrange,
-                titleStyle: TextStyle(
-                  color: Color(0xFFF4583E), // Title in orange
-                  fontSize: 36,
-                  fontWeight: FontWeight.w900,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black45,
-                      offset: Offset(2.0, 2.0),
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: FlutterLogin(
+                  onSignup: (val) async {
+                    await controller.handleSignup(val);
+                    return null;
+                  },
+                  logo: AssetImage('assets/images/AppLogo.png'),
+                  title: "Pro-Tech",
+                  initialAuthMode: AuthMode.login,
+                  userType: LoginUserType.email,
+                  onLogin: (LoginData val) async {
+                    try {
+                      await controller.handleLogin(val);
+                      Navigator.of(context).push(_createRoute());
+                      return null;
+                    } catch (e) {
+                      return e.toString();
+                    }
+                  },
+                  onRecoverPassword: (val) async {
+                    await controller.handlePasswordRecovery(val);
+                    return null;
+                  },
+                  theme: LoginTheme(
+                    primaryColor: Color(0xFF00A9E0),
+                    accentColor: Color(0xFFF4583E),
+                    errorColor: Colors.deepOrange,
+                    titleStyle: TextStyle(
+                      color: Color(0xFFF4583E),
+                      fontSize: isSmallScreen ? 28 : 36,
+                      fontWeight: FontWeight.w900,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 10.0,
+                          color: Colors.black45,
+                          offset: Offset(2.0, 2.0),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                bodyStyle: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                ),
-                textFieldStyle: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                ),
-                buttonStyle: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-                cardTheme: CardTheme(
-                  color: Colors.white,
-                  elevation: 10,
-                  margin: EdgeInsets.only(top: 20, bottom: 60),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                    bodyStyle: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 18,
+                      color: Colors.black,
+                    ),
+                    textFieldStyle: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 18,
+                      color: Colors.black,
+                    ),
+                    buttonStyle: TextStyle(
+                      fontSize: isSmallScreen ? 16 : 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    cardTheme: CardTheme(
+                      color: Colors.white,
+                      elevation: 10,
+                      margin: EdgeInsets.only(top: 20, bottom: isSmallScreen ? 30 : 60),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    inputTheme: InputDecorationTheme(
+                      filled: true,
+                      fillColor: Colors.grey.shade200,
+                      contentPadding: EdgeInsets.all(isSmallScreen ? 15 : 20),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    buttonTheme: LoginButtonTheme(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      backgroundColor: Color(0xFFF4583E),
+                      elevation: 6,
+                      highlightElevation: 8,
+                    ),
                   ),
-                ),
-                inputTheme: InputDecorationTheme(
-                  filled: true,
-                  fillColor: Colors.grey.shade200,
-                  contentPadding: EdgeInsets.all(20),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
+                  messages: LoginMessages(
+                    forgotPasswordButton: 'Forgot Password?',
+                    recoverPasswordIntro: 'Please enter your email to recover your password.',
+                    recoverPasswordDescription: 'We will send you a link to reset your password.',
+                    recoverPasswordSuccess: 'Password recovery email sent successfully!',
                   ),
-                ),
-                buttonTheme: LoginButtonTheme(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  backgroundColor: Color(0xFFF4583E), // Button color in orange
-                  elevation: 6,
-                  highlightElevation: 8,
                 ),
               ),
-              messages: LoginMessages(
-                forgotPasswordButton: 'Forgot Password?',
-                recoverPasswordIntro:
-                    'Please enter your email to recover your password.',
-                recoverPasswordDescription:
-                    'We will send you a link to reset your password.',
-                recoverPasswordSuccess:
-                    'Password recovery email sent successfully!',
+              Positioned(
+                bottom: constraints.maxHeight * 0.05,
+                left: 0,
+                right: 0,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: _buildSocialLoginButtons(controller, context),
+                ),
               ),
-            ),
-          ),
-
-          // Social login buttons
-          Positioned(
-            bottom: bottomPadding,
-            left: 0,
-            right: 0,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: _buildSocialLoginButtons(controller, context),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -175,7 +170,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0); // Animation starts from the right
+        const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
         const curve = Curves.easeInOut;
 
@@ -192,7 +187,8 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
 
   Widget _buildSocialLoginButtons(SignInController controller, BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final buttonSize = size.width * 0.12; // 12% of screen width
+    final isSmallScreen = size.width < 600;
+    final buttonSize = isSmallScreen ? size.width * 0.1 : size.width * 0.08;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -204,7 +200,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
           size: buttonSize,
           color: Colors.grey.shade300,
         ),
-        SizedBox(width: size.width * 0.05), // 5% of screen width
+        SizedBox(width: size.width * 0.03),
         _buildIconButton(
           icon: FontAwesomeIcons.google,
           onTap: controller.signInWithGoogle,
@@ -212,7 +208,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
           size: buttonSize,
           color: Colors.red.shade600,
         ),
-        SizedBox(width: size.width * 0.05), // 5% of screen width
+        SizedBox(width: size.width * 0.03),
         _buildIconButton(
           icon: FontAwesomeIcons.facebook,
           onTap: controller.signInWithFacebook,
@@ -235,7 +231,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
       message: tooltip,
       textStyle: TextStyle(
         color: Colors.white,
-        fontSize: 14,
+        fontSize: 12,
       ),
       decoration: BoxDecoration(
         color: Colors.teal.shade700,
@@ -252,8 +248,8 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
             boxShadow: [
               BoxShadow(
                 color: Colors.black54,
-                blurRadius: 10,
-                offset: Offset(4, 4),
+                blurRadius: 5,
+                offset: Offset(2, 2),
               ),
             ],
           ),

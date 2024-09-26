@@ -6,7 +6,7 @@ import 'package:flutter_login_app/views/controller/ProgressRing.dart';
 import 'package:intl/intl.dart';
 
 class MonthScreen extends StatefulWidget {
-  const MonthScreen({Key? key}) : super(key: key);
+  const MonthScreen({super.key});
 
   @override
   _MonthScreenState createState() => _MonthScreenState();
@@ -117,7 +117,7 @@ class _MonthScreenState extends State<MonthScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _buildMonthContent(),
     );
   }
@@ -188,9 +188,9 @@ class _MonthScreenState extends State<MonthScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildStatItem('bước', '$totalSteps', Icons.directions_walk),
-              _buildStatItem('kcal', '${totalCalories.toStringAsFixed(0)}',
+              _buildStatItem('kcal', totalCalories.toStringAsFixed(0),
                   Icons.local_fire_department),
-              _buildStatItem('km', '${totalDistance.toStringAsFixed(1)}',
+              _buildStatItem('km', totalDistance.toStringAsFixed(1),
                   Icons.directions),
               _buildStatItem('phút', '$totalMinutes', Icons.timer),
             ],
@@ -215,7 +215,7 @@ Widget _buildMonthCalendar() {
       GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 7,
           childAspectRatio: 1,
           crossAxisSpacing: 8, // Thêm khoảng cách ngang giữa các ô

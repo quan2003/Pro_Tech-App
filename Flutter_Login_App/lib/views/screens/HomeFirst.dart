@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_login_app/views/screens/StepGoalScreen.dart';
-import 'package:get/get.dart'; // Import GetX để sử dụng điều hướng
+// Import GetX để sử dụng điều hướng
 
-import '../Routes/AppRoutes.dart'; // Đảm bảo đường dẫn đúng tới AppRoutes
+// Đảm bảo đường dẫn đúng tới AppRoutes
 
 class HomeFirst extends StatelessWidget {
   const HomeFirst({super.key}); // Sử dụng const và Key để tối ưu hóa

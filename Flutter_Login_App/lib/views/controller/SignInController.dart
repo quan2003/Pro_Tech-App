@@ -69,11 +69,11 @@ void _showDetailedErrorSnackbar(String errorType, String errorCode, String error
     "An error occurred during sign-in.",
     backgroundColor: Colors.red,
     colorText: Colors.white,
-    duration: Duration(seconds: 10),
+    duration: const Duration(seconds: 10),
     messageText: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Error Type: $errorType", style: TextStyle(fontWeight: FontWeight.bold)),
+        Text("Error Type: $errorType", style: const TextStyle(fontWeight: FontWeight.bold)),
         Text("Error Code: $errorCode"),
         Text("Error Message: $errorMessage"),
       ],
@@ -90,7 +90,7 @@ void _showErrorSnackbar(String message) {
     message,
     backgroundColor: Colors.red,
     colorText: Colors.white,
-    duration: Duration(seconds: 5),
+    duration: const Duration(seconds: 5),
   );
 }
   /// Đăng nhập bằng Facebook

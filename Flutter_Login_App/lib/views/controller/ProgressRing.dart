@@ -9,12 +9,12 @@ class ProgressRing extends StatelessWidget {
   final String text;
 
   const ProgressRing({
-    Key? key,
+    super.key,
     required this.progress,
     required this.color,
     required this.showStar,
     required this.text,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class ProgressRing extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         CustomPaint(
-          size: Size(40, 40),
+          size: const Size(40, 40),
           painter: ProgressRingPainter(
             progress: progress,
             color: color,
@@ -30,14 +30,14 @@ class ProgressRing extends StatelessWidget {
         ),
         Text(
           text,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
         ),
         if (showStar)
-          Positioned(
+          const Positioned(
             top: 0,
             right: 0,
             child: Icon(Icons.star, color: Colors.yellow, size: 12),

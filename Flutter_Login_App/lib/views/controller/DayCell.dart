@@ -6,11 +6,11 @@ class DayCell extends StatelessWidget {
   final double progressPercent;
 
   const DayCell({
-    Key? key,
+    super.key,
     required this.day,
     required this.isCurrentMonth,
     required this.progressPercent,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

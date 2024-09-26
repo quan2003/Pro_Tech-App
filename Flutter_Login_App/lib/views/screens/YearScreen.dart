@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 class YearScreen extends StatefulWidget {
   const YearScreen({Key? key}) : super(key: key);
@@ -12,8 +11,12 @@ class YearScreen extends StatefulWidget {
 }
 
 class _YearScreenState extends State<YearScreen> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Map<String, IconData> iconMap = {
+    'directions_walk': Icons.directions_walk,
+    'local_fire_department': Icons.local_fire_department,
+    'straighten': Icons.square_foot,
+    'timer': Icons.timer,
+  };
 
   Map<String, int> monthlyData = {};
   int totalSteps = 0;
@@ -21,278 +24,263 @@ class _YearScreenState extends State<YearScreen> {
   double totalCalories = 0;
   double totalDistance = 0;
   int totalMinutes = 0;
-  int stepGoal = 60000; // Giả sử mục tiêu hàng tháng là 60,000 bước
   DateTime? startOfYear;
   DateTime? endOfYear;
-  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadDataFromFirebase();
+    _generateMockData();
   }
 
-  Future<void> _loadDataFromFirebase() async {
-    setState(() {
-      _isLoading = true;
-    });
+  void _generateMockData() {
+    final random = Random();
+    startOfYear = DateTime(2024, 1, 1);
+    endOfYear = DateTime(2024, 12, 31);
 
-    try {
-      User? user = _auth.currentUser;
-      if (user == null) {
-        print('No user logged in');
-        return;
-      }
-
-      DateTime now = DateTime.now();
-      startOfYear = DateTime(now.year, 1, 1);
-      endOfYear = DateTime(now.year, 12, 31);
-
-      String startDate = DateFormat('yyyy-M-d').format(startOfYear!);
-      String endDate = DateFormat('yyyy-M-d').format(endOfYear!);
-
-      var collectionRef = _firestore
-          .collection('activity_data')
-          .doc(user.uid)
-          .collection('daily_data');
-
-      QuerySnapshot querySnapshot = await collectionRef
-          .where(FieldPath.documentId, isGreaterThanOrEqualTo: startDate)
-          .where(FieldPath.documentId, isLessThanOrEqualTo: endDate)
-          .get();
-
-      if (querySnapshot.docs.isEmpty) {
-        print('No data found for this year.');
-      } else {
-        totalSteps = 0;
-        totalCalories = 0;
-        totalDistance = 0;
-        totalMinutes = 0;
-
-        for (var doc in querySnapshot.docs) {
-          Map<String, dynamic> docData = doc.data() as Map<String, dynamic>;
-          DateTime date = DateFormat('yyyy-M-d').parse(doc.id);
-          String monthKey = DateFormat('yyyy-MM').format(date);
-
-          int steps = (docData['steps'] ?? 0).toInt();
-          monthlyData[monthKey] = (monthlyData[monthKey] ?? 0) + steps;
-
-          totalSteps += steps;
-          totalCalories += (docData['calories'] ?? 0).toDouble();
-          totalDistance += (docData['distance'] ?? 0).toDouble();
-          int minutes = (docData['minutes'] ?? 0).toInt();
-          totalMinutes += minutes;
-        }
-
-        averageSteps = totalSteps / 365;
-
-        print('Total Steps: $totalSteps');
-        print('Average Steps: $averageSteps');
-        print('Total Calories: $totalCalories');
-        print('Total Distance: $totalDistance');
-        print('Total Minutes: $totalMinutes');
-      }
-    } catch (e) {
-      print('Error loading data: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    for (int month = 1; month <= 12; month++) {
+      String monthKey = DateFormat('yyyy-MM').format(DateTime(2024, month, 1));
+      int steps = random.nextInt(300000) +
+          100000; // Random steps between 100,000 and 400,000
+      monthlyData[monthKey] = steps;
+      totalSteps += steps;
     }
+
+    averageSteps = totalSteps / 12;
+    totalCalories = totalSteps * 0.04; // Assuming 0.04 calories per step
+    totalDistance = totalSteps * 0.0008; // Assuming 0.0008 km per step
+    totalMinutes =
+        (totalSteps * 0.01).round(); // Assuming 0.01 minutes per step
+
+    setState(() {}); // Update the UI with the new data
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : _buildYearContent(),
-    );
-  }
+  Widget _buildYearChart() {
+    double maxY = monthlyData.values.reduce(max).toDouble();
+    List<BarChartGroupData> barGroups = [];
 
-  Widget _buildYearContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'TỔNG HÀNG NĂM',
-            style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+    for (int i = 1; i <= 12; i++) {
+      String monthKey =
+          DateFormat('yyyy-MM').format(DateTime(startOfYear!.year, i, 1));
+      double steps = monthlyData[monthKey]?.toDouble() ?? 0;
+
+      barGroups.add(BarChartGroupData(
+        x: i,
+        barRods: [
+          BarChartRodData(
+            toY: steps,
+            gradient: _barsGradient,
+            width: 16,
+            borderRadius: BorderRadius.circular(4),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Năm ${startOfYear?.year ?? ''}',
-            style: const TextStyle(color: Colors.grey, fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '$totalSteps bước',
-                    style: const TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+        ],
+      ));
+    }
+
+    return Container(
+      height: 300,
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          maxY: maxY,
+          barTouchData: BarTouchData(
+            enabled: true,
+            touchTooltipData: BarTouchTooltipData(
+              tooltipBorder: BorderSide(color: Colors.blueAccent, width: 1),
+              tooltipRoundedRadius: 8,
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                String monthName = DateFormat('MMMM')
+                    .format(DateTime(startOfYear!.year, group.x.toInt(), 1));
+                return BarTooltipItem(
+                  '$monthName\n',
+                  const TextStyle(
+                    color: Colors.blueAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      'Trung bình ${averageSteps.toStringAsFixed(0)}',
+                  children: <TextSpan>[
+                    TextSpan(
+                      text:
+                          '${NumberFormat('#,###').format(rod.toY.round())} bước',
                       style: const TextStyle(
-                        fontSize: 16,
                         color: Colors.black,
+                        fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.arrow_upward,
-                        color: Colors.green, size: 18),
                   ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildYearChart(),
-          const SizedBox(height: 40),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatItem('bước', '$totalSteps', Icons.directions_walk),
-              _buildStatItem('kcal', '${totalCalories.toStringAsFixed(0)}',
-                  Icons.local_fire_department),
-              _buildStatItem('km', '${totalDistance.toStringAsFixed(1)}',
-                  Icons.directions),
-              _buildStatItem('phút', '$totalMinutes', Icons.timer),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
- Widget _buildYearChart() {
-  List<FlSpot> spots = [];
-  double maxY = 0;
-
-  for (int i = 1; i <= 12; i++) {
-    String monthKey = DateFormat('yyyy-MM').format(DateTime(startOfYear!.year, i, 1));
-    double steps = (monthlyData[monthKey] ?? 0).toDouble();
-    if (steps > 0) {
-      spots.add(FlSpot(i.toDouble(), steps));
-      if (steps > maxY) maxY = steps;
-    }
-  }
-
-  return SizedBox(
-    height: 200,
-    child: LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: true,
-          horizontalInterval: maxY / 4,
-          verticalInterval: 1,
-          getDrawingVerticalLine: (value) {
-            return FlLine(
-              color: Colors.grey.withOpacity(0.2),
-              strokeWidth: 1,
-            );
-          },
-          getDrawingHorizontalLine: (value) {
-            return FlLine(
-              color: Colors.grey.withOpacity(0.2),
-              strokeWidth: 1,
-            );
-          },
-        ),
-        titlesData: FlTitlesData(
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 22,
-              interval: 1,
-              getTitlesWidget: (value, meta) {
-                return Text(
-                  value.toInt().toString(),
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
                 );
               },
             ),
           ),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(show: false),
-        minX: 1,
-        maxX: 12,
-        minY: 0,
-        maxY: maxY,
-        lineBarsData: [
-          LineChartBarData(
-            spots: spots,
-            isCurved: false,
-            color: Colors.blue,
-            barWidth: 2,
-            isStrokeCapRound: true,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-                radius: 6,
-                color: Colors.white,
-                strokeWidth: 2,
-                strokeColor: Colors.blue,
+          titlesData: FlTitlesData(
+            show: true,
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  const months = [
+                    'T1',
+                    'T2',
+                    'T3',
+                    'T4',
+                    'T5',
+                    'T6',
+                    'T7',
+                    'T8',
+                    'T9',
+                    'T10',
+                    'T11',
+                    'T12'
+                  ];
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      months[value.toInt() - 1],
+                      style: TextStyle(color: Colors.grey[600], fontSize: 10),
+                    ),
+                  );
+                },
+                reservedSize: 40,
               ),
             ),
-            belowBarData: BarAreaData(show: false),
+            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          gridData: FlGridData(
+            show: true,
+            drawHorizontalLine: true,
+            horizontalInterval: maxY / 5,
+            drawVerticalLine: false,
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Colors.grey[300]!,
+                strokeWidth: 1,
+              );
+            },
+          ),
+          borderData: FlBorderData(show: false),
+          barGroups: barGroups,
+        ),
+      ),
+    );
+  }
+
+  LinearGradient get _barsGradient => LinearGradient(
+        colors: [
+          Colors.blue.shade300,
+          Colors.blue.shade900,
+        ],
+        begin: Alignment.bottomCenter,
+        end: Alignment.topCenter,
+      );
+
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    // appBar: AppBar(
+    //   title: Text('Bước chân'),
+    //   backgroundColor: Colors.white,
+    //   foregroundColor: Colors.black,
+    //   elevation: 0,
+    // ),
+    body: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TỔNG HÀNG NĂM',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Năm ${startOfYear?.year ?? ''}',
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                ),
+                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '${NumberFormat('#,###').format(totalSteps)} bước',
+                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Trung bình ${NumberFormat('#,###').format(averageSteps.round())}',
+                            style: TextStyle(fontSize: 14, color: Colors.black),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(Icons.arrow_upward, color: Colors.green, size: 14),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          _buildYearChart(),
+          SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _buildStatisticsSummary(),
           ),
         ],
-        lineTouchData: LineTouchData(enabled: false),
       ),
     ),
   );
 }
 
-
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Column(
+  Widget _buildStatisticsSummary() {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      _buildStatItem('directions_walk', NumberFormat('#,###').format(totalSteps), 'bước'),
+      _buildStatItem('local_fire_department', NumberFormat('#,###').format(totalCalories.round()), 'kcal'),
+      _buildStatItem('straighten', totalDistance.toStringAsFixed(1), 'km'),
+      _buildStatItem('timer', NumberFormat('#,###').format(totalMinutes), 'phút'),
+    ],
+  );
+}
+Widget _buildStatItem(String iconName, String value, String label) {
+  return Expanded(
+    child: Column(
       children: [
-        Icon(icon, size: 38, color: Colors.blue),
-        const SizedBox(height: 6),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Icon(iconMap[iconName] ?? Icons.error, size: 24, color: Colors.blue),
+        SizedBox(height: 4),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(label, style: TextStyle(fontSize: 12, color: Colors.grey)),
         ),
       ],
-    );
+    ),
+  );
   }
 }

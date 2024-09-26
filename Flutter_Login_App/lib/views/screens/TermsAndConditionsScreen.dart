@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login_app/views/screens/HomeFirst.dart';
-import 'package:get/get.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import '../Routes/AppRoutes.dart';
-import './HomeFirst.dart';
 
 class TermsAndConditionsScreen extends StatefulWidget {
   const TermsAndConditionsScreen({super.key});

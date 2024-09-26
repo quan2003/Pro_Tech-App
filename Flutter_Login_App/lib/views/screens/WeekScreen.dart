@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class WeekScreen extends StatefulWidget {
-  const WeekScreen({Key? key}) : super(key: key);
+  const WeekScreen({super.key});
 
   @override
   _WeekScreenState createState() => _WeekScreenState();
@@ -221,12 +221,12 @@ class _WeekScreenState extends State<WeekScreen> {
           _buildWeekChart(),
           const Expanded(child: SizedBox()),
           _buildStatItem(
-              'bước', totalSteps?.toString() ?? '0', Icons.directions_walk),
-          _buildStatItem('kcal', totalCalories?.toStringAsFixed(1) ?? '0.0',
+              'bước', totalSteps.toString() ?? '0', Icons.directions_walk),
+          _buildStatItem('kcal', totalCalories.toStringAsFixed(1) ?? '0.0',
               Icons.local_fire_department),
-          _buildStatItem('km', totalDistance?.toStringAsFixed(2) ?? '0.00',
+          _buildStatItem('km', totalDistance.toStringAsFixed(2) ?? '0.00',
               Icons.directions),
-          _buildStatItem('phút', totalMinutes?.toString() ?? '0', Icons.timer),
+          _buildStatItem('phút', totalMinutes.toString() ?? '0', Icons.timer),
         ],
       ),
     );

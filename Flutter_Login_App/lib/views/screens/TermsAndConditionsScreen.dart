@@ -6,7 +6,7 @@ import '../Routes/AppRoutes.dart';
 import './HomeFirst.dart';
 
 class TermsAndConditionsScreen extends StatefulWidget {
-  const TermsAndConditionsScreen({Key? key}) : super(key: key);
+  const TermsAndConditionsScreen({super.key});
 
   @override
   _TermsAndConditionsScreenState createState() =>
@@ -51,7 +51,7 @@ Cảm ơn bạn đã sử dụng Health.io!
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Điều khoản và Dịch vụ"),
+        title: const Text("Điều khoản và Dịch vụ"),
         backgroundColor: Colors.purple.shade800,
       ),
       body: Padding(
@@ -61,12 +61,12 @@ Cảm ơn bạn đã sử dụng Health.io!
             // Thêm biểu tượng ở đầu trang
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.article,
                   color: Colors.purpleAccent,
                   size: 40,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Text(
                   "Điều khoản và Dịch vụ",
                   style: TextStyle(
@@ -77,7 +77,7 @@ Cảm ơn bạn đã sử dụng Health.io!
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Nội dung điều khoản và dịch vụ với khả năng cuộn
             Expanded(
               child: Container(
@@ -89,7 +89,7 @@ Cảm ơn bạn đã sử dụng Health.io!
                       color: Colors.purple.shade200.withOpacity(0.5),
                       spreadRadius: 2,
                       blurRadius: 5,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -107,7 +107,7 @@ Cảm ơn bạn đã sử dụng Health.io!
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
-                    p: TextStyle(
+                    p: const TextStyle(
                       color: Colors.black87,
                       fontSize: 16,
                     ),
@@ -115,7 +115,7 @@ Cảm ơn bạn đã sử dụng Health.io!
                       color: Colors.purple.shade800,
                       fontSize: 16,
                     ),
-                    a: TextStyle(
+                    a: const TextStyle(
                       color: Colors.blueAccent,
                       decoration: TextDecoration.underline,
                     ),
@@ -123,7 +123,7 @@ Cảm ơn bạn đã sử dụng Health.io!
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Checkbox và label
             Row(
               children: [
@@ -143,7 +143,7 @@ Cảm ơn bạn đã sử dụng Health.io!
                         _isAgreed = !_isAgreed;
                       });
                     },
-                    child: Text(
+                    child: const Text(
                       "Tôi đồng ý với các Điều khoản và Dịch vụ.",
                       style: TextStyle(fontSize: 16),
                     ),
@@ -151,7 +151,7 @@ Cảm ơn bạn đã sử dụng Health.io!
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Nút "Tiếp tục"
             ElevatedButton(
               onPressed: () {
@@ -161,24 +161,24 @@ Cảm ơn bạn đã sử dụng Health.io!
                 } else {
                   // Hiển thị cảnh báo nếu chưa đồng ý
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text("Bạn cần đồng ý với Điều khoản và Dịch vụ để tiếp tục."),
                       backgroundColor: Colors.redAccent,
                     ),
                   );
                 }
               },
-              child: Text(
-                "Tiếp tục",
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
                 backgroundColor: _isAgreed ? Colors.purpleAccent : Colors.grey,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
                 elevation: _isAgreed ? 5 : 0, // Thêm bóng đổ khi nút được kích hoạt
+              ),
+              child: Text(
+                "Tiếp tục",
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
           ],
@@ -191,7 +191,7 @@ Cảm ơn bạn đã sử dụng Health.io!
   // Tạo route với animation
   Route _createRoute() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => HomeFirst(), // Thay bằng màn hình bạn muốn chuyển tới
+      pageBuilder: (context, animation, secondaryAnimation) => const HomeFirst(), // Thay bằng màn hình bạn muốn chuyển tới
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0); // Animation bắt đầu từ bên phải
         const end = Offset.zero;

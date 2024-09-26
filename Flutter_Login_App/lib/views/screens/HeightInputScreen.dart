@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import '../Routes/AppRoutes.dart';
 
 class HeightInputScreen extends StatefulWidget {
+  const HeightInputScreen({super.key});
+
   @override
   _HeightInputScreenState createState() => _HeightInputScreenState();
 }
@@ -56,14 +58,14 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
             child: Icon(Icons.person_outline, color: Colors.black),
           ),
         ],
@@ -74,8 +76,8 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 40),
-              Text(
+              const SizedBox(height: 40),
+              const Text(
                 'Chiều cao của tôi là',
                 style: TextStyle(
                   fontSize: 28,
@@ -83,7 +85,7 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 'Thông tin rất quan trọng để tính toán sự trao đổi chất cơ bản của bạn',
                 style: TextStyle(
@@ -91,12 +93,12 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.remove, color: Colors.pinkAccent),
+                    icon: const Icon(Icons.remove, color: Colors.pinkAccent),
                     onPressed: () {
                       setState(() {
                         _currentHeight = (_currentHeight - 1).clamp(0, 300);
@@ -104,15 +106,15 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
                     },
                   ),
                   Text(
-                    '${_currentHeight.toStringAsFixed(0)}',
-                    style: TextStyle(
+                    _currentHeight.toStringAsFixed(0),
+                    style: const TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.add, color: Colors.pinkAccent),
+                    icon: const Icon(Icons.add, color: Colors.pinkAccent),
                     onPressed: () {
                       setState(() {
                         _currentHeight = (_currentHeight + 1).clamp(0, 300);
@@ -121,12 +123,15 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ToggleButtons(
                 isSelected: [_isCm, !_isCm],
                 onPressed: (index) {
                   _toggleUnit();
                 },
+                fillColor: Colors.grey[300],
+                selectedColor: Colors.black,
+                borderRadius: BorderRadius.circular(20),
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -137,11 +142,8 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
                     child: Text('ft'),
                   ),
                 ],
-                fillColor: Colors.grey[300],
-                selectedColor: Colors.black,
-                borderRadius: BorderRadius.circular(20),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Slider(
                 value: _currentHeight,
                 min: _isCm ? 50 : 1.6, // Minimum value in cm or feet
@@ -151,27 +153,27 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
                 activeColor: Colors.pinkAccent,
                 onChanged: _onHeightChanged,
               ),
-              Spacer(),
+              const Spacer(),
               ElevatedButton(
                 onPressed: () async {
                   await _saveHeightToFirestore();
                   Get.toNamed(AppRoutes.WEIGHT_INPUT_SCREEN);
                 },
-                child: Text(
-                  'Tiếp tục',
-                  style: TextStyle(fontSize: 18),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
+                child: Text(
+                  'Tiếp tục',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         ),

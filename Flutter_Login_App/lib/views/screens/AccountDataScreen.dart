@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 class AccountDataScreen extends StatelessWidget {
-  const AccountDataScreen({Key? key}) : super(key: key);
+  const AccountDataScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Tài khoản & dữ liệu', style: TextStyle(color: Colors.black)),
+        title: const Text('Tài khoản & dữ liệu', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -24,32 +24,32 @@ class AccountDataScreen extends StatelessWidget {
               'Bạn vẫn có toàn quyền quản lý dữ liệu của mình. Vai trò của chúng tôi chỉ đơn giản là bảo vệ chúng.',
               style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
-                title: Text('Xuất dữ liệu của tôi'),
-                subtitle: Text('Toàn bộ dữ liệu sẽ được gửi đến email cá nhân của bạn'),
-                trailing: Icon(Icons.chevron_right),
+                title: const Text('Xuất dữ liệu của tôi'),
+                subtitle: const Text('Toàn bộ dữ liệu sẽ được gửi đến email cá nhân của bạn'),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   showDialog(
                     context: context,
-                    builder: (BuildContext context) => ExportDataDialog(),
+                    builder: (BuildContext context) => const ExportDataDialog(),
                   );
                 },
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
-                title: Text('Xóa tài khoản Elfie của tôi'),
-                subtitle: Text('Toàn bộ dữ liệu của bạn sẽ bị xóa vĩnh viễn'),
-                trailing: Icon(Icons.chevron_right),
+                title: const Text('Xóa tài khoản Elfie của tôi'),
+                subtitle: const Text('Toàn bộ dữ liệu của bạn sẽ bị xóa vĩnh viễn'),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   // Handle delete account action
                 },
@@ -63,7 +63,7 @@ class AccountDataScreen extends StatelessWidget {
 }
 
 class ExportDataDialog extends StatefulWidget {
-  const ExportDataDialog({Key? key}) : super(key: key);
+  const ExportDataDialog({super.key});
 
   @override
   _ExportDataDialogState createState() => _ExportDataDialogState();
@@ -92,22 +92,22 @@ class _ExportDataDialogState extends State<ExportDataDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Xuất dữ liệu của tôi',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Tất cả dữ liệu sẽ được gửi vào hộp thư cá nhân của bạn. Hãy nhập địa chỉ email của bạn ở đây.',
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
@@ -116,27 +116,27 @@ class _ExportDataDialogState extends State<ExportDataDialog> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.clear),
+                  icon: const Icon(Icons.clear),
                   onPressed: () => _emailController.clear(),
                 ),
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 // TODO: Implement email validation and data export logic
                 print('Exporting data to: ${_emailController.text}');
                 Navigator.of(context).pop();
               },
-              child: Text('Xác nhận email'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo[900],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
               ),
+              child: Text('Xác nhận email'),
             ),
           ],
         ),

@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Routes/AppRoutes.dart';
 
 class GenderInputScreen extends StatefulWidget {
+  const GenderInputScreen({super.key});
+
   @override
   _GenderInputScreenState createState() => _GenderInputScreenState();
 }
@@ -41,14 +43,14 @@ class _GenderInputScreenState extends State<GenderInputScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
             child: Icon(Icons.person_outline, color: Colors.black),
           ),
         ],
@@ -59,8 +61,8 @@ class _GenderInputScreenState extends State<GenderInputScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 40),
-              Text(
+              const SizedBox(height: 40),
+              const Text(
                 'Giới tính sinh học',
                 style: TextStyle(
                   fontSize: 28,
@@ -68,7 +70,7 @@ class _GenderInputScreenState extends State<GenderInputScreen> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 'Hãy xác định giới tính lúc mới sinh của bạn để chúng tôi đưa chỉ dẫn sức khỏe phù hợp',
                 style: TextStyle(
@@ -76,7 +78,7 @@ class _GenderInputScreenState extends State<GenderInputScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -84,7 +86,7 @@ class _GenderInputScreenState extends State<GenderInputScreen> {
                   _genderOption('Nữ', 'assets/images/female.png'), // Replace with your image asset
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               ElevatedButton(
                 onPressed: _selectedGender != null
                     ? () async {
@@ -92,21 +94,21 @@ class _GenderInputScreenState extends State<GenderInputScreen> {
                         Get.toNamed(AppRoutes.AGE_INPUT_SCREEN);
                       }
                     : null,
-                child: Text(
-                  'Tiếp tục',
-                  style: TextStyle(fontSize: 18),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
+                child: Text(
+                  'Tiếp tục',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -136,7 +138,7 @@ class _GenderInputScreenState extends State<GenderInputScreen> {
               width: 60,
               height: 60,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               gender,
               style: TextStyle(

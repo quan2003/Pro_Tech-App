@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class StepGoalScreen extends StatelessWidget {
+  const StepGoalScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -10,7 +12,7 @@ class StepGoalScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Get.offNamed('/home_first'),
         ),
       ),
@@ -19,7 +21,7 @@ class StepGoalScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Bạn đã sẵn sàng thiết lập mục tiêu bước đi của bạn chưa?',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -28,20 +30,20 @@ class StepGoalScreen extends StatelessWidget {
                 color: Colors.black,
               ),
             ),
-            SizedBox(height: 10),
-            Text(
+            const SizedBox(height: 10),
+            const Text(
               'Chỉ mất ba bước.',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             Image.asset(
               'assets/images/doctor.png', // Đường dẫn hình ảnh bác sĩ
               height: 250,
             ),
-            Spacer(),
+            const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Column(
@@ -53,13 +55,13 @@ class StepGoalScreen extends StatelessWidget {
                      Get.offNamed('/health_condition'); // Điều hướng sang màn hình tiếp theo
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      side: BorderSide(color: Colors.grey),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      side: const BorderSide(color: Colors.grey),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         'Bỏ qua bây giờ',
                         style: TextStyle(
@@ -69,7 +71,7 @@ class StepGoalScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   // Nút Bắt đầu thôi
                   ElevatedButton(
                     onPressed: () {
@@ -78,12 +80,12 @@ class StepGoalScreen extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         'Bắt đầu thôi!',
                         style: TextStyle(
@@ -96,7 +98,7 @@ class StepGoalScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
           ],
         ),
       ),

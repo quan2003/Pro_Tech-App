@@ -9,7 +9,7 @@ class ChatScreen extends StatefulWidget {
   final String userId; // Thêm tham số userId
   final String? predefinedMessage; // Predefined message parameter
 
-  ChatScreen({required this.userId, this.predefinedMessage});
+  const ChatScreen({super.key, required this.userId, this.predefinedMessage});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -27,7 +27,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     chatKey = 'chat_messages_${widget.userId}'; // Tạo khóa duy nhất cho mỗi người dùng
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
@@ -102,10 +102,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFF1E1E2D),
+        backgroundColor: const Color(0xFF1E1E2D),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -118,8 +118,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 height: 24,
               ), // Placeholder image
             ),
-            SizedBox(width: 8),
-            Text(
+            const SizedBox(width: 8),
+            const Text(
               'Health • Trò chuyện tự động',
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
@@ -131,13 +131,13 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: ListView.builder(
               reverse: true, // Hiển thị tin nhắn mới nhất ở dưới cùng
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               itemCount: _messages.length + (isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 if (isLoading && index == _messages.length) {
-                  return Center(
+                  return const Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0),
                       child: CircularProgressIndicator(),
                     ),
                   );
@@ -160,7 +160,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'Nhập câu hỏi của bạn tại đây',
                         hintStyle: TextStyle(color: Colors.grey),
                         border: InputBorder.none,
@@ -169,7 +169,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.send, color: Colors.blue),
+                    icon: const Icon(Icons.send, color: Colors.blue),
                     onPressed: () {
                       if (_controller.text.isNotEmpty) {
                         sendPrompt(_controller.text);
@@ -181,8 +181,8 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Text(
               'Nếu bạn cảm thấy không khỏe, hãy tìm kiếm sự trợ giúp y tế ngay lập tức. Để báo cáo tác dụng phụ của thuốc hoặc để biết thêm thông tin, vui lòng kiểm tra tại đây: miễn trừ trách nhiệm',
               style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -199,30 +199,30 @@ class _ChatScreenState extends State<ChatScreen> {
 class ChatMessageWidget extends StatelessWidget {
   final ChatMessage message;
 
-  ChatMessageWidget({required this.message});
+  const ChatMessageWidget({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
       child: Row(
         mainAxisAlignment:
             message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!message.isUser)
-            CircleAvatar(
+            const CircleAvatar(
               backgroundImage: NetworkImage(
                   'https://cdn-icons-png.flaticon.com/512/11865/11865326.png'), // Bot avatar
             ),
-          if (!message.isUser) SizedBox(width: 8),
+          if (!message.isUser) const SizedBox(width: 8),
           Flexible(
             child: Container(
               decoration: BoxDecoration(
-                color: message.isUser ? Color(0xFF1E1E2D) : Colors.grey[200],
+                color: message.isUser ? const Color(0xFF1E1E2D) : Colors.grey[200],
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Text(
                 message.text,
                 style: TextStyle(
@@ -230,9 +230,9 @@ class ChatMessageWidget extends StatelessWidget {
               ),
             ),
           ),
-          if (message.isUser) SizedBox(width: 8),
+          if (message.isUser) const SizedBox(width: 8),
           if (message.isUser)
-            CircleAvatar(
+            const CircleAvatar(
               backgroundImage: NetworkImage(
                   'https://cdn-icons-png.flaticon.com/512/194/194938.png'), // User avatar
             ),

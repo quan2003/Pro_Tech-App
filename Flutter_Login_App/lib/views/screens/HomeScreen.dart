@@ -17,7 +17,7 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../controller/StepTrackingService.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.teal,
             actions: [
               IconButton(
-                icon: Icon(Icons.message),
+                icon: const Icon(Icons.message),
                 onPressed: () {
                   if (user != null) {
                     Get.to(() => ChatScreen(userId: user.uid));
@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.notifications),
+                icon: const Icon(Icons.notifications),
                 onPressed: () async {
                   NotificationSettings settings =
                       await FirebaseMessaging.instance.requestPermission();
@@ -117,106 +117,106 @@ class _HomeScreenState extends State<HomeScreen> {
                         : const AssetImage('assets/images/default_avatar.png')
                             as ImageProvider,
                   ),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.pinkAccent,
                   ),
                 ),
                 ListTile(
-                  leading: Icon(Icons.person), // Profile Icon
-                  title: Text('Hồ sơ'),
+                  leading: const Icon(Icons.person), // Profile Icon
+                  title: const Text('Hồ sơ'),
                   onTap: () {
                     // Navigate to the profile screen
                     Get.to(() => ProfileScreen(userId: user!.uid));
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.info), // App version icon
-                  title: Text('Phiên bản ứng dụng'),
+                  leading: const Icon(Icons.info), // App version icon
+                  title: const Text('Phiên bản ứng dụng'),
                   onTap: () {
                     // Logic for displaying app version
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.account_circle), // Account and data icon
-                  title: Text('Tài khoản & dữ liệu'),
+                  leading: const Icon(Icons.account_circle), // Account and data icon
+                  title: const Text('Tài khoản & dữ liệu'),
                   onTap: () {
-                    Get.to(() => AccountDataScreen());
+                    Get.to(() => const AccountDataScreen());
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.language), // Language icon
-                  title: Text('Ngôn ngữ'),
+                  leading: const Icon(Icons.language), // Language icon
+                  title: const Text('Ngôn ngữ'),
                   onTap: () {
                     // Logic for changing language
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.public), // Country icon
-                  title: Text('Quốc gia'),
+                  leading: const Icon(Icons.public), // Country icon
+                  title: const Text('Quốc gia'),
                   onTap: () {
                     // Logic for changing country settings
                   },
                 ),
-                Divider(), // Add a divider to separate sections
+                const Divider(), // Add a divider to separate sections
                 // Health Section
                 ListTile(
-                  leading: Icon(Icons.health_and_safety),
-                  title: Text('Tình trạng sức khỏe'),
+                  leading: const Icon(Icons.health_and_safety),
+                  title: const Text('Tình trạng sức khỏe'),
                   onTap: () {
                     // Navigate to Health Status
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.assessment),
-                  title: Text('Kế hoạch sức khỏe'),
+                  leading: const Icon(Icons.assessment),
+                  title: const Text('Kế hoạch sức khỏe'),
                   onTap: () {
                     // Navigate to Health Plan
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.local_hospital),
-                  title: Text('Bệnh viện / bác sĩ'),
+                  leading: const Icon(Icons.local_hospital),
+                  title: const Text('Bệnh viện / bác sĩ'),
                   onTap: () {
                     // Navigate to Hospitals/Doctors
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.assignment),
-                  title: Text('Đơn vị'),
+                  leading: const Icon(Icons.assignment),
+                  title: const Text('Đơn vị'),
                   onTap: () {
                     // Navigate to Health Units
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.info_outline),
-                  title: Text('Hướng dẫn sức khỏe'),
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('Hướng dẫn sức khỏe'),
                   onTap: () {
                     // Navigate to Health Guidance
                   },
                 ),
 
                 // Access Permissions Section
-                Divider(),
+                const Divider(),
                 ListTile(
-                  leading: Icon(Icons.notifications),
-                  title: Text('Thông báo'),
+                  leading: const Icon(Icons.notifications),
+                  title: const Text('Thông báo'),
                   onTap: () {
                     // Navigate to Notification Settings
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.bluetooth),
-                  title: Text('Thiết bị Bluetooth'),
+                  leading: const Icon(Icons.bluetooth),
+                  title: const Text('Thiết bị Bluetooth'),
                   onTap: () {
                     // Navigate to Bluetooth Devices
                   },
                 ),
 
                 // Introduction and Information Section
-                Divider(),
+                const Divider(),
                 ListTile(
-                  leading: Icon(Icons.info),
-                  title: Text('Về chúng tôi'),
+                  leading: const Icon(Icons.info),
+                  title: const Text('Về chúng tôi'),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -225,8 +225,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.article),
-                  title: Text('Giới thiệu về Ngày Đầu Tiên'),
+                  leading: const Icon(Icons.article),
+                  title: const Text('Giới thiệu về Ngày Đầu Tiên'),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -236,39 +236,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.rule),
-                  title: Text('Điều khoản & điều kiện'),
+                  leading: const Icon(Icons.rule),
+                  title: const Text('Điều khoản & điều kiện'),
                   onTap: () {
                     // Terms & Conditions
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.privacy_tip),
-                  title: Text('Chính sách bảo mật'),
+                  leading: const Icon(Icons.privacy_tip),
+                  title: const Text('Chính sách bảo mật'),
                   onTap: () {
                     // Privacy Policy
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.policy),
-                  title: Text('Quy tắc Trò chơi hóa'),
+                  leading: const Icon(Icons.policy),
+                  title: const Text('Quy tắc Trò chơi hóa'),
                   onTap: () {
                     // Gamification Rules
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.cookie),
-                  title: Text('Chính sách Cookie'),
+                  leading: const Icon(Icons.cookie),
+                  title: const Text('Chính sách Cookie'),
                   onTap: () {
                     // Cookie Policy
                   },
                 ),
 
                 // Logout Section
-                Divider(),
+                const Divider(),
                 ListTile(
-                  leading: Icon(Icons.logout, color: Colors.red),
-                  title: Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+                  leading: const Icon(Icons.logout, color: Colors.red),
+                  title: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
                   onTap: () async {
                     await FirebaseAuth.instance.signOut();
                     Get.offNamed(AppRoutes.SIGNINSCREEN);
@@ -293,20 +293,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 'Xin chào, $userName!',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
                                 '$formattedDate, $formattedTime',
-                                style: TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: Colors.grey),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.alarm,
+                          icon: const Icon(Icons.alarm,
                               color: Colors.teal), // Change to alarm icon
                           onPressed: () {
                             // _scheduleAlarm(); // Calls the method to schedule an alarm
@@ -316,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     // Health Overview Card
                     Card(
                       shape: RoundedRectangleBorder(
@@ -329,10 +329,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.health_and_safety,
+                                const Icon(Icons.health_and_safety,
                                     color: Colors.teal),
-                                SizedBox(width: 8),
-                                Expanded(
+                                const SizedBox(width: 8),
+                                const Expanded(
                                   child: Text(
                                     'Chỉ số khối cơ thể (BMI)',
                                     style: TextStyle(
@@ -341,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.help_outline,
+                                  icon: const Icon(Icons.help_outline,
                                       color: Colors.teal),
                                   onPressed: () {
                                     Get.to(() => ChatScreen(
@@ -352,9 +352,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             // BMI Gauge Chart
-                            Container(
+                            SizedBox(
                               height: 250,
                               child: Obx(() {
                                 double bmi = bmiController.bmiValue.value;
@@ -410,12 +410,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                             children: [
                                               Text(
                                                 bmi.toStringAsFixed(1),
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontSize: 28,
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
-                                              SizedBox(height: 8),
+                                              const SizedBox(height: 8),
                                               Text(
                                                 bmiController.bmiCategory.value,
                                                 style: TextStyle(
@@ -441,7 +441,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     // New Health Goals Section
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -452,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             // Section Header
-                            Row(
+                            const Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
@@ -466,7 +466,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.grey), // Settings icon
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             _buildHealthGoal(
                               onTap: () {
                                 Get.to(() => StepTrackingScreen());
@@ -544,7 +544,7 @@ class _HomeScreenState extends State<HomeScreen> {
             unselectedItemColor: Colors.grey,
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
-            items: [
+            items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
                 label: 'Trang chủ',
@@ -585,13 +585,13 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Icon(icon, color: color, size: 30),
-                SizedBox(width: 15),
+                const SizedBox(width: 15),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       value,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,

@@ -46,7 +46,7 @@ void main() async {
   ]);
 
   // Chạy ứng dụng
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

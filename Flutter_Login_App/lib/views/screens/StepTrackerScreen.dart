@@ -9,6 +9,8 @@ import 'package:permission_handler/permission_handler.dart';
 // import '../controller/StepTrackingService.dart';
 
 class StepTrackingScreen extends StatefulWidget {
+  const StepTrackingScreen({super.key});
+
   @override
   _StepTrackingScreenState createState() => _StepTrackingScreenState();
 }
@@ -17,7 +19,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
     with SingleTickerProviderStateMixin {
   String _userEmail = '';
   int _steps = 0;
-  int _stepGoal = 5000;
+  final int _stepGoal = 5000;
   double _calories = 0;
   double _distance = 0;
   int _minutes = 0;
@@ -73,7 +75,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
   String _formatDate(DateTime date) {
     DateTime now = DateTime.now();
     DateTime today = DateTime(now.year, now.month, now.day);
-    DateTime yesterday = today.subtract(Duration(days: 1));
+    DateTime yesterday = today.subtract(const Duration(days: 1));
 
     if (date.isAtSameMomentAs(today)) {
       return 'Hôm nay';
@@ -87,8 +89,8 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
   void _navigateDay(bool forward) {
     setState(() {
       _currentDate = forward
-          ? _currentDate.add(Duration(days: 1))
-          : _currentDate.subtract(Duration(days: 1));
+          ? _currentDate.add(const Duration(days: 1))
+          : _currentDate.subtract(const Duration(days: 1));
       _currentPeriod = _formatDate(_currentDate);
       _loadDataForDate(_currentDate);
     });
@@ -186,9 +188,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
     if (!_isTracking) return;
 
     setState(() {
-      if (_initialSteps == null) {
-        _initialSteps = event.steps;
-      }
+      _initialSteps ??= event.steps;
       int newSteps = event.steps - _initialSteps!;
       _steps = _lastSavedSteps + newSteps;
       _updateData();
@@ -224,12 +224,12 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Physical Activity Permission Required"),
-          content: Text(
+          title: const Text("Physical Activity Permission Required"),
+          content: const Text(
               "Please grant physical activity permission to track your activities."),
           actions: [
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -295,7 +295,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
 
   @override
   Widget build(BuildContext context) {
-    double _percent = _steps / _stepGoal;
+    double percent = _steps / _stepGoal;
 
     return WillPopScope(
       onWillPop: () async {
@@ -313,11 +313,11 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text('Bước chân', style: TextStyle(color: Colors.black)),
+          title: const Text('Bước chân', style: TextStyle(color: Colors.black)),
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () async {
               await _saveDataToFirebase({
                 'steps': _steps,
@@ -355,7 +355,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
   }
 
   Widget _buildTabContent() {
-    double _percent = _steps / _stepGoal;
+    double percent = _steps / _stepGoal;
 
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -363,7 +363,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
             ),
@@ -371,7 +371,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
                   onPressed: () {
                     _navigateDay(false); // Navigate back
                   },
@@ -380,12 +380,12 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
                   // Wrap Text inside Expanded
                   child: Text(
                     _currentPeriod,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center, // Center text
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.arrow_forward_ios, color: Colors.black),
+                  icon: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                   onPressed: _currentDate.isBefore(DateTime.now())
                       ? () {
                           _navigateDay(true); // Navigate forward
@@ -395,25 +395,25 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
               ],
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           CircularPercentIndicator(
             radius: 150.0,
             lineWidth: 15.0,
             animation: true,
-            percent: _percent > 1 ? 1 : _percent,
+            percent: percent > 1 ? 1 : percent,
             center: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.directions_walk, size: 50, color: Colors.pink),
+                const Icon(Icons.directions_walk, size: 50, color: Colors.pink),
                 Text(
                   "$_steps",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50.0),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 50.0),
                 ),
                 GestureDetector(
                   onTap: () {
                     // Logic to edit step goal
                   },
-                  child: Text(
+                  child: const Text(
                     "Sửa mục tiêu",
                     style: TextStyle(
                       color: Colors.pinkAccent,
@@ -428,7 +428,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
             progressColor: Colors.green,
             backgroundColor: Colors.grey[300]!,
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -440,13 +440,13 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
               _buildStatItem("phút", _minutes.toString(), Icons.timer),
             ],
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           ElevatedButton(
             onPressed: _toggleTracking,
-            child: Text(_isTracking ? 'Dừng theo dõi' : 'Bắt đầu theo dõi'),
             style: ElevatedButton.styleFrom(
               backgroundColor: _isTracking ? Colors.red : Colors.green,
             ),
+            child: Text(_isTracking ? 'Dừng theo dõi' : 'Bắt đầu theo dõi'),
           ),
         ],
       ),
@@ -457,14 +457,14 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
     return Column(
       children: [
         Icon(icon, size: 40, color: Colors.pinkAccent),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         Text(
           label,
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
       ],
     );

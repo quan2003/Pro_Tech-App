@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import '../Routes/AppRoutes.dart';
 
 class HealthConditionsScreen extends StatefulWidget {
+  const HealthConditionsScreen({super.key});
+
   @override
   _HealthConditionsScreenState createState() => _HealthConditionsScreenState();
 }
@@ -49,7 +51,7 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -61,8 +63,8 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Bạn có mắc một trong các bệnh sau không?',
                 style: TextStyle(
                   fontSize: 28,
@@ -70,7 +72,7 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Chọn tất cả lựa chọn phù hợp',
                 style: TextStyle(
@@ -78,7 +80,7 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildConditionItem(
                 icon: Icons.bloodtype,
                 iconColor: Colors.red,
@@ -145,27 +147,27 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
                   });
                 },
               ),
-              Spacer(),
+              const Spacer(),
               ElevatedButton(
                 onPressed: () async {
                   await _saveSelectionsToFirestore();
                   Get.toNamed(AppRoutes.HEALTH_GOALS_SCREEN);
                 },
-                child: Text(
-                  'Tiếp tục',
-                  style: TextStyle(fontSize: 18),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
+                child: Text(
+                  'Tiếp tục',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -191,7 +193,7 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
           leading: Icon(icon, size: 40, color: iconColor),
           title: Text(
             title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           trailing: Switch(
             value: isSelected,

@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import '../Routes/AppRoutes.dart';
 
 class WeightInputScreen extends StatefulWidget {
+  const WeightInputScreen({super.key});
+
   @override
   _WeightInputScreenState createState() => _WeightInputScreenState();
 }
@@ -62,14 +64,14 @@ class _WeightInputScreenState extends State<WeightInputScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
             child: Icon(Icons.person_outline, color: Colors.black),
           ),
         ],
@@ -80,8 +82,8 @@ class _WeightInputScreenState extends State<WeightInputScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 40),
-              Text(
+              const SizedBox(height: 40),
+              const Text(
                 'Cân nặng của tôi là',
                 style: TextStyle(
                   fontSize: 28,
@@ -89,7 +91,7 @@ class _WeightInputScreenState extends State<WeightInputScreen> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 'Thông tin rất quan trọng để tính chỉ số khối cơ thể của bạn',
                 style: TextStyle(
@@ -97,12 +99,12 @@ class _WeightInputScreenState extends State<WeightInputScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.remove, color: Colors.pinkAccent),
+                    icon: const Icon(Icons.remove, color: Colors.pinkAccent),
                     onPressed: () {
                       setState(() {
                         _currentWeight = (_currentWeight - 1).clamp(0, 500);
@@ -110,15 +112,15 @@ class _WeightInputScreenState extends State<WeightInputScreen> {
                     },
                   ),
                   Text(
-                    '${_currentWeight.toStringAsFixed(0)}',
-                    style: TextStyle(
+                    _currentWeight.toStringAsFixed(0),
+                    style: const TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.add, color: Colors.pinkAccent),
+                    icon: const Icon(Icons.add, color: Colors.pinkAccent),
                     onPressed: () {
                       setState(() {
                         _currentWeight = (_currentWeight + 1).clamp(0, 500);
@@ -127,13 +129,16 @@ class _WeightInputScreenState extends State<WeightInputScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ToggleButtons(
                 isSelected: [_unit == 'kg', _unit == 'lbs', _unit == 'st'],
                 onPressed: (index) {
                   String selectedUnit = ['kg', 'lbs', 'st'][index];
                   _toggleUnit(selectedUnit);
                 },
+                fillColor: Colors.grey[300],
+                selectedColor: Colors.black,
+                borderRadius: BorderRadius.circular(20),
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -148,11 +153,8 @@ class _WeightInputScreenState extends State<WeightInputScreen> {
                     child: Text('st'),
                   ),
                 ],
-                fillColor: Colors.grey[300],
-                selectedColor: Colors.black,
-                borderRadius: BorderRadius.circular(20),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Slider(
                 value: _currentWeight.clamp(
                   _unit == 'kg' ? 30.0 : (_unit == 'lbs' ? 66.0 : 5.0),
@@ -169,27 +171,27 @@ class _WeightInputScreenState extends State<WeightInputScreen> {
                 activeColor: Colors.pinkAccent,
                 onChanged: _onWeightChanged,
               ),
-              Spacer(),
+              const Spacer(),
               ElevatedButton(
                 onPressed: () async {
                   await _saveWeightToFirestore();
                   Get.toNamed(AppRoutes.WELCOME_SCREEN);
                 },
-                child: Text(
-                  'Tiếp tục',
-                  style: TextStyle(fontSize: 18),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
+                child: Text(
+                  'Tiếp tục',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         ),

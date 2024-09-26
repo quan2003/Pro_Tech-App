@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import '../Routes/AppRoutes.dart';
 
 class HealthGoalsScreen extends StatefulWidget {
+  const HealthGoalsScreen({super.key});
+
   @override
   _HealthGoalsScreenState createState() => _HealthGoalsScreenState();
 }
@@ -45,7 +47,7 @@ class _HealthGoalsScreenState extends State<HealthGoalsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -57,8 +59,8 @@ class _HealthGoalsScreenState extends State<HealthGoalsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Mục tiêu sức khỏe của bạn?',
                 style: TextStyle(
                   fontSize: 28,
@@ -66,7 +68,7 @@ class _HealthGoalsScreenState extends State<HealthGoalsScreen> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Chọn tất cả lựa chọn phù hợp',
                 style: TextStyle(
@@ -74,7 +76,7 @@ class _HealthGoalsScreenState extends State<HealthGoalsScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildGoalItem(
                 icon: Icons.monitor_weight_outlined,
                 title: 'Cân nặng',
@@ -119,27 +121,27 @@ class _HealthGoalsScreenState extends State<HealthGoalsScreen> {
                   });
                 },
               ),
-              Spacer(),
+              const Spacer(),
               ElevatedButton(
                 onPressed: () async {
                   await _saveGoalsToFirestore();
                   Get.toNamed(AppRoutes.WEIGHT_GOALS_SCREEN);
                 },
-                child: Text(
-                  'Tiếp tục',
-                  style: TextStyle(fontSize: 18),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
+                child: Text(
+                  'Tiếp tục',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -165,7 +167,7 @@ class _HealthGoalsScreenState extends State<HealthGoalsScreen> {
           leading: Icon(icon, size: 40, color: Colors.blue),
           title: Text(
             title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
             subtitle,

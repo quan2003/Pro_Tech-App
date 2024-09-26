@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../Routes/AppRoutes.dart';
 
 class WelcomeScreen extends StatelessWidget {
+  const WelcomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,7 +13,7 @@ class WelcomeScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -23,8 +25,8 @@ class WelcomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Chào mừng đến với Health.io',
                 style: TextStyle(
                   fontSize: 28,
@@ -33,7 +35,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 'Ứng dụng miễn phí đầu tiên thưởng quà để bạn giám sát sức khỏe của mình.',
                 style: TextStyle(
@@ -42,8 +44,8 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 20),
-              Row(
+              const SizedBox(height: 20),
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Flexible(
@@ -87,7 +89,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Expanded(
                 child: Center(
                   child: Stack(
@@ -97,7 +99,7 @@ class WelcomeScreen extends StatelessWidget {
                         'assets/images/app_preview.png', // Replace with your image path
                         height: 300,
                       ),
-                      Positioned(
+                      const Positioned(
                         bottom: 20,
                         child: Icon(Icons.emoji_events, size: 50, color: Colors.amberAccent),
                       ),
@@ -105,26 +107,26 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   Get.toNamed(AppRoutes.HEALTH_CONDITION_SCREEN);
                 },
-                child: Text(
-                  'Tạo kế hoạch của tôi',
-                  style: TextStyle(fontSize: 18),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
+                child: Text(
+                  'Tạo kế hoạch của tôi',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         ),

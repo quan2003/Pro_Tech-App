@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class WeekScreen extends StatefulWidget {
+  const WeekScreen({super.key});
+
   @override
   _WeekScreenState createState() => _WeekScreenState();
 }
@@ -31,7 +33,7 @@ class _WeekScreenState extends State<WeekScreen> {
   Future<void> _loadLastWeekDataFromFirebase() async {
     DateTime now = DateTime.now();
     DateTime startOfLastWeek = now.subtract(Duration(days: now.weekday + 6)); // Bắt đầu tuần trước
-    DateTime endOfLastWeek = startOfLastWeek.add(Duration(days: 6)); // Kết thúc tuần trước
+    DateTime endOfLastWeek = startOfLastWeek.add(const Duration(days: 6)); // Kết thúc tuần trước
 
     List<int> lastWeekSteps = List.filled(7, 0);
 
@@ -62,7 +64,7 @@ class _WeekScreenState extends State<WeekScreen> {
   Future<void> _loadDataFromFirebase() async {
   DateTime now = DateTime.now();
   startOfWeek = now.subtract(Duration(days: now.weekday - 1)); // Bắt đầu tuần (Thứ 2)
-  endOfWeek = startOfWeek!.add(Duration(days: 6)); // Cuối tuần (Chủ nhật)
+  endOfWeek = startOfWeek!.add(const Duration(days: 6)); // Cuối tuần (Chủ nhật)
 
 
  String documentId = "u6S0ve44sHaUyZ8nQSj6PJbEAAA3"; // Sử dụng ID của document chính xác từ Firestore
@@ -127,25 +129,25 @@ class _WeekScreenState extends State<WeekScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'TỔNG HÀNG TUẦN',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Từ ngày ${startOfWeek!.day}/${startOfWeek!.month} đến ngày ${endOfWeek!.day}/${endOfWeek!.month}', 
-            style: TextStyle(color: Colors.grey),
+            style: const TextStyle(color: Colors.grey),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 '$totalSteps bước',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(20),
@@ -153,16 +155,16 @@ class _WeekScreenState extends State<WeekScreen> {
                 child: Row(
                   children: [
                     Text('Trung bình ${averageSteps.toStringAsFixed(0)}'),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     _buildTrendIcon(), // Hàm hiển thị icon tăng/giảm
                   ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildWeekChart(),
-          Expanded(child: SizedBox()), // Khoảng trắng mở rộng để tránh chèn các nội dung khác
+          const Expanded(child: SizedBox()), // Khoảng trắng mở rộng để tránh chèn các nội dung khác
           _buildStatItem('bước', totalSteps.toString(), Icons.directions_walk),
           _buildStatItem('kcal', totalCalories.toStringAsFixed(1), Icons.local_fire_department),
           _buildStatItem('km', totalDistance.toStringAsFixed(2), Icons.directions),
@@ -173,15 +175,15 @@ class _WeekScreenState extends State<WeekScreen> {
   }
 Widget _buildTrendIcon() {
     if (lastWeekAverageSteps == null) {
-      return SizedBox(); // Trả về widget rỗng nếu chưa có dữ liệu tuần trước
+      return const SizedBox(); // Trả về widget rỗng nếu chưa có dữ liệu tuần trước
     }
 
     if (averageSteps > lastWeekAverageSteps!) {
-      return Icon(Icons.arrow_upward, color: Colors.green, size: 16); // Biểu tượng tăng
+      return const Icon(Icons.arrow_upward, color: Colors.green, size: 16); // Biểu tượng tăng
     } else if (averageSteps < lastWeekAverageSteps!) {
-      return Icon(Icons.arrow_downward, color: Colors.red, size: 16); // Biểu tượng giảm
+      return const Icon(Icons.arrow_downward, color: Colors.red, size: 16); // Biểu tượng giảm
     } else {
-      return Icon(Icons.horizontal_rule, color: Colors.grey, size: 16); // Không thay đổi
+      return const Icon(Icons.horizontal_rule, color: Colors.grey, size: 16); // Không thay đổi
     }
   }
 
@@ -194,12 +196,12 @@ Widget _buildTrendIcon() {
           children: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((day) {
             return Expanded(
               child: Center( // Căn giữa text thứ
-                child: Text(day, style: TextStyle(color: Colors.grey)),
+                child: Text(day, style: const TextStyle(color: Colors.grey)),
               ),
             );
           }).toList(),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         
         // Hàng hiển thị biểu đồ bước
         Row(
@@ -207,7 +209,7 @@ Widget _buildTrendIcon() {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: stepsPerDay.map((steps) {
             return Expanded(
-              child: Container(
+              child: SizedBox(
                 height: 150,
                 child: Stack(
                   alignment: Alignment.bottomCenter,
@@ -229,7 +231,7 @@ Widget _buildTrendIcon() {
           }).toList(),
         ),
         
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         
         // Hàng hiển thị số bước
         Row(
@@ -239,7 +241,7 @@ Widget _buildTrendIcon() {
               child: Center( // Căn giữa text số bước
                 child: Text(
                   steps > 0 ? steps.toString() : '-',
-                  style: TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ),
             );
@@ -256,15 +258,15 @@ Widget _buildTrendIcon() {
       child: Row(
         children: [
           Icon(icon, size: 24, color: Colors.blue),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Text(
             value,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             label,
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ],
       ),
@@ -281,9 +283,9 @@ Future<void> _loadAllDocumentIdsFromFirebase() async {
   List<String> documentIds = querySnapshot.docs.map((doc) => doc.id).toList();
 
   // In ra tất cả documentId
-  documentIds.forEach((docId) {
+  for (var docId in documentIds) {
     print('Document ID: $docId');
-  });
+  }
 
   // Sau đó, bạn có thể sử dụng documentId cho các truy vấn tiếp theo
 }

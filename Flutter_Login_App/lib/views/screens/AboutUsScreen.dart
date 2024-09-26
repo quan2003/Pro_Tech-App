@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AboutUsScreen extends StatelessWidget {
+  const AboutUsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5), // Nền ngoài màu trắng ấm
+      backgroundColor: const Color(0xFFF5F5F5), // Nền ngoài màu trắng ấm
       body: SafeArea(
         child: ListView(
           children: [
@@ -17,14 +19,14 @@ class AboutUsScreen extends StatelessWidget {
                 children: [
                   // Back Button
                   IconButton(
-                    icon: Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: () {
                       Navigator.pop(context); // Điều hướng quay lại trang trước
                     },
                   ),
 
                   // Avatar (logo)
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 32.0, // Kích thước avatar tương tự form mẫu
                     backgroundImage: NetworkImage(
                         'https://bacsigiadinhhanoi.vn/wp-content/uploads/2021/09/kham-benh-nguoi-gia.jpg'), // Đường dẫn ảnh logo
@@ -39,14 +41,14 @@ class AboutUsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Về chúng tôi',
                     style: TextStyle(
                       fontSize: 22, // Điều chỉnh kích thước text
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Tìm hiểu về những người làm việc hằng ngày để hỗ trợ chúng tôi trong sứ mệnh của mình',
                     style: TextStyle(
@@ -57,7 +59,7 @@ class AboutUsScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Card with Mission Statement
             Padding(
@@ -69,7 +71,7 @@ class AboutUsScreen extends StatelessWidget {
                 ),
                 elevation: 3, // đổ bóng ngoài viền
                 child: Container(
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                       maxWidth:
                           600), // Giới hạn chiều rộng của thẻ để thẻ hẹp hơn
                   padding: const EdgeInsets.all(16.0),
@@ -77,14 +79,14 @@ class AboutUsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Title: Sứ mệnh của chúng tôi
-                      Text(
+                      const Text(
                         'Sứ mệnh của chúng tôi',
                         style: TextStyle(
                           fontSize: 18, // Điều chỉnh kích thước text
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Image
                       ClipRRect(
@@ -98,7 +100,7 @@ class AboutUsScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Description
                       Text(
@@ -113,7 +115,7 @@ class AboutUsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 16,
             ),
             // Card with Mission Statement
@@ -126,7 +128,7 @@ class AboutUsScreen extends StatelessWidget {
                 ),
                 elevation: 3, // đổ bóng ngoài viền
                 child: Container(
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                       maxWidth:
                           600), // Giới hạn chiều rộng của thẻ để thẻ hẹp hơn
                   padding: const EdgeInsets.all(16.0),
@@ -134,14 +136,14 @@ class AboutUsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Title: Sứ mệnh của chúng tôi
-                      Text(
+                      const Text(
                         'Niềm tin của chúng tôi',
                         style: TextStyle(
                           fontSize: 18, // Điều chỉnh kích thước text
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       // Đoạn văn bản mô tả
                       Text(
                         'Niềm tin của Elfie là chúng ta cần khuyến khích người trưởng thành tự giám sát.\n\n'
@@ -152,7 +154,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Colors.grey[700], // Màu chữ
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                           height: 16), // Khoảng cách giữa văn bản và hình ảnh
 
                       // Image
@@ -166,7 +168,7 @@ class AboutUsScreen extends StatelessWidget {
                           fit: BoxFit.cover, //Hình ảnh bao phủ toàn bộ width
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         'Ngoài ra, chúng tôi tin tưởng mạnh mẽ rằng để đạt được thành công trong việc thúc đẩy lối sống lành mạnh, giành chiến thắng trong lĩnh vực chăm sóc sức khỏe, chúng tôi cần liên minh với các bên liên quan chính của cộng đồng chăm sóc sức khỏe và hệ sinh thái chăm sóc sức khỏe: cơ quan y tế công cộng, huấn luyện viên chăm sóc sức khỏe, chuyên gia thể dục và dinh dưỡng, chuyên gia chăm sóc sức khỏe và các tổ chức cộng đồng, nhà sản xuất dược phẩm và thiết bị.',
                         style: TextStyle(
@@ -180,7 +182,7 @@ class AboutUsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 16,
             ),
             Padding(
@@ -192,7 +194,7 @@ class AboutUsScreen extends StatelessWidget {
                 ),
                 elevation: 3, // đổ bóng ngoài viền
                 child: Container(
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                       maxWidth:
                           600), // Giới hạn chiều rộng của thẻ để thẻ hẹp hơn
                   padding: const EdgeInsets.all(16.0),
@@ -200,14 +202,14 @@ class AboutUsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Title: Sứ mệnh của chúng tôi
-                      Text(
+                      const Text(
                         'Đội ngũ của chúng tôi',
                         style: TextStyle(
                           fontSize: 18, // Điều chỉnh kích thước text
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Description
                       Text(
@@ -220,7 +222,7 @@ class AboutUsScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       // Image
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
@@ -232,7 +234,7 @@ class AboutUsScreen extends StatelessWidget {
                           fit: BoxFit.cover, //Hình ảnh bao phủ toàn bộ width
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 16,
                       ),
                       // Image
@@ -246,7 +248,7 @@ class AboutUsScreen extends StatelessWidget {
                           fit: BoxFit.cover, //Hình ảnh bao phủ toàn bộ width
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 16,
                       ),
                       RichText(
@@ -257,7 +259,7 @@ class AboutUsScreen extends StatelessWidget {
                             fontSize: 16, // Kích thước chữ hợp lý
                             color: Colors.grey[800],
                           ),
-                          children: [
+                          children: const [
                             TextSpan(
                               text: 'Giáo sư Mourad',
                               style: TextStyle(
@@ -296,7 +298,7 @@ class AboutUsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Các chứng nhận',
                         style: TextStyle(
                           fontSize: 18,
@@ -304,7 +306,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Colors.black,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         'Elfie được xác nhận bởi các hiệp hội y tế và tuân thủ bảo vệ dữ liệu bệnh nhân trên toàn thế giới.',
                         style: TextStyle(
@@ -312,7 +314,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Colors.grey[800],
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -356,7 +358,7 @@ class AboutUsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Về đối tác',
                         style: TextStyle(
                           fontSize: 18,
@@ -364,7 +366,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Colors.black,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         'Để ứng dụng của chúng tôi miễn phí cho tất cả mọi người, Elfie hợp tác với các hiệp hội khoa học và công ty dược phẩm.',
                         style: TextStyle(
@@ -372,7 +374,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Colors.grey[800],
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
                         'Các đối tác của chúng tôi không chịu trách nhiệm hoặc liên quan đến việc tài trợ hoặc tìm nguồn cung cấp phần thưởng của Elfie.',
                         style: TextStyle(
@@ -380,7 +382,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Colors.grey[800],
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
                         'Viện nghiên cứu dược phẩm Servier là đối tác toàn cầu của Elfie.',
                         style: TextStyle(
@@ -388,7 +390,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Colors.grey[800],
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Center(
                         child: Image.network(
                           'https://cdn-icons-png.flaticon.com/512/11865/11865326.png',
@@ -396,7 +398,7 @@ class AboutUsScreen extends StatelessWidget {
                           height: 50,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Center(
                         child: Text(
                           'SERVIER\nmoved by you',

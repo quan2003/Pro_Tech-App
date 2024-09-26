@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Routes/AppRoutes.dart';
 
 class WeightFrequencyScreen extends StatefulWidget {
+  const WeightFrequencyScreen({super.key});
+
   @override
   _WeightFrequencyScreenState createState() => _WeightFrequencyScreenState();
 }
@@ -46,7 +48,7 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Cân nặng',
                     style: TextStyle(
                       fontSize: 20,
@@ -58,11 +60,11 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
                     onTap: () {
                       Navigator.pop(context);
                     },
-                    child: Icon(Icons.close, color: Colors.grey),
+                    child: const Icon(Icons.close, color: Colors.grey),
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 'Tùy chỉnh tần suất theo dõi của bạn',
                 style: TextStyle(
@@ -71,13 +73,13 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Frequency Selector
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.remove_circle_outline, color: Colors.grey),
+                    icon: const Icon(Icons.remove_circle_outline, color: Colors.grey),
                     onPressed: () {
                       setState(() {
                         if (_frequency > 1) _frequency--;
@@ -85,18 +87,18 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
                     },
                     iconSize: 40,
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   Text(
                     '$_frequency',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   IconButton(
-                    icon: Icon(Icons.add_circle_outline, color: Colors.grey),
+                    icon: const Icon(Icons.add_circle_outline, color: Colors.grey),
                     onPressed: () {
                       setState(() {
                         _frequency++;
@@ -106,16 +108,16 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 'lần mỗi',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 'tuần',
                 style: TextStyle(
                   fontSize: 20,
@@ -123,7 +125,7 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 'Kế hoạch tùy chỉnh cá nhân (cần được sự đồng ý của bác sĩ)',
                 style: TextStyle(
@@ -132,7 +134,7 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Save Button
               ElevatedButton(
                 onPressed: () async {
@@ -140,17 +142,17 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
                   Navigator.pop(context);
                   Get.toNamed(AppRoutes.HOMESCREEN);
                 },
-                child: Text(
-                  'Lưu',
-                  style: TextStyle(fontSize: 18),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                ),
+                child: Text(
+                  'Lưu',
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
             ],

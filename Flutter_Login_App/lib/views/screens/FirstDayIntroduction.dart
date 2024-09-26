@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Firstdayintroduction extends StatelessWidget {
+  const Firstdayintroduction({super.key});
+
   void _launchURL() async {
     const url = 'https://www.google.com.vn/'; // Thay thế bằng URL thật của bạn
     if (await canLaunch(url)) {
@@ -14,7 +16,7 @@ class Firstdayintroduction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5), // Nền ngoài màu trắng ấm
+      backgroundColor: const Color(0xFFF5F5F5), // Nền ngoài màu trắng ấm
       body: SafeArea(
         child: ListView(
           children: [
@@ -27,14 +29,14 @@ class Firstdayintroduction extends StatelessWidget {
                 children: [
                   // Back Button
                   IconButton(
-                    icon: Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: () {
                       Navigator.pop(context); // Điều hướng quay lại trang trước
                     },
                   ),
 
                   // Avatar (logo)
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 32.0, // Kích thước avatar tương tự form mẫu
                     backgroundImage: NetworkImage(
                         'https://cdn-icons-png.flaticon.com/512/11865/11865326.png'), // Đường dẫn ảnh logo
@@ -49,14 +51,14 @@ class Firstdayintroduction extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Đối tác',
                     style: TextStyle(
                       fontSize: 22, // Điều chỉnh kích thước text
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Xem thêm đối tác của chúng tôi và câu chuyện của họ',
                     style: TextStyle(
@@ -67,7 +69,7 @@ class Firstdayintroduction extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Card with Mission Statement
             Padding(
@@ -79,7 +81,7 @@ class Firstdayintroduction extends StatelessWidget {
                 ),
                 elevation: 3, // đổ bóng ngoài viền
                 child: Container(
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                       maxWidth:
                           600), // Giới hạn chiều rộng của thẻ để thẻ hẹp hơn
                   padding: const EdgeInsets.all(16.0),
@@ -87,14 +89,14 @@ class Firstdayintroduction extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Title: Sứ mệnh của chúng tôi
-                      Text(
+                      const Text(
                         'Giới thiệu ngày đầu tiên',
                         style: TextStyle(
                           fontSize: 18, // Điều chỉnh kích thước text
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Image
                       ClipRRect(
@@ -108,7 +110,7 @@ class Firstdayintroduction extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Description
                       Text(
@@ -118,12 +120,12 @@ class Firstdayintroduction extends StatelessWidget {
                           color: Colors.grey[800],
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Button to access the website
                       InkWell(
                         onTap: _launchURL, // Gọi hàm mở URL khi nhấn vào nút
-                        child: Text(
+                        child: const Text(
                           'Truy cập website Ngày Đầu Tiên',
                           style: TextStyle(
                             fontSize: 16,
@@ -137,7 +139,7 @@ class Firstdayintroduction extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 16,
             ),
             // Card with Mission Statement
@@ -150,7 +152,7 @@ class Firstdayintroduction extends StatelessWidget {
                 ),
                 elevation: 3, // đổ bóng ngoài viền
                 child: Container(
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                       maxWidth:
                           600), // Giới hạn chiều rộng của thẻ để thẻ hẹp hơn
                   padding: const EdgeInsets.all(16.0),
@@ -158,14 +160,14 @@ class Firstdayintroduction extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Title: Sứ mệnh của chúng tôi
-                      Text(
+                      const Text(
                         'Sứ mệnh',
                         style: TextStyle(
                           fontSize: 18, // Điều chỉnh kích thước text
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       // Đoạn văn bản mô tả
                       Text(
                         'Mỗi ngày trôi qua là một ngày không ngừng cố gắng của dự án chỉ với một sứ mệnh duy nhất là giúp người bệnh Tăng huyết áp, Đái tháo đường và Đau thắt ngực tuân thủ điều trị dễ dàng hơn, sống khỏe hơn cùng bệnh, giúp cộng đồng có nhận thức đúng đắn về bệnh, tầm soát và kiểm soát nguy cơ tốt hơn. Đến nay, dự án đã được đông đảo bác sĩ công nhận là một cổng thông tin chính thống dành cho Tăng huyết áp, Đái tháo đường và Đau thắt ngực. Cũng như là điểm đến cho rất nhiều bệnh nhân, gia đình người bệnh mỗi khi có bất kỳ khó khăn nào khi chiến đấu với các căn bệnh mạn tính này.',
@@ -174,7 +176,7 @@ class Firstdayintroduction extends StatelessWidget {
                           color: Colors.grey[800],
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                           height: 16), // Khoảng cách giữa văn bản và hình ảnh
 
                       // Image
@@ -188,7 +190,7 @@ class Firstdayintroduction extends StatelessWidget {
                           fit: BoxFit.cover, //Hình ảnh bao phủ toàn bộ width
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         'Dự án nhằm 2 mục tiêu chiến lược giúp cho bệnh nhân Việt Nam được CHẨN ĐOÁN SỚM và KIỂM SOÁT TỐT bệnh của mình.',
                         style: TextStyle(

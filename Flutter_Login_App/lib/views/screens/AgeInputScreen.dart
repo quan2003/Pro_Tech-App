@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import '../Routes/AppRoutes.dart';
 
 class AgeInputScreen extends StatefulWidget {
+  const AgeInputScreen({super.key});
+
   @override
   _AgeInputScreenState createState() => _AgeInputScreenState();
 }
@@ -43,14 +45,14 @@ class _AgeInputScreenState extends State<AgeInputScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
             child: Icon(Icons.person_outline, color: Colors.black),
           ),
         ],
@@ -62,8 +64,8 @@ class _AgeInputScreenState extends State<AgeInputScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 40),
-                Text(
+                const SizedBox(height: 40),
+                const Text(
                   'Năm sinh của tôi',
                   style: TextStyle(
                     fontSize: 28,
@@ -71,7 +73,7 @@ class _AgeInputScreenState extends State<AgeInputScreen> {
                     color: Colors.black,
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   'Độ tuổi ảnh hưởng đến việc theo dõi sức khỏe của bạn',
                   style: TextStyle(
@@ -79,7 +81,7 @@ class _AgeInputScreenState extends State<AgeInputScreen> {
                     color: Colors.grey[600],
                   ),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 TextField(
                   controller: _yearController,
                   keyboardType: TextInputType.number,
@@ -90,14 +92,14 @@ class _AgeInputScreenState extends State<AgeInputScreen> {
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
-                    focusedBorder: UnderlineInputBorder(
+                    focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue),
                     ),
                   ),
-                  style: TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18),
                   onChanged: _onYearChanged,
                 ),
-                SizedBox(height: 40), // Add some spacing for the button
+                const SizedBox(height: 40), // Add some spacing for the button
                 ElevatedButton(
                   onPressed: _inputYear != null && _inputYear!.isNotEmpty
                       ? () async {
@@ -105,23 +107,23 @@ class _AgeInputScreenState extends State<AgeInputScreen> {
                           Get.toNamed(AppRoutes.HEIGHT_INPUT_SCREEN);
                         }
                       : null,
-                  child: Text(
-                    'Tiếp tục',
-                    style: TextStyle(fontSize: 18),
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _inputYear != null && _inputYear!.isNotEmpty
                         ? Colors.black
                         : Colors.grey,
                     foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 56),
+                    minimumSize: const Size(double.infinity, 56),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
                   ),
+                  child: Text(
+                    'Tiếp tục',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
               ],
             ),
           ),

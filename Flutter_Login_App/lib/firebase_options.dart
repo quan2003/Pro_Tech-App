@@ -41,20 +41,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDKVr7C0iGiUnJ9s4cgF8o4B0IoncV9z94',
-    appId: '1:1069215963842:web:8881ef33c1a27c2b7af95b',
-    messagingSenderId: '1069215963842',
-    projectId: 'flutterlogin-d7b39',
-    authDomain: 'flutterlogin-d7b39.firebaseapp.com',
+    apiKey: 'AlzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg',
+    appId: '1:989890578847:web:8881ef33c1a27c2b7af95b',
+    messagingSenderId: '989890578847',
+    projectId: 'signin-example-b56ee',
+    authDomain: 'vku.udn.vn',
     storageBucket: 'flutterlogin-d7b39.appspot.com',
     measurementId: 'G-Y1ZSXJ386B',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAPQ3eUseDTwcSbk2wgiFE-pBWJ7LbEvyA',
-    appId: '1:1069215963842:android:9f40471c75b4ba347af95b',
-    messagingSenderId: '1069215963842',
-    projectId: 'flutterlogin-d7b39',
+    apiKey: 'AlzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg',
+    appId: '1:989890578847:android:314b30397930f6467af95b',
+    messagingSenderId: '989890578847',
+    projectId: 'signin-example-b56ee',
     storageBucket: 'flutterlogin-d7b39.appspot.com',
   );
 

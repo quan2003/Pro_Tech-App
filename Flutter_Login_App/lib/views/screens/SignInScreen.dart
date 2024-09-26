@@ -22,7 +22,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
     super.initState();
 
     _controller = AnimationController(
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
       vsync: this,
     );
 
@@ -55,7 +55,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
           return Stack(
             children: [
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Color(0xFFC4E1F5), Color(0xFF00A9E0)],
                     begin: Alignment.topCenter,
@@ -70,7 +70,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                     await controller.handleSignup(val);
                     return null;
                   },
-                  logo: AssetImage('assets/images/AppLogo.png'),
+                  logo: const AssetImage('assets/images/AppLogo.png'),
                   title: "Pro-Tech",
                   initialAuthMode: AuthMode.login,
                   userType: LoginUserType.email,
@@ -88,14 +88,14 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                     return null;
                   },
                   theme: LoginTheme(
-                    primaryColor: Color(0xFF00A9E0),
-                    accentColor: Color(0xFFF4583E),
+                    primaryColor: const Color(0xFF00A9E0),
+                    accentColor: const Color(0xFFF4583E),
                     errorColor: Colors.deepOrange,
                     titleStyle: TextStyle(
-                      color: Color(0xFFF4583E),
+                      color: const Color(0xFFF4583E),
                       fontSize: isSmallScreen ? 28 : 36,
                       fontWeight: FontWeight.w900,
-                      shadows: [
+                      shadows: const [
                         Shadow(
                           blurRadius: 10.0,
                           color: Colors.black45,
@@ -137,7 +137,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      backgroundColor: Color(0xFFF4583E),
+                      backgroundColor: const Color(0xFFF4583E),
                       elevation: 6,
                       highlightElevation: 8,
                     ),
@@ -229,7 +229,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
   }) {
     return Tooltip(
       message: tooltip,
-      textStyle: TextStyle(
+      textStyle: const TextStyle(
         color: Colors.white,
         fontSize: 12,
       ),
@@ -245,7 +245,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: color,
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
                 color: Colors.black54,
                 blurRadius: 5,

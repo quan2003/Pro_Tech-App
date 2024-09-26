@@ -14,7 +14,7 @@ class NameInputScreen extends StatelessWidget {
   final UserController userController = Get.put(UserController());
   final TextEditingController _nameController = TextEditingController();
 
-  NameInputScreen({Key? key}) : super(key: key) {
+  NameInputScreen({super.key}) {
     _loadCurrentUserName();
   }
 
@@ -57,9 +57,9 @@ class NameInputScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
             child: Icon(Icons.person_outline, color: Colors.black),
           ),
         ],
@@ -72,7 +72,7 @@ class NameInputScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                Text(
+                const Text(
                   'Tên của tôi',
                   style: TextStyle(
                     fontSize: 28,
@@ -80,7 +80,7 @@ class NameInputScreen extends StatelessWidget {
                     color: Colors.black,
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   'Tôi sẽ xưng hô với bạn như thế nào?',
                   style: TextStyle(
@@ -88,7 +88,7 @@ class NameInputScreen extends StatelessWidget {
                     color: Colors.grey[600],
                   ),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 TextField(
                   controller: _nameController,
                   decoration: InputDecoration(
@@ -97,11 +97,11 @@ class NameInputScreen extends StatelessWidget {
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
-                    focusedBorder: UnderlineInputBorder(
+                    focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue),
                     ),
                   ),
-                  style: TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18),
                   onChanged: (value) => userController.setName(value),
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.05), // Điều chỉnh chiều cao linh hoạt
@@ -114,22 +114,22 @@ class NameInputScreen extends StatelessWidget {
                             Navigator.of(context).push(_createRoute());
                           }
                         : null,
-                    child: Text(
-                      'Tiếp tục',
-                      style: TextStyle(fontSize: 18),
-                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
-                      minimumSize: Size(double.infinity, 56),
+                      minimumSize: const Size(double.infinity, 56),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
+                    child: Text(
+                      'Tiếp tục',
+                      style: TextStyle(fontSize: 18),
+                    ),
                   ),
                 )),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
               ],
             ),
           ),

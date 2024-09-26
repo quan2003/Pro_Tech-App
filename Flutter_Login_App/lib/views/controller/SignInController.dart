@@ -131,6 +131,7 @@ class SignInController extends GetxController {
       print("Facebook login error: $e");
       return null;
     }
+    return null;
   }
 
   /// Xử lý Đăng ký với Email và Mật khẩu
@@ -170,8 +171,8 @@ class SignInController extends GetxController {
     try {
       UserCredential userCredential =
           await firebaseAuth.signInWithEmailAndPassword(
-        email: loginData.name!,
-        password: loginData.password!,
+        email: loginData.name,
+        password: loginData.password,
       );
 
       User? user = userCredential.user;

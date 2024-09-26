@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import '../Routes/AppRoutes.dart';
 
 class WeightGoalScreen extends StatefulWidget {
+  const WeightGoalScreen({super.key});
+
   @override
   _WeightGoalScreenState createState() => _WeightGoalScreenState();
 }
@@ -41,7 +43,7 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -53,8 +55,8 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Mục tiêu',
                 style: TextStyle(
                   fontSize: 28,
@@ -62,7 +64,7 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Chọn cân nặng mong muốn',
                 style: TextStyle(
@@ -70,13 +72,13 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Minus button
                   IconButton(
-                    icon: Icon(Icons.remove_circle, color: Colors.pinkAccent),
+                    icon: const Icon(Icons.remove_circle, color: Colors.pinkAccent),
                     onPressed: () {
                       setState(() {
                         if (_currentWeight > 1) _currentWeight--;
@@ -84,20 +86,20 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
                     },
                     iconSize: 40,
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   // Display current weight
                   Text(
                     _currentWeight.toStringAsFixed(0),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   // Plus button
                   IconButton(
-                    icon: Icon(Icons.add_circle, color: Colors.pinkAccent),
+                    icon: const Icon(Icons.add_circle, color: Colors.pinkAccent),
                     onPressed: () {
                       setState(() {
                         if (_currentWeight < 200) _currentWeight++;
@@ -107,7 +109,7 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Unit selector
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -126,7 +128,7 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
                   );
                 }).toList(),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Weight slider
               Slider(
                 value: _currentWeight,
@@ -141,16 +143,16 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
                 activeColor: Colors.pinkAccent,
                 inactiveColor: Colors.grey[300],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Ideal weight information
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     backgroundImage: AssetImage('assets/images/doctor.png'), // Replace with your asset image
                     radius: 24,
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Cân nặng lý tưởng của bạn là từ 50.4 đến 67.8 kg.',
@@ -163,28 +165,28 @@ class _WeightGoalScreenState extends State<WeightGoalScreen> {
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               // Continue button
               ElevatedButton(
                 onPressed: () async {
                   await _saveWeightGoalToFirestore();
                    Get.toNamed(AppRoutes.WEIGHT_FREQUENCY_SCREEN);
                 },
-                child: Text(
-                  'Tiếp tục',
-                  style: TextStyle(fontSize: 18),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
+                child: Text(
+                  'Tiếp tục',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         ),

@@ -7,7 +7,7 @@ import 'package:get/get.dart'; // Import GetX để sử dụng điều hướng
 import '../Routes/AppRoutes.dart'; // Đảm bảo đường dẫn đúng tới AppRoutes
 
 class HomeFirst extends StatelessWidget {
-  const HomeFirst({Key? key}) : super(key: key); // Sử dụng const và Key để tối ưu hóa
+  const HomeFirst({super.key}); // Sử dụng const và Key để tối ưu hóa
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +26,8 @@ class HomeFirst extends StatelessWidget {
           child: Column(
             children: [
               // Logo và Tên Ứng Dụng
-              Padding(
-                padding: const EdgeInsets.only(top: 50.0),
+              const Padding(
+                padding: EdgeInsets.only(top: 50.0),
                 child: Column(
                   children: [
                     Icon(
@@ -48,10 +48,10 @@ class HomeFirst extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
               // Nội Dung Chào Mừng
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   children: [
                     Text(
@@ -74,7 +74,7 @@ class HomeFirst extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               // Indicator (dấu chấm hoặc thanh tiến độ)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -82,8 +82,8 @@ class HomeFirst extends StatelessWidget {
                   Container(
                     width: 12,
                     height: 12,
-                    margin: EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
@@ -91,15 +91,15 @@ class HomeFirst extends StatelessWidget {
                   Container(
                     width: 12,
                     height: 12,
-                    margin: EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: const BoxDecoration(
                       color: Colors.white30,
                       shape: BoxShape.circle,
                     ),
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               // Nút "Get Started"
               Padding(
                 padding: const EdgeInsets.only(bottom: 50.0),
@@ -115,10 +115,10 @@ class HomeFirst extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 60, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 15),
                     elevation: 5, // Bóng đổ cho nút
                   ),
-                  child: Text(
+                  child: const Text(
                     'Get Started',
                     style: TextStyle(
                       fontSize: 18,

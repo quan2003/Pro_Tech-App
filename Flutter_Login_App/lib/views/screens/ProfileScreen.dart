@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ProfileScreen extends StatefulWidget {
   final String userId; // Thêm tham số userId
 
-  ProfileScreen({required this.userId}); // Constructor yêu cầu userId
+  const ProfileScreen({super.key, required this.userId}); // Constructor yêu cầu userId
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -65,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'yearOfBirth': _inputYear.text,
       }, SetOptions(merge: true));
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully')),
+        const SnackBar(content: Text('Profile updated successfully')),
       );
     }
   }
@@ -73,15 +73,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF6F0FF),
+      backgroundColor: const Color(0xFFF6F0FF),
       appBar: AppBar(
-        backgroundColor: Color(0xFFF6F0FF),
+        backgroundColor: const Color(0xFFF6F0FF),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Account', style: TextStyle(color: Colors.black)),
+        title: const Text('Account', style: TextStyle(color: Colors.black)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -89,12 +89,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           key: _formKey,
           child: Column(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.orange,
                 child: Icon(Icons.person, size: 50, color: Colors.white),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildTextField('Full Name', _nameController),
               _buildEmailField(),
               _buildTextField('Phone Number', _phoneController),
@@ -102,19 +102,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildTextField('Weight (kg)', _weightController),
               _buildTextField('Height (cm)', _heightController),
               _buildTextField('Year of Birth', _inputYear),
-              SizedBox(height: 20),
-              Container(
+              const SizedBox(height: 20),
+              SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: _updateUserData,
-                  child: Text('UPDATE', style: TextStyle(fontSize: 16)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                  child: Text('UPDATE', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],

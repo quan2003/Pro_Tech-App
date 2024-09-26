@@ -80,8 +80,15 @@ void _showNotificationPermissionDialog() {
   void initState() {
     super.initState();
     _checkAndRequestNotificationPermission();
+    _updateSteps(); 
+    stepController.loadTodaySteps(); // Tải số bước cho ngày hôm nay
   }
-
+ Future<void> _updateSteps() async {
+    // Giả sử bạn có phương thức để lấy số bước, bạn có thể thay thế nó bằng cách của bạn
+    final steps = int.tryParse(stepController.stepCountString) ?? 0; // Nếu chuyển đổi thất bại, gán là 0
+    stepController.steps.value = steps; // Cập nhật số bước
+    print(steps);
+  }
   // Method to fetch user data from Firestore
   Future<String> _fetchUserName() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -534,10 +541,7 @@ void _showNotificationPermissionDialog() {
                               value: '1 / 3',
                               color: Colors.blue,
                             ),
-//                             Obx(() => stepController.isLoading.value
-//   ? CircularProgressIndicator()
-//   : Text(stepController.stepCountString)
-// ),
+
                             Obx(() {
                               return _buildHealthGoal(
                                 onTap: () async {

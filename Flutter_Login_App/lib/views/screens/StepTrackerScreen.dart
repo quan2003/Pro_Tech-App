@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_login_app/views/screens/MonthScreen.dart';
 import 'package:flutter_login_app/views/screens/WeekScreen.dart';
+import 'package:flutter_login_app/views/screens/YearScreen.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,7 +63,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
           break;
         case 2:
           _currentPeriod =
-              'Tổng số bước trong tháng'; // Nội dung cho tab 'Tháng'
+              'Tổng hàng tháng'; // Nội dung cho tab 'Tháng'
           break;
         case 3:
           _currentPeriod = 'Tổng số bước trong năm'; // Nội dung cho tab 'Năm'
@@ -342,12 +344,9 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
           controller: _tabController,
           children: [
             _buildTabContent(), // Ngày
-            const WeekScreen(
-                // stepsPerDay: _stepsPerDay,
-                // tabController: _tabController,
-                ), // Tuần
-            _buildTabContent(), // Tháng
-            _buildTabContent(), // Năm
+            const WeekScreen(), // Tuần
+            const MonthScreen(), // Tháng
+            const YearScreen(), // Năm
           ],
         ),
       ),

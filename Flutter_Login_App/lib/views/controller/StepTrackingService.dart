@@ -212,6 +212,32 @@ class StepTrackingService extends GetxService {
     }
   }
 
+// Load steps for today from Firestore
+Future<void> loadTodaySteps() async {
+  if (_user == null) return; // Kiểm tra nếu người dùng đã đăng nhập
+
+  try {
+    DateTime now = DateTime.now();
+    String todayKey = "${now.year}-${now.month}-${now.day}";
+
+    final stepData = await _firestore
+        .collection('activity_data')
+        .doc(_user!.uid)
+        .get();
+
+    if (stepData.exists && stepData.data()?['steps'] != null) {
+      steps.value = stepData.data()!['steps'];
+      print("Loaded today's steps: ${steps.value}");
+    } else {
+      steps.value = 0; // Nếu không có dữ liệu, gán là 0
+      print("No step data found for today.");
+    }
+  } catch (e) {
+    print("Error loading today's steps: $e");
+  }
+}
+
+
   // Toggle tracking on/off
   Future<void> toggleTracking() async {
     if (_isTracking) {

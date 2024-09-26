@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -11,63 +12,87 @@ class SignInController extends GetxController {
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   /// Đăng nhập bằng Google
-  Future<User?> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+Future<User?> signInWithGoogle() async {
+  try {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-      if (googleUser == null) {
-        Get.snackbar(
-          "Sign In Cancelled",
-          "You canceled the Google sign-in.",
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        return null;
-      }
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential =
-          await firebaseAuth.signInWithCredential(credential);
-      User? user = userCredential.user;
-
-      if (user != null) {
-        Get.snackbar(
-          "Login Successful",
-          "Welcome ${user.displayName ?? 'User'}!",
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-
-        // Kiểm tra xem người dùng có phải là người dùng mới hay không
-        if (userCredential.additionalUserInfo?.isNewUser ?? false) {
-          Get.offNamed(AppRoutes
-              .TERMSANDCONDITIONS); // Điều hướng đến Điều khoản và Dịch vụ cho người dùng mới
-        } else {
-          Get.offNamed(AppRoutes
-              .HOMESCREEN); // Điều hướng đến Home cho người dùng đã đăng nhập trước đó
-        }
-      }
-
-      return user;
-    } catch (e) {
-      Get.snackbar(
-        "Login Failed",
-        e.toString(),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      print("Login error: $e");
+    if (googleUser == null) {
+      _showErrorSnackbar("Google Sign-In was cancelled by the user.");
       return null;
     }
-  }
 
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    User? user = userCredential.user;
+
+    if (user != null) {
+      Get.snackbar(
+        "Login Successful",
+        "Welcome ${user.displayName ?? 'User'}!",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+        Get.offNamed(AppRoutes.TERMSANDCONDITIONS);
+      } else {
+        Get.offNamed(AppRoutes.HOMESCREEN);
+      }
+    }
+
+    return user;
+  } on FirebaseAuthException catch (e) {
+    _showDetailedErrorSnackbar("FirebaseAuthException", e.code, e.message ?? "No additional info");
+    return null;
+  } on Exception catch (e) {
+    _showDetailedErrorSnackbar("Exception", e.runtimeType.toString(), e.toString());
+    return null;
+  } catch (e) {
+    _showDetailedErrorSnackbar("Unknown Error", e.runtimeType.toString(), e.toString());
+    return null;
+  }
+}
+
+void _showDetailedErrorSnackbar(String errorType, String errorCode, String errorMessage) {
+  Get.snackbar(
+    "Login Failed",
+    "An error occurred during sign-in.",
+    backgroundColor: Colors.red,
+    colorText: Colors.white,
+    duration: Duration(seconds: 10),
+    messageText: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Error Type: $errorType", style: TextStyle(fontWeight: FontWeight.bold)),
+        Text("Error Code: $errorCode"),
+        Text("Error Message: $errorMessage"),
+      ],
+    ),
+  );
+  
+  // Log the error for debugging
+  print("Login Error - Type: $errorType, Code: $errorCode, Message: $errorMessage");
+}
+
+void _showErrorSnackbar(String message) {
+  Get.snackbar(
+    "Login Failed",
+    message,
+    backgroundColor: Colors.red,
+    colorText: Colors.white,
+    duration: Duration(seconds: 5),
+  );
+}
   /// Đăng nhập bằng Facebook
   Future<User?> signInWithFacebook() async {
     try {

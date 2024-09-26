@@ -121,7 +121,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                child: Text(
+                child: const Text(
                   'Tạo kế hoạch của tôi',
                   style: TextStyle(fontSize: 18),
                 ),

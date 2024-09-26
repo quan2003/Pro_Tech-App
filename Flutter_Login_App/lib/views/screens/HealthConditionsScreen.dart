@@ -162,7 +162,7 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: Text(
+                child: const Text(
                   'Tiếp tục',
                   style: TextStyle(fontSize: 18),
                 ),

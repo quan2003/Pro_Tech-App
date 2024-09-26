@@ -114,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text('UPDATE', style: TextStyle(fontSize: 16)),
+                  child: const Text('UPDATE', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],

@@ -123,7 +123,7 @@ class NameInputScreen extends StatelessWidget {
                       ),
                       elevation: 0,
                     ),
-                    child: Text(
+                    child: const Text(
                       'Tiếp tục',
                       style: TextStyle(fontSize: 18),
                     ),
@@ -140,7 +140,7 @@ class NameInputScreen extends StatelessWidget {
 
   Route _createRoute() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => GenderInputScreen(),
+      pageBuilder: (context, animation, secondaryAnimation) => const GenderInputScreen(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0); // Animation bắt đầu từ bên phải
         const end = Offset.zero;

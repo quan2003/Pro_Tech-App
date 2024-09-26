@@ -342,7 +342,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
           controller: _tabController,
           children: [
             _buildTabContent(), // Ngày
-            WeekScreen(
+            const WeekScreen(
                 // stepsPerDay: _stepsPerDay,
                 // tabController: _tabController,
                 ), // Tuần

@@ -176,7 +176,7 @@ Cảm ơn bạn đã sử dụng Health.io!
                 ),
                 elevation: _isAgreed ? 5 : 0, // Thêm bóng đổ khi nút được kích hoạt
               ),
-              child: Text(
+              child: const Text(
                 "Tiếp tục",
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),

@@ -103,7 +103,7 @@ class _GenderInputScreenState extends State<GenderInputScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: Text(
+                child: const Text(
                   'Tiếp tục',
                   style: TextStyle(fontSize: 18),
                 ),

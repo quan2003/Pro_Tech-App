@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AboutUsScreen()),
+                      MaterialPageRoute(builder: (context) => const AboutUsScreen()),
                     );
                   },
                 ),
@@ -231,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Firstdayintroduction()),
+                          builder: (context) => const Firstdayintroduction()),
                     );
                   },
                 ),
@@ -469,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 16),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => StepTrackingScreen());
+                                Get.to(() => const StepTrackingScreen());
                               },
                               icon: Icons.bloodtype,
                               label: 'HA • tháng này',
@@ -478,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => StepTrackingScreen());
+                                Get.to(() => const StepTrackingScreen());
                               },
                               icon: Icons.local_fire_department,
                               label: 'Khai báo một cơn đau',
@@ -487,7 +487,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => StepTrackingScreen());
+                                Get.to(() => const StepTrackingScreen());
                               },
                               icon: Icons.scale,
                               label: 'Cân nặng • tuần này',
@@ -503,7 +503,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onTap: () async {
                                   // Điều hướng đến StepTrackingScreen và chờ kết quả
                                   final steps =
-                                      await Get.to(() => StepTrackingScreen());
+                                      await Get.to(() => const StepTrackingScreen());
 
                                   // Kiểm tra và cập nhật số bước nếu có
                                   if (steps != null) {
@@ -521,7 +521,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => StepTrackingScreen());
+                                Get.to(() => const StepTrackingScreen());
                               },
                               icon: Icons.timer,
                               label: 'Thời gian hồi phục',

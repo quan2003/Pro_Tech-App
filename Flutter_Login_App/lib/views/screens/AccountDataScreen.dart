@@ -136,7 +136,7 @@ class _ExportDataDialogState extends State<ExportDataDialog> {
                 ),
                 minimumSize: const Size(double.infinity, 50),
               ),
-              child: Text('Xác nhận email'),
+              child: const Text('Xác nhận email'),
             ),
           ],
         ),

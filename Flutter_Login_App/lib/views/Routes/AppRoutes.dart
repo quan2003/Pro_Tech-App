@@ -40,7 +40,7 @@ class AppRoutes {
     ),
     GetPage(
       name: HOMESCREEN,
-      page: () => HomeScreen(),
+      page: () => const HomeScreen(),
     ),
     GetPage(
       name: HOMEFIRSTSCREEN,
@@ -52,7 +52,7 @@ class AppRoutes {
     ),
     GetPage(
       name: STEP_GOAL_SCREEN,
-      page: () => StepGoalScreen(),
+      page: () => const StepGoalScreen(),
     ),
     GetPage(
       name: NAME_INPUT_SCREEN,
@@ -60,39 +60,39 @@ class AppRoutes {
     ),
     GetPage(
       name: GENDER_INPUT_SCREEN,
-      page: () => GenderInputScreen(),
+      page: () => const GenderInputScreen(),
     ),
     GetPage(
       name: AGE_INPUT_SCREEN,
-      page: () => AgeInputScreen(),
+      page: () => const AgeInputScreen(),
     ),
     GetPage(
       name: HEIGHT_INPUT_SCREEN,
-      page: () => HeightInputScreen(),
+      page: () => const HeightInputScreen(),
     ),
     GetPage(
       name: WEIGHT_INPUT_SCREEN,
-      page: () => WeightInputScreen(),
+      page: () => const WeightInputScreen(),
     ),
     GetPage(
       name: WELCOME_SCREEN,
-      page: () => WelcomeScreen(),
+      page: () => const WelcomeScreen(),
     ),
     GetPage(
       name: HEALTH_GOALS_SCREEN,
-      page: () => HealthGoalsScreen(),
+      page: () => const HealthGoalsScreen(),
     ),
     GetPage(
       name: HEALTH_CONDITION_SCREEN,
-      page: () => HealthConditionsScreen(),
+      page: () => const HealthConditionsScreen(),
     ),
     GetPage(
       name: WEIGHT_GOALS_SCREEN,
-      page: () => WeightGoalScreen(),
+      page: () => const WeightGoalScreen(),
     ),
     GetPage(
       name: WEIGHT_FREQUENCY_SCREEN,
-      page: () => WeightFrequencyScreen(),
+      page: () => const WeightFrequencyScreen(),
     ),
     GetPage(
       name: '/profile',

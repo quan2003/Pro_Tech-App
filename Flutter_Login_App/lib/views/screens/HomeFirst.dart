@@ -135,7 +135,7 @@ class HomeFirst extends StatelessWidget {
   }
    Route _createRoute() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => StepGoalScreen(), // Thay bằng màn hình bạn muốn chuyển tới
+      pageBuilder: (context, animation, secondaryAnimation) => const StepGoalScreen(), // Thay bằng màn hình bạn muốn chuyển tới
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0); // Animation bắt đầu từ bên phải
         const end = Offset.zero;

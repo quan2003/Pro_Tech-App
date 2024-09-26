@@ -150,7 +150,7 @@ class _WeightFrequencyScreenState extends State<WeightFrequencyScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Lưu',
                   style: TextStyle(fontSize: 18),
                 ),

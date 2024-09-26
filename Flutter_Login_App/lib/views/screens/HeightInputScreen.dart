@@ -132,13 +132,13 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
                 fillColor: Colors.grey[300],
                 selectedColor: Colors.black,
                 borderRadius: BorderRadius.circular(20),
-                children: [
+                children: const [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text('cm'),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text('ft'),
                   ),
                 ],
@@ -168,7 +168,7 @@ class _HeightInputScreenState extends State<HeightInputScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: Text(
+                child: const Text(
                   'Tiếp tục',
                   style: TextStyle(fontSize: 18),
                 ),

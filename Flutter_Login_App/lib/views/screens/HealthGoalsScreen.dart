@@ -136,7 +136,7 @@ class _HealthGoalsScreenState extends State<HealthGoalsScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: Text(
+                child: const Text(
                   'Tiếp tục',
                   style: TextStyle(fontSize: 18),
                 ),

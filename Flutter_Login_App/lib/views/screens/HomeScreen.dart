@@ -27,6 +27,45 @@ class _HomeScreenState extends State<HomeScreen> {
   final StepTrackingService stepController = Get.put(StepTrackingService());
   final BMIController bmiController = Get.put(BMIController());
 
+  Future<bool> _checkNotificationPermission() async {
+  NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
+  return settings.authorizationStatus == AuthorizationStatus.authorized;
+}
+
+void _checkAndRequestNotificationPermission() async {
+  bool isAuthorized = await _checkNotificationPermission();
+  if (!isAuthorized) {
+    _showNotificationPermissionDialog();
+  }
+}
+
+void _showNotificationPermissionDialog() {
+  Get.dialog(
+    AlertDialog(
+      title: const Text('Cấp quyền thông báo'),
+      content: const Text('Bạn chưa cấp quyền thông báo. Bạn có muốn cấp quyền ngay bây giờ không?'),
+      actions: [
+        TextButton(
+          child: const Text('Để sau'),
+          onPressed: () => Get.back(),
+        ),
+        TextButton(
+          child: const Text('Cấp quyền'),
+          onPressed: () async {
+            Get.back();
+            NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
+            if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+              Get.snackbar('Thành công', 'Bạn đã cấp quyền thông báo.');
+            } else {
+              Get.snackbar('Lỗi', 'Bạn đã từ chối quyền thông báo.');
+            }
+          },
+        ),
+      ],
+    ),
+  );
+}
+
   // BottomNavigationBar index
   int _selectedIndex = 0;
 
@@ -40,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // _stepService.initialize();
+    _checkAndRequestNotificationPermission();
   }
 
   // Method to fetch user data from Firestore
@@ -89,17 +128,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.notifications),
-                onPressed: () async {
-                  NotificationSettings settings =
-                      await FirebaseMessaging.instance.requestPermission();
+                onPressed: _showNotificationPermissionDialog,
+                // onPressed: () async {
+                //   NotificationSettings settings =
+                //       await FirebaseMessaging.instance.requestPermission();
 
-                  if (settings.authorizationStatus ==
-                      AuthorizationStatus.authorized) {
-                    Get.snackbar('Thành công', 'Bạn đã cấp quyền thông báo.');
-                  } else {
-                    Get.snackbar('Lỗi', 'Bạn đã từ chối quyền thông báo.');
-                  }
-                },
+                //   // if (settings.authorizationStatus ==
+                //   //     AuthorizationStatus.authorized) {
+                //   //   Get.snackbar('Thành công', 'Bạn đã cấp quyền thông báo.');
+                //   // } else {
+                //   //   Get.snackbar('Lỗi', 'Bạn đã từ chối quyền thông báo.');
+                //   // }
+                // },
               ),
             ],
           ),

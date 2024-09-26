@@ -142,6 +142,7 @@ class SignInController extends GetxController {
         email: signupData.name!,
         password: signupData.password!,
       );
+      
 
       User? user = userCredential.user;
 

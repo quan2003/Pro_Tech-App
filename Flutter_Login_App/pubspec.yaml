@@ -28,7 +28,7 @@ dependencies:
   http: ^1.2.2
   cached_network_image: ^3.2.3
   url_launcher: ^6.0.20
-  shared_preferences:
+  shared_preferences: ^2.3.2
   firebase_messaging:
   fl_chart: ^0.69.0
   csv:
@@ -40,6 +40,7 @@ dependencies:
   percent_indicator: ^4.2.3
   sensors_plus: ^6.0.1
   animated_text_kit: ^4.2.2
+  convex_bottom_bar: ^3.2.0
 
 
 

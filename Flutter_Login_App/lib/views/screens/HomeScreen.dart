@@ -1,3 +1,4 @@
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
@@ -28,43 +29,47 @@ class _HomeScreenState extends State<HomeScreen> {
   final BMIController bmiController = Get.put(BMIController());
 
   Future<bool> _checkNotificationPermission() async {
-  NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
-  return settings.authorizationStatus == AuthorizationStatus.authorized;
-}
-
-void _checkAndRequestNotificationPermission() async {
-  bool isAuthorized = await _checkNotificationPermission();
-  if (!isAuthorized) {
-    _showNotificationPermissionDialog();
+    NotificationSettings settings =
+        await FirebaseMessaging.instance.getNotificationSettings();
+    return settings.authorizationStatus == AuthorizationStatus.authorized;
   }
-}
 
-void _showNotificationPermissionDialog() {
-  Get.dialog(
-    AlertDialog(
-      title: const Text('Cấp quyền thông báo'),
-      content: const Text('Bạn chưa cấp quyền thông báo. Bạn có muốn cấp quyền ngay bây giờ không?'),
-      actions: [
-        TextButton(
-          child: const Text('Để sau'),
-          onPressed: () => Get.back(),
-        ),
-        TextButton(
-          child: const Text('Cấp quyền'),
-          onPressed: () async {
-            Get.back();
-            NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
-            if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-              Get.snackbar('Thành công', 'Bạn đã cấp quyền thông báo.');
-            } else {
-              Get.snackbar('Lỗi', 'Bạn đã từ chối quyền thông báo.');
-            }
-          },
-        ),
-      ],
-    ),
-  );
-}
+  void _checkAndRequestNotificationPermission() async {
+    bool isAuthorized = await _checkNotificationPermission();
+    if (!isAuthorized) {
+      _showNotificationPermissionDialog();
+    }
+  }
+
+  void _showNotificationPermissionDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Cấp quyền thông báo'),
+        content: const Text(
+            'Bạn chưa cấp quyền thông báo. Bạn có muốn cấp quyền ngay bây giờ không?'),
+        actions: [
+          TextButton(
+            child: const Text('Để sau'),
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: const Text('Cấp quyền'),
+            onPressed: () async {
+              Get.back();
+              NotificationSettings settings =
+                  await FirebaseMessaging.instance.requestPermission();
+              if (settings.authorizationStatus ==
+                  AuthorizationStatus.authorized) {
+                Get.snackbar('Thành công', 'Bạn đã cấp quyền thông báo.');
+              } else {
+                Get.snackbar('Lỗi', 'Bạn đã từ chối quyền thông báo.');
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   // BottomNavigationBar index
   int _selectedIndex = 0;
@@ -80,15 +85,18 @@ void _showNotificationPermissionDialog() {
   void initState() {
     super.initState();
     _checkAndRequestNotificationPermission();
-    _updateSteps(); 
+    _updateSteps();
     stepController.loadTodaySteps(); // Tải số bước cho ngày hôm nay
   }
- Future<void> _updateSteps() async {
+
+  Future<void> _updateSteps() async {
     // Giả sử bạn có phương thức để lấy số bước, bạn có thể thay thế nó bằng cách của bạn
-    final steps = int.tryParse(stepController.stepCountString) ?? 0; // Nếu chuyển đổi thất bại, gán là 0
+    final steps = int.tryParse(stepController.stepCountString) ??
+        0; // Nếu chuyển đổi thất bại, gán là 0
     stepController.steps.value = steps; // Cập nhật số bước
     print(steps);
   }
+
   // Method to fetch user data from Firestore
   Future<String> _fetchUserName() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -184,7 +192,8 @@ void _showNotificationPermissionDialog() {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.account_circle), // Account and data icon
+                  leading:
+                      const Icon(Icons.account_circle), // Account and data icon
                   title: const Text('Tài khoản & dữ liệu'),
                   onTap: () {
                     Get.to(() => const AccountDataScreen());
@@ -267,7 +276,8 @@ void _showNotificationPermissionDialog() {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const AboutUsScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const AboutUsScreen()),
                     );
                   },
                 ),
@@ -315,7 +325,8 @@ void _showNotificationPermissionDialog() {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+                  title: const Text('Đăng xuất',
+                      style: TextStyle(color: Colors.red)),
                   onTap: () async {
                     await FirebaseAuth.instance.signOut();
                     Get.offNamed(AppRoutes.SIGNINSCREEN);
@@ -516,7 +527,7 @@ void _showNotificationPermissionDialog() {
                             const SizedBox(height: 16),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => StepTrackingScreen());
                               },
                               icon: Icons.bloodtype,
                               label: 'HA • tháng này',
@@ -525,7 +536,7 @@ void _showNotificationPermissionDialog() {
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => StepTrackingScreen());
                               },
                               icon: Icons.local_fire_department,
                               label: 'Khai báo một cơn đau',
@@ -534,7 +545,7 @@ void _showNotificationPermissionDialog() {
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => StepTrackingScreen());
                               },
                               icon: Icons.scale,
                               label: 'Cân nặng • tuần này',
@@ -546,8 +557,8 @@ void _showNotificationPermissionDialog() {
                               return _buildHealthGoal(
                                 onTap: () async {
                                   // Điều hướng đến StepTrackingScreen và chờ kết quả
-                                  final steps =
-                                      await Get.to(() => const StepTrackingScreen());
+                                  final steps = await Get.to(
+                                      () =>  StepTrackingScreen());
 
                                   // Kiểm tra và cập nhật số bước nếu có
                                   if (steps != null) {
@@ -565,7 +576,7 @@ void _showNotificationPermissionDialog() {
 
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => StepTrackingScreen());
                               },
                               icon: Icons.timer,
                               label: 'Thời gian hồi phục',
@@ -581,31 +592,19 @@ void _showNotificationPermissionDialog() {
               ),
             ),
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
+          bottomNavigationBar: ConvexAppBar(
+            style: TabStyle.reactCircle,
             backgroundColor: Colors.white,
-            selectedItemColor: Colors.pinkAccent,
-            unselectedItemColor: Colors.grey,
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
+            activeColor: Colors.pinkAccent,
+            color: Colors.grey,
             items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Trang chủ',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.health_and_safety),
-                label: 'Sức khoẻ',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.medication),
-                label: 'Thuốc',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.card_giftcard),
-                label: 'Phần thưởng',
-              ),
+              TabItem(icon: Icons.home, title: 'Trang chủ'),
+              TabItem(icon: Icons.medication, title: 'Thuốc'),
+              TabItem(icon: Icons.favorite, title: ''),
+              TabItem(icon: Icons.card_giftcard, title: 'Phần thưởng'),
             ],
+            initialActiveIndex: _selectedIndex,
+            onTap: _onItemTapped,
           ),
         );
       },

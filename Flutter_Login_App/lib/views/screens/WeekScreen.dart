@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class WeekScreen extends StatefulWidget {
   const WeekScreen({super.key});
@@ -26,59 +28,50 @@ class _WeekScreenState extends State<WeekScreen> {
   DateTime? startOfWeek;
   DateTime? endOfWeek;
 
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    totalSteps = 0;
-    averageSteps = 0;
-    totalCalories = 0;
-    totalDistance = 0;
-    totalMinutes = 0;
     _initializeData();
   }
 
   Future<void> _initializeData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     User? user = _auth.currentUser;
     if (user != null) {
-      await checkFirestoreStructure(user.uid);
+      await _loadCachedData();
       await _loadDataFromFirebase(user.uid);
-      await _loadLastWeekDataFromFirebase(user.uid);
-      setState(() {});
     } else {
       print("Không có người dùng đang đăng nhập.");
-      // Xử lý trường hợp không có người dùng đăng nhập ở đây
-      // Ví dụ: Chuyển hướng đến màn hình đăng nhập
-      // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
-  Future<void> _loadLastWeekDataFromFirebase(String userId) async {
-    DateTime now = DateTime.now();
-    DateTime startOfLastWeek = now.subtract(Duration(days: now.weekday + 6));
-    DateTime endOfLastWeek = startOfLastWeek.add(const Duration(days: 6));
-
-    List<int> lastWeekSteps = List.filled(7, 0);
-
-    for (int i = 0; i < 7; i++) {
-      DateTime currentDate = startOfLastWeek.add(Duration(days: i));
-      String dateKey =
-          "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
-
-      DocumentSnapshot snapshot = await _firestore
-          .collection('activity_data')
-          .doc(userId)
-          .collection('daily_data')
-          .doc(dateKey)
-          .get();
-
-      if (snapshot.exists) {
-        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-        lastWeekSteps[i] = data['steps'] ?? 0;
-      }
+  Future<void> _loadCachedData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cachedData = prefs.getString('weekData');
+    if (cachedData != null) {
+      Map<String, dynamic> data = json.decode(cachedData);
+      setState(() {
+        stepsPerDay = List<int>.from(data['stepsPerDay']);
+        caloriesPerDay = List<double>.from(data['caloriesPerDay']);
+        distancePerDay = List<double>.from(data['distancePerDay']);
+        minutesPerDay = List<int>.from(data['minutesPerDay']);
+        totalSteps = data['totalSteps'];
+        averageSteps = data['averageSteps'];
+        totalCalories = data['totalCalories'];
+        totalDistance = data['totalDistance'];
+        totalMinutes = data['totalMinutes'];
+        lastWeekAverageSteps = data['lastWeekAverageSteps'];
+      });
     }
-
-    int lastWeekTotalSteps = lastWeekSteps.reduce((a, b) => a + b);
-    lastWeekAverageSteps = lastWeekTotalSteps / 7;
   }
 
   Future<void> _loadDataFromFirebase(String userId) async {
@@ -87,40 +80,27 @@ class _WeekScreenState extends State<WeekScreen> {
         .subtract(Duration(days: now.weekday - 1));
     endOfWeek = startOfWeek!.add(const Duration(days: 6));
 
-    print(
-        "Đang tải dữ liệu cho tuần: ${startOfWeek!.toString()} đến ${endOfWeek!.toString()}");
-
     DocumentReference userDocRef =
         _firestore.collection('activity_data').doc(userId);
 
+    List<Future<DocumentSnapshot>> futures = [];
     for (int i = 0; i < 7; i++) {
       DateTime currentDate = startOfWeek!.add(Duration(days: i));
       String dateKey =
           "${currentDate.year}-${currentDate.month}-${currentDate.day}";
+      futures.add(userDocRef.collection('daily_data').doc(dateKey).get());
+    }
 
-      print("Truy xuất dữ liệu cho ngày: $dateKey");
+    List<DocumentSnapshot> snapshots = await Future.wait(futures);
 
-      try {
-        DocumentSnapshot snapshot =
-            await userDocRef.collection('daily_data').doc(dateKey).get();
-
-        if (snapshot.exists) {
-          Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-          print("Dữ liệu tìm thấy cho $dateKey: $data");
-
-          stepsPerDay[i] = data['steps'] ?? 0;
-          caloriesPerDay[i] = (data['calories'] ?? 0).toDouble();
-          distancePerDay[i] = (data['distance'] ?? 0).toDouble();
-          minutesPerDay[i] = data['minutes'] ?? 0;
-        } else {
-          print("Không tìm thấy dữ liệu cho ngày: $dateKey");
-          stepsPerDay[i] = 0;
-          caloriesPerDay[i] = 0;
-          distancePerDay[i] = 0;
-          minutesPerDay[i] = 0;
-        }
-      } catch (e) {
-        print("Lỗi khi truy xuất dữ liệu cho ngày $dateKey: $e");
+    for (int i = 0; i < 7; i++) {
+      if (snapshots[i].exists) {
+        Map<String, dynamic> data = snapshots[i].data() as Map<String, dynamic>;
+        stepsPerDay[i] = data['steps'] ?? 0;
+        caloriesPerDay[i] = (data['calories'] ?? 0).toDouble();
+        distancePerDay[i] = (data['distance'] ?? 0).toDouble();
+        minutesPerDay[i] = data['minutes'] ?? 0;
+      } else {
         stepsPerDay[i] = 0;
         caloriesPerDay[i] = 0;
         distancePerDay[i] = 0;
@@ -134,13 +114,59 @@ class _WeekScreenState extends State<WeekScreen> {
     totalMinutes = minutesPerDay.reduce((a, b) => a + b);
     averageSteps = totalSteps / 7;
 
-    print("Tổng số bước: $totalSteps");
-    print("Dữ liệu theo ngày:");
-    for (int i = 0; i < 7; i++) {
-      print("Ngày ${i + 1}: ${stepsPerDay[i]} bước");
-    }
+    await _loadLastWeekDataFromFirebase(userId);
+
+    _cacheData();
 
     setState(() {});
+  }
+
+  Future<void> _loadLastWeekDataFromFirebase(String userId) async {
+    DateTime now = DateTime.now();
+    DateTime startOfLastWeek = now.subtract(Duration(days: now.weekday + 6));
+
+    List<Future<DocumentSnapshot>> futures = [];
+    for (int i = 0; i < 7; i++) {
+      DateTime currentDate = startOfLastWeek.add(Duration(days: i));
+      String dateKey =
+          "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
+      futures.add(_firestore
+          .collection('activity_data')
+          .doc(userId)
+          .collection('daily_data')
+          .doc(dateKey)
+          .get());
+    }
+
+    List<DocumentSnapshot> snapshots = await Future.wait(futures);
+    List<int> lastWeekSteps = List.filled(7, 0);
+
+    for (int i = 0; i < 7; i++) {
+      if (snapshots[i].exists) {
+        Map<String, dynamic> data = snapshots[i].data() as Map<String, dynamic>;
+        lastWeekSteps[i] = data['steps'] ?? 0;
+      }
+    }
+
+    int lastWeekTotalSteps = lastWeekSteps.reduce((a, b) => a + b);
+    lastWeekAverageSteps = lastWeekTotalSteps / 7;
+  }
+
+  Future<void> _cacheData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> data = {
+      'stepsPerDay': stepsPerDay,
+      'caloriesPerDay': caloriesPerDay,
+      'distancePerDay': distancePerDay,
+      'minutesPerDay': minutesPerDay,
+      'totalSteps': totalSteps,
+      'averageSteps': averageSteps,
+      'totalCalories': totalCalories,
+      'totalDistance': totalDistance,
+      'totalMinutes': totalMinutes,
+      'lastWeekAverageSteps': lastWeekAverageSteps,
+    };
+    prefs.setString('weekData', json.encode(data));
   }
 
   Future<void> checkFirestoreStructure(String userId) async {
@@ -172,12 +198,19 @@ class _WeekScreenState extends State<WeekScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildWeekContent(),
+      body: _isLoading ? _buildLoadingIndicator() : _buildWeekContent(),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return const Center(
+      child: CircularProgressIndicator(),
     );
   }
 
   Widget _buildWeekContent() {
-    return Padding(
+    return Container(
+      color: Colors.white,
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,12 +230,10 @@ class _WeekScreenState extends State<WeekScreen> {
             children: [
               Text(
                 '${totalSteps ?? 0} bước',
-                style:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(20),
@@ -220,13 +251,10 @@ class _WeekScreenState extends State<WeekScreen> {
           const SizedBox(height: 16),
           _buildWeekChart(),
           const Expanded(child: SizedBox()),
-          _buildStatItem(
-              'bước', totalSteps.toString() ?? '0', Icons.directions_walk),
-          _buildStatItem('kcal', totalCalories.toStringAsFixed(1) ?? '0.0',
-              Icons.local_fire_department),
-          _buildStatItem('km', totalDistance.toStringAsFixed(2) ?? '0.00',
-              Icons.directions),
-          _buildStatItem('phút', totalMinutes.toString() ?? '0', Icons.timer),
+          _buildStatItem('bước', totalSteps.toString(), Icons.directions_walk),
+          _buildStatItem('kcal', totalCalories.toStringAsFixed(1), Icons.local_fire_department),
+          _buildStatItem('km', totalDistance.toStringAsFixed(2), Icons.directions),
+          _buildStatItem('phút', totalMinutes.toString(), Icons.timer),
         ],
       ),
     );
@@ -234,78 +262,66 @@ class _WeekScreenState extends State<WeekScreen> {
 
   Widget _buildTrendIcon() {
     if (lastWeekAverageSteps == null) {
-      return const SizedBox(); // Trả về widget rỗng nếu chưa có dữ liệu tuần trước
+      return const SizedBox();
     }
 
     if (averageSteps > lastWeekAverageSteps!) {
-      return const Icon(Icons.arrow_upward,
-          color: Colors.green, size: 16); // Biểu tượng tăng
+      return const Icon(Icons.arrow_upward, color: Colors.green, size: 16);
     } else if (averageSteps < lastWeekAverageSteps!) {
-      return const Icon(Icons.arrow_downward,
-          color: Colors.red, size: 16); // Biểu tượng giảm
+      return const Icon(Icons.arrow_downward, color: Colors.red, size: 16);
     } else {
-      return const Icon(Icons.horizontal_rule,
-          color: Colors.grey, size: 16); // Không thay đổi
+      return const Icon(Icons.horizontal_rule, color: Colors.grey, size: 16);
     }
   }
 
   Widget _buildWeekChart() {
-    int maxSteps =
-        stepsPerDay.reduce((curr, next) => curr > next ? curr : next);
-    maxSteps = maxSteps > 0 ? maxSteps : 1; // Tránh chia cho 0
+    int maxSteps = 5000;
     return Column(
       children: [
-        // Hàng hiển thị các thứ
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((day) {
             return Expanded(
               child: Center(
-                // Căn giữa text thứ
                 child: Text(day, style: const TextStyle(color: Colors.grey)),
               ),
             );
           }).toList(),
         ),
         const SizedBox(height: 8),
-
-        // Hàng hiển thị biểu đồ bước
-         Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: stepsPerDay.map((steps) {
-          return Expanded(
-            child: SizedBox(
-              height: 150,
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  Container(
-                    width: 30,
-                    height: 150,
-                    color: Colors.grey[300],
-                  ),
-                  Container(
-                    width: 30,
-                    height: (steps / maxSteps) * 150,
-                    color: Colors.blue[200],
-                  ),
-                ],
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: stepsPerDay.map((steps) {
+            double fillPercentage = (steps / maxSteps).clamp(0.0, 1.0);
+            return Expanded(
+              child: SizedBox(
+                height: 150,
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 150,
+                      color: Colors.grey[300],
+                    ),
+                    Container(
+                      width: 30,
+                      height: fillPercentage * 150,
+                      color: Colors.blue[200],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
         ),
-
         const SizedBox(height: 8),
-
-        // Hàng hiển thị số bước
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: stepsPerDay.map((steps) {
             return Expanded(
               child: Center(
-                // Căn giữa text số bước
                 child: Text(
                   steps > 0 ? steps.toString() : '-',
                   style: const TextStyle(color: Colors.grey),

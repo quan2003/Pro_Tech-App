@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_login_app/views/controller/DayCell.dart';
-import 'package:flutter_login_app/views/controller/ProgressRing.dart';
 import 'package:intl/intl.dart';
 
 class MonthScreen extends StatefulWidget {

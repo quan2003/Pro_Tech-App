@@ -1,72 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_login_app/views/controller/StepTrackingService.dart';
 import 'package:flutter_login_app/views/screens/MonthScreen.dart';
 import 'package:flutter_login_app/views/screens/WeekScreen.dart';
 import 'package:flutter_login_app/views/screens/YearScreen.dart';
-import 'package:pedometer/pedometer.dart';
+import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:permission_handler/permission_handler.dart';
-// import '../controller/StepTrackingService.dart';
 
 class StepTrackingScreen extends StatefulWidget {
-  const StepTrackingScreen({super.key});
-
   @override
   _StepTrackingScreenState createState() => _StepTrackingScreenState();
 }
 
 class _StepTrackingScreenState extends State<StepTrackingScreen>
     with SingleTickerProviderStateMixin {
-  String _userEmail = '';
-  int _steps = 0;
-  final int _stepGoal = 5000;
-  double _calories = 0;
-  double _distance = 0;
-  int _minutes = 0;
-  late SharedPreferences _prefs;
-  late Stream<StepCount> _stepCountStream;
-  User? _user;
-  DateTime? _startTime;
-  bool _isTracking = false;
-  int? _initialSteps;
-  int _lastSavedSteps = 0;
-
+  final StepTrackingService _stepService = Get.find<StepTrackingService>();
+  
   late TabController _tabController;
   final List<String> _tabs = ['Ngày', 'Tuần', 'Tháng', 'Năm'];
   DateTime _currentDate = DateTime.now();
   String _currentPeriod = "Hôm nay";
+  final int _stepGoal = 5000;
 
-  @override
+ @override
   void initState() {
     super.initState();
-    _user = FirebaseAuth.instance.currentUser;
-    _userEmail = _user?.email ?? '';
-    _initSharedPreferences();
-    _checkAndRequestPermission();
-    _loadDataForDate(_currentDate);
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabSelection);
+    _stepService.loadDataForDate(_currentDate);
   }
 
-  void _handleTabSelection() {
+   void _handleTabSelection() {
     setState(() {
       switch (_tabController.index) {
         case 0:
-          _currentPeriod =
-              'Hôm nay'; // Nội dung cho tab 'Ngày' _currentPeriod = _formatDate(_currentDate);
-          _loadDataForDate(_currentDate);
+          _currentPeriod = _formatDate(_currentDate);
+          _stepService.loadDataForDate(_currentDate);
           break;
         case 1:
-          _currentPeriod = 'Tổng số bước trong tuần'; // Nội dung cho tab 'Tuần'
+          _currentPeriod = 'Tổng số bước trong tuần';
           break;
         case 2:
-          _currentPeriod =
-              'Tổng hàng tháng'; // Nội dung cho tab 'Tháng'
+          _currentPeriod = 'Tổng hàng tháng';
           break;
         case 3:
-          _currentPeriod = 'Tổng số bước trong năm'; // Nội dung cho tab 'Năm'
+          _currentPeriod = 'Tổng số bước trong năm';
           break;
         default:
           _currentPeriod = 'Hôm nay';
@@ -88,228 +65,28 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
     }
   }
 
-  void _navigateDay(bool forward) {
+ void _navigateDay(bool forward) {
     setState(() {
       _currentDate = forward
           ? _currentDate.add(const Duration(days: 1))
           : _currentDate.subtract(const Duration(days: 1));
       _currentPeriod = _formatDate(_currentDate);
-      _loadDataForDate(_currentDate);
+      _stepService.loadDataForDate(_currentDate);
     });
   }
-
-  Future<void> _loadDataForDate(DateTime date) async {
-    if (_user == null) return;
-
-    String dateKey = "${date.year}-${date.month}-${date.day}";
-
-    DocumentSnapshot doc = await FirebaseFirestore.instance
-        .collection('activity_data')
-        .doc(_user!.uid)
-        .collection('daily_data')
-        .doc(dateKey)
-        .get();
-
-    if (doc.exists) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      setState(() {
-        _steps = data['steps'] ?? 0;
-        _calories = data['calories'] ?? 0.0;
-        _distance = data['distance'] ?? 0.0;
-        _minutes = data['minutes'] ?? 0;
-      });
-    } else {
-      _resetData();
-    }
-  }
-  // void _loadDataForPeriod(String period) {
-  //   // Implement logic to load data for the selected period
-  //   // This is where you would query Firestore for the appropriate data
-  //   // For now, we'll just use dummy data
-  //   setState(() {
-  //     _steps = 1000 * (_tabController.index + 1); // Dummy data
-  //     _updateData();
-  //   });
-  // }
 
   @override
   void dispose() {
-    _tabController.dispose(); // Đảm bảo giải phóng bộ nhớ khi không cần thiết
+    _tabController.dispose();
     super.dispose();
-  }
-
-  Future<void> _initSharedPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
-  }
-
-  Future<void> _loadDataFromFirebase() async {
-    if (_user == null) return;
-
-    DateTime now = DateTime.now();
-    String todayKey = "${now.year}-${now.month}-${now.day}";
-
-    DocumentSnapshot doc = await FirebaseFirestore.instance
-        .collection('activity_data')
-        .doc(_user!.uid)
-        .collection('daily_data')
-        .doc(todayKey)
-        .get();
-
-    if (doc.exists) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      setState(() {
-        _steps = data['steps'] ?? 0;
-        _lastSavedSteps = _steps;
-        _calories = data['calories'] ?? 0.0;
-        _distance = data['distance'] ?? 0.0;
-        _minutes = data['minutes'] ?? 0;
-        _isTracking = data['isTracking'] ?? false;
-        _startTime = data['startTime'] != null
-            ? DateTime.parse(data['startTime'])
-            : null;
-      });
-    } else {
-      _resetData();
-    }
-  }
-
-  void _resetData() {
-    setState(() {
-      _steps = 0;
-      _lastSavedSteps = 0;
-      _calories = 0;
-      _distance = 0;
-      _minutes = 0;
-      _initialSteps = null;
-      _isTracking = false;
-      _startTime = null;
-    });
-  }
-
-  void _onStepCount(StepCount event) {
-    if (!_isTracking) return;
-
-    setState(() {
-      _initialSteps ??= event.steps;
-      int newSteps = event.steps - _initialSteps!;
-      _steps = _lastSavedSteps + newSteps;
-      _updateData();
-    });
-
-    _saveDataToFirebase({
-      'steps': _steps,
-      'calories': _calories,
-      'distance': _distance,
-      'minutes': _minutes,
-      'isTracking': _isTracking,
-      'startTime': _startTime?.toIso8601String(),
-    });
-  }
-
-  Future<void> _checkAndRequestPermission() async {
-    PermissionStatus status = await Permission.activityRecognition.status;
-
-    if (status.isGranted) {
-      _startListening();
-    } else {
-      status = await Permission.activityRecognition.request();
-      if (status.isGranted) {
-        _startListening();
-      } else if (status.isDenied || status.isPermanentlyDenied) {
-        _showPermissionDeniedDialog();
-      }
-    }
-  }
-
-  void _showPermissionDeniedDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Physical Activity Permission Required"),
-          content: const Text(
-              "Please grant physical activity permission to track your activities."),
-          actions: [
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _startListening() {
-    _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream.listen(_onStepCount).onError(_onStepCountError);
-  }
-
-  void _updateData() {
-    _calories = _steps * 0.04;
-    _distance = _steps * 0.000762;
-
-    if (_startTime != null) {
-      _minutes = DateTime.now().difference(_startTime!).inMinutes;
-    }
-  }
-
-  void _onStepCountError(error) {
-    print("Step Count Error: $error");
-  }
-
-  Future<void> _saveDataToFirebase(Map<String, dynamic> data) async {
-    if (_user == null) return;
-
-    DateTime now = DateTime.now();
-    String todayKey = "${now.year}-${now.month}-${now.day}";
-
-    CollectionReference userDataCollection = FirebaseFirestore.instance
-        .collection('activity_data')
-        .doc(_user!.uid)
-        .collection('daily_data');
-
-    await userDataCollection.doc(todayKey).set({
-      'date': todayKey,
-      'email': _userEmail,
-      ...data,
-    }, SetOptions(merge: true));
-
-    _lastSavedSteps = _steps;
-  }
-
-  void _toggleTracking() {
-    setState(() {
-      _isTracking = !_isTracking;
-      if (_isTracking) {
-        _startTime = _startTime ?? DateTime.now();
-        _initialSteps = null;
-      }
-    });
-
-    _saveDataToFirebase({
-      'isTracking': _isTracking,
-      'startTime': _startTime?.toIso8601String(),
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    double percent = _steps / _stepGoal;
-
     return WillPopScope(
       onWillPop: () async {
-        await _saveDataToFirebase({
-          'steps': _steps,
-          'calories': _calories,
-          'distance': _distance,
-          'minutes': _minutes,
-          'isTracking': _isTracking,
-          'startTime': _startTime?.toIso8601String(),
-        });
-        Navigator.pop(context, _steps);
+        await _stepService.saveStepsToFirebase();
+        Navigator.pop(context, _stepService.steps.value);
         return false;
       },
       child: Scaffold(
@@ -321,15 +98,8 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () async {
-              await _saveDataToFirebase({
-                'steps': _steps,
-                'calories': _calories,
-                'distance': _distance,
-                'minutes': _minutes,
-                'isTracking': _isTracking,
-                'startTime': _startTime?.toIso8601String(),
-              });
-              Navigator.pop(context, _steps);
+              await _stepService.saveStepsToFirebase();
+              Navigator.pop(context, _stepService.steps.value);
             },
           ),
           bottom: TabBar(
@@ -343,21 +113,20 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildTabContent(), // Ngày
-            const WeekScreen(), // Tuần
-            const MonthScreen(), // Tháng
-            const YearScreen(), // Năm
+            _buildTabContent(),
+            const WeekScreen(),
+            const MonthScreen(),
+            const YearScreen(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTabContent() {
-    double percent = _steps / _stepGoal;
-
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
+ Widget _buildTabContent() {
+  return Padding(
+    padding: const EdgeInsets.all(20.0),
+    child: Obx(() => SingleChildScrollView( // Bọc trong SingleChildScrollView
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -371,24 +140,19 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-                  onPressed: () {
-                    _navigateDay(false); // Navigate back
-                  },
+                  onPressed: () => _navigateDay(false),
                 ),
                 Expanded(
-                  // Wrap Text inside Expanded
                   child: Text(
                     _currentPeriod,
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center, // Center text
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                   onPressed: _currentDate.isBefore(DateTime.now())
-                      ? () {
-                          _navigateDay(true); // Navigate forward
-                        }
+                      ? () => _navigateDay(true)
                       : null,
                 ),
               ],
@@ -399,13 +163,15 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
             radius: 150.0,
             lineWidth: 15.0,
             animation: true,
-            percent: percent > 1 ? 1 : percent,
+            percent: (_stepGoal > 0)
+                ? (_stepService.steps.value / _stepGoal).clamp(0.0, 1.0)
+                : 0.0,
             center: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.directions_walk, size: 50, color: Colors.pink),
                 Text(
-                  "$_steps",
+                  "${_stepService.steps.value}",
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 50.0),
                 ),
                 GestureDetector(
@@ -431,26 +197,76 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildStatItem("bước", _steps.toString(), Icons.directions_walk),
-              _buildStatItem("kcal", _calories.toStringAsFixed(1),
-                  Icons.local_fire_department),
-              _buildStatItem(
-                  "m", _distance.toStringAsFixed(2), Icons.directions),
-              _buildStatItem("phút", _minutes.toString(), Icons.timer),
+              _buildStatItem("bước", "${_stepService.steps.value}", Icons.directions_walk),
+              _buildStatItem("kcal", "${_stepService.calories.value.toStringAsFixed(1)}", Icons.local_fire_department),
+              _buildStatItem("km", "${_stepService.distance.value.toStringAsFixed(2)}", Icons.directions),
+              _buildStatItem("phút", "${_stepService.minutes.value}", Icons.timer),
             ],
           ),
           const SizedBox(height: 40),
-          ElevatedButton(
-            onPressed: _toggleTracking,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _isTracking ? Colors.red : Colors.green,
+          // Improved tracking button
+          AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            width: 200,
+            height: 60,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              gradient: LinearGradient(
+                colors: _stepService.isTracking.value
+                    ? [Colors.red.shade400, Colors.red.shade700]
+                    : [Colors.green.shade400, Colors.green.shade700],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _stepService.isTracking.value
+                      ? Colors.red.withOpacity(0.4)
+                      : Colors.green.withOpacity(0.4),
+                  spreadRadius: 1,
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
-            child: Text(_isTracking ? 'Dừng theo dõi' : 'Bắt đầu theo dõi'),
+            child: ElevatedButton(
+              onPressed: () {
+                _stepService.toggleTracking();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _stepService.isTracking.value ? Icons.stop : Icons.play_arrow,
+                    color: Colors.white,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    _stepService.isTracking.value ? 'Dừng theo dõi' : 'Bắt đầu theo dõi',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
-    );
-  }
+    )),
+  );
+}
+
+
 
   Widget _buildStatItem(String label, String value, IconData icon) {
     return Column(

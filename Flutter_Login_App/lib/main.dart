@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_login_app/views/Routes/AppRoutes.dart';
+import 'package:flutter_login_app/views/controller/StepTrackingService.dart';
 import 'package:get/get.dart';
 // import 'package:flutter_login_app/views/controller/StepTrackingService.dart';
 
@@ -15,7 +16,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //  Get.put(() => StepTrackingService());
+  // Get.put(Ste0pTrackingService());
 
   // Khởi tạo Firebase cho các nền tảng khác nhau
   if (Firebase.apps.isEmpty) {

@@ -1,31 +1,42 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:get/get.dart';
-import 'package:pedometer/pedometer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:async';
 
 class StepTrackingService extends GetxService {
-  var steps = 0.obs; // Observable to hold the step count
-  var calories = 0.0.obs; // Observable to hold calories
-  var distance = 0.0.obs; // Observable to hold distance
-  var minutes = 0.obs; // Observable to hold minutes
-
-  User? _user; // Firebase user
+  var steps = 0.obs;
+  var calories = 0.0.obs;
+  var distance = 0.0.obs;
+  var minutes = 0.obs;
+  var isTracking = false.obs;
+  
+  User? _user;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  late StreamSubscription<StepCount> _stepCountSubscription;
-  int? _initialSteps;
+  StreamSubscription<UserAccelerometerEvent>? _accelerometerSubscription;
+
+  String gender = 'male';
+  DateTime? _startTime;
+  int _elapsedSeconds = 0;
   int _lastSavedSteps = 0;
-  bool _isTracking = false;
-  String gender = 'male'; // Giá trị mặc định, bạn có thể thay đổi
 
-  // Biến để lưu trữ bước và thời gian lần trước
-  int? lastStepCount;
-  DateTime? lastStepTime;
+  final List<double> _magnitudeBuffer = [];
+  final int _bufferSize = 20;
+  final double _stepThreshold = 10.0;
+  final int _minStepInterval = 250;
+  int _lastStepTimestamp = 0;
 
-  @override
+  Timer? _syncTimer;
+  Timer? _trackingTimer;
+
+
+   @override
   void onInit() {
     super.onInit();
     _auth.authStateChanges().listen((User? user) {
@@ -35,30 +46,96 @@ class StepTrackingService extends GetxService {
         initialize();
       } else {
         print("User is not logged in.");
-        stopListening();
+        stopTracking();
       }
     });
   }
 
-  // Initialize the service
   Future<void> initialize() async {
     print("Initializing StepTrackingService");
     await _checkAndRequestPermission();
-    await loadSteps(); // Load step count from Firestore
-    await loadUserGender(); // Load gender từ Firestore
-    if (_isTracking) {
-      startListening();
+    await loadTodayData();
+    await loadUserGender();
+    if (isTracking.value) {
+      startTracking();
     }
     print("StepTrackingService initialized with ${steps.value} steps and gender: $gender");
   }
 
-  // Check and request necessary permissions
+   Future<void> loadTodayData() async {
+    if (_user == null) return;
+    try {
+      DateTime now = DateTime.now();
+      String todayKey = "${now.year}-${now.month}-${now.day}";
+      final data = await _firestore
+          .collection('activity_data')
+          .doc(_user!.uid)
+          .collection('daily_data')
+          .doc(todayKey)
+          .get();
+      if (data.exists) {
+        steps.value = data['steps'] ?? 0;
+        _lastSavedSteps = steps.value;
+        calories.value = data['calories'] ?? 0.0;
+        distance.value = data['distance'] ?? 0.0;
+        _elapsedSeconds = data['elapsedSeconds'] ?? 0;
+        minutes.value = (_elapsedSeconds / 60).round();
+        isTracking.value = data['isTracking'] ?? false;
+        _startTime = data['startTime'] != null ? DateTime.parse(data['startTime']) : null;
+        print("Loaded today's data: ${steps.value} steps, ${minutes.value} minutes");
+      } else {
+        resetData();
+      }
+    } catch (e) {
+      print("Error loading today's data: $e");
+    }
+  }
+
+  void startTracking() {
+    if (!isTracking.value) {
+      isTracking.value = true;
+      _startTime = DateTime.now().subtract(Duration(seconds: _elapsedSeconds));
+      startListening();
+      _startTrackingTimer();
+      _startSyncTimer();
+    }
+  }
+
+  void stopTracking() {
+    if (isTracking.value) {
+      isTracking.value = false;
+      stopListening();
+      _trackingTimer?.cancel();
+      _syncTimer?.cancel();
+      saveDataToFirebase();
+    }
+  }
+
+    void _startTrackingTimer() {
+    _trackingTimer?.cancel();
+    _trackingTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (isTracking.value) {
+        _elapsedSeconds++;
+        minutes.value = (_elapsedSeconds / 60).round();
+        updateData();
+      }
+    });
+  }
+
+   Future<void> toggleTracking() async {
+    if (isTracking.value) {
+      stopTracking();
+    } else {
+      await _checkAndRequestPermission();
+      await loadUserGender();
+      startTracking();
+    }
+    await saveDataToFirebase();
+  }
+
   Future<void> _checkAndRequestPermission() async {
     PermissionStatus status = await Permission.activityRecognition.status;
-
-    if (status.isGranted) {
-      // Permission granted
-    } else {
+    if (!status.isGranted) {
       status = await Permission.activityRecognition.request();
       if (!status.isGranted) {
         _showPermissionDeniedDialog();
@@ -66,226 +143,225 @@ class StepTrackingService extends GetxService {
     }
   }
 
-  // Show dialog when permission is denied
   void _showPermissionDeniedDialog() {
     Get.defaultDialog(
       title: "Cần Quyền Vận Động",
-      middleText:
-          "Vui lòng cấp quyền vận động để ứng dụng có thể theo dõi hoạt động của bạn.",
-      onConfirm: () {
-        Get.back();
-      },
+      middleText: "Vui lòng cấp quyền vận động để ứng dụng có thể theo dõi hoạt động của bạn.",
+      onConfirm: () => Get.back(),
       textConfirm: "OK",
     );
   }
 
-  // Load gender từ Firestore
   Future<void> loadUserGender() async {
     if (_user == null) return;
-
     try {
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(_user!.uid).get();
-
       if (userDoc.exists) {
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
         gender = (userData['gender'] ?? 'male').toString().toLowerCase();
-        print("User gender: $gender");
       } else {
-        print("User document does not exist.");
-        gender = 'male'; // Giá trị mặc định nếu không tìm thấy
+        gender = 'male';
       }
+      print("User gender: $gender");
     } catch (e) {
       print("Error loading user gender: $e");
-      gender = 'male'; // Giá trị mặc định trong trường hợp lỗi
+      gender = 'male';
     }
   }
 
-  // Start listening to step count stream
-  void startListening() {
-    if (_isTracking) return; // Already listening
-    _stepCountSubscription = Pedometer.stepCountStream.listen(
-      onStepCount,
-      onError: onStepCountError,
-      cancelOnError: false,
-    );
-    _isTracking = true;
-    print("Started listening to step count stream");
+    void startListening() {
+    if (_accelerometerSubscription != null) return;
+    _accelerometerSubscription = userAccelerometerEvents.listen(_onAccelerometerEvent);
+    print("Started listening to accelerometer events");
+  }
+   void stopListening() {
+    _accelerometerSubscription?.cancel();
+    _accelerometerSubscription = null;
+    print("Stopped listening to accelerometer events");
   }
 
-  // Stop listening to step count stream
-  void stopListening() {
-    if (_isTracking) {
-      _stepCountSubscription.cancel();
-      _isTracking = false;
-      print("Stopped listening to step count stream");
-    }
-  }
+  void _onAccelerometerEvent(UserAccelerometerEvent event) {
+    if (!isTracking.value) return;
 
-  // Handle step count events
-  void onStepCount(StepCount event) {
-    if (!_isTracking) return;
-
-    DateTime now = DateTime.now();
-
-    if (_initialSteps == null) {
-      _initialSteps = event.steps;
-      lastStepCount = event.steps;
-      lastStepTime = now;
-      print("Initial steps set to $_initialSteps");
-      updateData();
-      saveStepsToFirebase();
-      return;
+    double magnitude = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+    
+    _magnitudeBuffer.add(magnitude);
+    if (_magnitudeBuffer.length > _bufferSize) {
+      _magnitudeBuffer.removeAt(0);
     }
 
-    int newSteps = event.steps - lastStepCount!;
-    Duration timeDiff = now.difference(lastStepTime!);
+    if (_magnitudeBuffer.length == _bufferSize) {
+      double avgMagnitude = _magnitudeBuffer.reduce((a, b) => a + b) / _bufferSize;
+      int currentTimestamp = DateTime.now().millisecondsSinceEpoch;
 
-    if (timeDiff.inSeconds == 0) {
-      // Tránh chia cho 0
-      return;
-    }
-
-    double stepsPerMinute = (newSteps / timeDiff.inSeconds) * 60;
-
-    // Kiểm tra xem số bước có nằm trong khoảng bình thường không
-    bool isValid = false;
-    if (gender == 'male') {
-      isValid = stepsPerMinute >= 90 && stepsPerMinute <= 130;
-    } else if (gender == 'female') {
-      isValid = stepsPerMinute >= 80 && stepsPerMinute <= 120;
-    }
-
-    if (isValid) {
-      steps.value = _lastSavedSteps + newSteps;
-      updateData();
-      saveStepsToFirebase();
-      _lastSavedSteps = steps.value;
-    } else {
-      print("Số bước không hợp lý: $newSteps với tần suất $stepsPerMinute bước/phút");
-    }
-
-    // Cập nhật các giá trị cho lần sau
-    lastStepCount = event.steps;
-    lastStepTime = now;
-  }
-
-  // Handle step count errors
-  void onStepCountError(error) {
-    print("Step Count Error: $error");
-    // Có thể hiển thị thông báo cho người dùng hoặc thử khởi động lại luồng
-  }
-
-  // Update các giá trị phụ như calo, khoảng cách, thời gian
-  void updateData() {
-    calories.value = steps.value * 0.04; // Ví dụ: 0.04 kcal/bước
-    distance.value = steps.value * 0.000762; // Ví dụ: 0.000762 km/bước
-
-    if (lastStepTime != null && _initialSteps != null) {
-      Duration duration = DateTime.now().difference(lastStepTime!);
-      minutes.value = duration.inMinutes;
+      if (avgMagnitude > _stepThreshold && 
+          (currentTimestamp - _lastStepTimestamp) > _minStepInterval) {
+        _lastStepTimestamp = currentTimestamp;
+        _incrementSteps();
+      }
     }
   }
 
-  // Save steps to Firebase
-  Future<void> saveStepsToFirebase() async {
+  Future<void> loadDataForDate(DateTime date) async {
     if (_user == null) return;
+    try {
+      String dateKey = "${date.year}-${date.month}-${date.day}";
+      final stepData = await _firestore
+          .collection('activity_data')
+          .doc(_user!.uid)
+          .collection('daily_data')
+          .doc(dateKey)
+          .get();
+      if (stepData.exists && stepData.data()?['steps'] != null) {
+        steps.value = stepData.data()!['steps'];
+        calories.value = stepData.data()?['calories'] ?? 0.0;
+        distance.value = stepData.data()?['distance'] ?? 0.0;
+        minutes.value = stepData.data()?['minutes'] ?? 0;
+        _startTime = stepData.data()!['startTime'] != null
+            ? DateTime.parse(stepData.data()!['startTime'])
+            : date;
+        updateData();
+        print("Loaded data for $dateKey: ${steps.value} steps");
+      } else {
+        resetData();
+        _startTime = date;
+        print("No data found for $dateKey. Reset to zero.");
+      }
+    } catch (e) {
+      print("Error loading data for $date: $e");
+    }
+  }
 
+   void _incrementSteps() {
+    if (isTracking.value) {
+      steps.value++;
+      updateData();
+      print("Steps incremented: ${steps.value}");
+    }
+  }
+
+
+     void updateData() {
+    double caloriesPerStep = (gender == 'male') ? 0.045 : 0.04;
+    double distancePerStep = (gender == 'male') ? 0.000762 : 0.000667; // in km
+
+    calories.value = steps.value * caloriesPerStep;
+    distance.value = steps.value * distancePerStep;
+  }
+ Future<void> saveDataToFirebase() async {
+    if (_user == null) return;
     try {
       DateTime now = DateTime.now();
       String todayKey = "${now.year}-${now.month}-${now.day}";
+      await _firestore
+          .collection('activity_data')
+          .doc(_user!.uid)
+          .collection('daily_data')
+          .doc(todayKey)
+          .set({
+        'date': todayKey,
+        'steps': steps.value,
+        'calories': calories.value,
+        'distance': distance.value,
+        'elapsedSeconds': _elapsedSeconds,
+        'minutes': minutes.value,
+        'isTracking': isTracking.value,
+        'startTime': _startTime?.toIso8601String(),
+      }, SetOptions(merge: true));
+      print("Saved data to Firebase for $todayKey");
+    } catch (e) {
+      print("Error saving data to Firebase: $e");
+    }
+  }
 
-      CollectionReference dataCollection =
-          _firestore.collection('activity_data');
 
-      await dataCollection.doc(_user!.uid).set({
+  Future<void> saveStepsToFirebase() async {
+    if (_user == null) return;
+    try {
+      DateTime now = DateTime.now();
+      String todayKey = "${now.year}-${now.month}-${now.day}";
+      CollectionReference dailyStepsCollection =
+          _firestore.collection('activity_data').doc(_user!.uid).collection('daily_data');
+      await dailyStepsCollection.doc(todayKey).set({
         'date': todayKey,
         'steps': steps.value,
         'calories': calories.value,
         'distance': distance.value,
         'minutes': minutes.value,
-        // Thêm các trường khác nếu cần
+        'startTime': _startTime?.toIso8601String(),
       }, SetOptions(merge: true));
-
-      print("Saved ${steps.value} steps to Firebase");
+      print("Saved ${steps.value} steps to Firebase for $todayKey");
     } catch (e) {
       print("Error saving steps to Firebase: $e");
     }
   }
 
-// Load steps for today from Firestore
-Future<void> loadTodaySteps() async {
-  if (_user == null) return; // Kiểm tra nếu người dùng đã đăng nhập
-
-  try {
-    DateTime now = DateTime.now();
-    String todayKey = "${now.year}-${now.month}-${now.day}";
-
-    final stepData = await _firestore
-        .collection('activity_data')
-        .doc(_user!.uid)
-        .get();
-
-    if (stepData.exists && stepData.data()?['steps'] != null) {
-      steps.value = stepData.data()!['steps'];
-      print("Loaded today's steps: ${steps.value}");
-    } else {
-      steps.value = 0; // Nếu không có dữ liệu, gán là 0
-      print("No step data found for today.");
-    }
-  } catch (e) {
-    print("Error loading today's steps: $e");
-  }
-}
-
-
-  // Toggle tracking on/off
-  Future<void> toggleTracking() async {
-    if (_isTracking) {
-      stopListening();
-    } else {
-      await _checkAndRequestPermission();
-      await loadUserGender(); // Đảm bảo gender được tải lại trước khi bắt đầu
-      startListening();
-    }
-    // Cập nhật trạng thái theo dõi lên Firebase nếu cần
-    await saveStepsToFirebase();
-  }
-
-  // Load steps from Firestore
-  Future<void> loadSteps() async {
+  Future<void> loadTodaySteps() async {
+    if (_user == null) return;
     try {
-      if (_user != null) {
-        final stepData = await _firestore.collection('activity_data').doc(_user!.uid).get();
-
-        print("Step data exists: ${stepData.exists}");
-        print("Step data: ${stepData.data()}");
-
-        if (stepData.exists && stepData.data()?['steps'] != null) {
-          steps.value = stepData.data()!['steps'];
-          _lastSavedSteps = steps.value;
-          print("Loaded ${steps.value} steps from Firebase");
-        } else {
-          print("No valid step data found for this user.");
-          steps.value = 0;
-          _lastSavedSteps = 0;
-        }
+      DateTime now = DateTime.now();
+      String todayKey = "${now.year}-${now.month}-${now.day}";
+      final stepData = await _firestore
+          .collection('activity_data')
+          .doc(_user!.uid)
+          .collection('daily_data')
+          .doc(todayKey)
+          .get();
+      if (stepData.exists && stepData.data()?['steps'] != null) {
+        steps.value = stepData.data()!['steps'];
+        _startTime = stepData.data()!['startTime'] != null
+            ? DateTime.parse(stepData.data()!['startTime'])
+            : DateTime.now();
+        updateData();
+        print("Loaded today's steps: ${steps.value}");
       } else {
-        print("User is not logged in.");
+        steps.value = 0;
+        _startTime = DateTime.now();
+        print("No step data found for today.");
       }
     } catch (e) {
-      print("Error loading steps: $e");
+      print("Error loading today's steps: $e");
     }
   }
 
-  // Getter to return the step count as a formatted string
+ void _startSyncTimer() {
+    _syncTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+      saveDataToFirebase();
+    });
+  }
+
+// Future<void> toggleTracking() async {
+//   isTracking.value = !isTracking.value;
+//   if (isTracking.value) {
+//     await _checkAndRequestPermission();
+//     await loadUserGender();
+//     startListening();
+//     _startSyncTimer();
+//   } else {
+//     stopListening();
+//   }
+//   await saveStepsToFirebase();
+// }
+
   String get stepCountString {
-    print("Current step count: ${steps.value}"); // In ra giá trị hiện tại
+    print("Current step count: ${steps.value}");
     return "${steps.value} bước / 5000";
   }
 
   @override
   void onClose() {
+    stopTracking();
     super.onClose();
-    stopListening();
+  }
+  
+    void resetData() {
+    steps.value = 0;
+    _lastSavedSteps = 0;
+    calories.value = 0.0;
+    distance.value = 0.0;
+    minutes.value = 0;
+    _elapsedSeconds = 0;
+    _startTime = null;
+    isTracking.value = false;
   }
 }

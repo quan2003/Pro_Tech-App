@@ -1,7 +1,9 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
+
 import 'package:flutter_login_app/views/screens/StepTrackerScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +18,47 @@ import 'AccountDataScreen.dart';
 import 'AboutUsScreen.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../controller/StepTrackingService.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:workmanager/workmanager.dart';
+
+
+// Function to show running reminder notification
+void _showRunningReminder() {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  flutterLocalNotificationsPlugin.show(
+    0,
+    'Nhắc nhở chạy bộ',
+    'Đã đến giờ chạy bộ buổi sáng rồi!',
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'running_reminder_channel',
+        'Running Reminder',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+    ),
+  );
+}
+
+// Function to show step count reminder notification
+void _showStepCountReminder() {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  flutterLocalNotificationsPlugin.show(
+    1,
+    'Thống kê bước chạy',
+    'Hãy kiểm tra số bước chạy của bạn hôm nay!',
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'step_count_channel',
+        'Step Count Reminder',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+    ),
+  );
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,43 +70,31 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final StepTrackingService stepController = Get.put(StepTrackingService());
   final BMIController bmiController = Get.put(BMIController());
+ 
 
-  Future<bool> _checkNotificationPermission() async {
-    NotificationSettings settings =
-        await FirebaseMessaging.instance.getNotificationSettings();
-    return settings.authorizationStatus == AuthorizationStatus.authorized;
+  int _selectedIndex = 0;
+
+    @override
+  void initState() {
+    super.initState();
   }
-
-  void _checkAndRequestNotificationPermission() async {
-    bool isAuthorized = await _checkNotificationPermission();
-    if (!isAuthorized) {
-      _showNotificationPermissionDialog();
-    }
-  }
-
+ 
   void _showNotificationPermissionDialog() {
-    Get.dialog(
-      AlertDialog(
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
         title: const Text('Cấp quyền thông báo'),
-        content: const Text(
-            'Bạn chưa cấp quyền thông báo. Bạn có muốn cấp quyền ngay bây giờ không?'),
-        actions: [
+        content: const Text('Ứng dụng cần quyền thông báo để gửi nhắc nhở chạy bộ và thống kê bước chạy hàng ngày.'),
+        actions: <Widget>[
           TextButton(
             child: const Text('Để sau'),
-            onPressed: () => Get.back(),
+            onPressed: () => Navigator.of(context).pop(),
           ),
           TextButton(
             child: const Text('Cấp quyền'),
-            onPressed: () async {
-              Get.back();
-              NotificationSettings settings =
-                  await FirebaseMessaging.instance.requestPermission();
-              if (settings.authorizationStatus ==
-                  AuthorizationStatus.authorized) {
-                Get.snackbar('Thành công', 'Bạn đã cấp quyền thông báo.');
-              } else {
-                Get.snackbar('Lỗi', 'Bạn đã từ chối quyền thông báo.');
-              }
+            onPressed: () {
+              Navigator.of(context).pop();
+              // _requestNotificationPermissions();
             },
           ),
         ],
@@ -71,33 +102,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // BottomNavigationBar index
-  int _selectedIndex = 0;
-
-  // Method to handle bottom navigation tap
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAndRequestNotificationPermission();
-    _updateSteps();
-    stepController.loadTodaySteps(); // Tải số bước cho ngày hôm nay
-  }
+  
+ 
 
   Future<void> _updateSteps() async {
-    // Giả sử bạn có phương thức để lấy số bước, bạn có thể thay thế nó bằng cách của bạn
-    final steps = int.tryParse(stepController.stepCountString) ??
-        0; // Nếu chuyển đổi thất bại, gán là 0
-    stepController.steps.value = steps; // Cập nhật số bước
+    final steps = int.tryParse(stepController.stepCountString) ?? 0;
+    stepController.steps.value = steps;
     print(steps);
   }
 
-  // Method to fetch user data from Firestore
   Future<String> _fetchUserName() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -110,6 +123,12 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     return 'Khách';
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -127,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Trang chủ"),
+            title: Text("Trang chủ"),
             backgroundColor: Colors.teal,
             actions: [
               IconButton(
@@ -178,7 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.person), // Profile Icon
-                  title: const Text('Hồ sơ'),
+                  title:
+                      Text("Hồ sơ"),
                   onTap: () {
                     // Navigate to the profile screen
                     Get.to(() => ProfileScreen(userId: user!.uid));
@@ -203,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.language), // Language icon
                   title: const Text('Ngôn ngữ'),
                   onTap: () {
-                    // Logic for changing language
+                    // Get.to(() => LanguageSelector());
                   },
                 ),
                 ListTile(
@@ -349,8 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Xin chào, $userName!',
+                              Text("Xin chào, $userName!",
                                 style: const TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
@@ -557,8 +576,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               return _buildHealthGoal(
                                 onTap: () async {
                                   // Điều hướng đến StepTrackingScreen và chờ kết quả
-                                  final steps = await Get.to(
-                                      () =>  StepTrackingScreen());
+                                  final steps =
+                                      await Get.to(() => StepTrackingScreen());
 
                                   // Kiểm tra và cập nhật số bước nếu có
                                   if (steps != null) {
@@ -599,8 +618,8 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.grey,
             items: const [
               TabItem(icon: Icons.home, title: 'Trang chủ'),
+              TabItem(icon: Icons.favorite, title: 'Sức khoẻ'),
               TabItem(icon: Icons.medication, title: 'Thuốc'),
-              TabItem(icon: Icons.favorite, title: ''),
               TabItem(icon: Icons.card_giftcard, title: 'Phần thưởng'),
             ],
             initialActiveIndex: _selectedIndex,

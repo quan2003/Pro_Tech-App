@@ -209,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: "365c771ac3b0e58845f39ec6deebc76e3276aa9922b0cc60840712094d9047ac"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.10"
   device_info_plus:
     dependency: transitive
     description:
@@ -510,6 +518,43 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_local_notifications:
+    dependency: "direct main"
+    description:
+      name: flutter_local_notifications
+      sha256: "49eeef364fddb71515bc78d5a8c51435a68bccd6e4d68e25a942c5e47761ae71"
+      url: "https://pub.dev"
+    source: hosted
+    version: "17.2.3"
+  flutter_local_notifications_linux:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications_linux
+      sha256: c49bd06165cad9beeb79090b18cd1eb0296f4bf4b23b84426e37dd7c027fc3af
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
+  flutter_local_notifications_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications_platform_interface
+      sha256: "85f8d07fe708c1bdcf45037f2c0109753b26ae077e9d9e899d55971711a4ea66"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.2.0"
+  flutter_localization:
+    dependency: "direct main"
+    description:
+      name: flutter_localization
+      sha256: "9b3b8825146a3850297a0ec3686b326d618328dca4cd5178b764af9303a26379"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_login:
     dependency: "direct main"
     description:
@@ -1261,6 +1306,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.2"
+  timezone:
+    dependency: "direct main"
+    description:
+      name: timezone
+      sha256: "2236ec079a174ce07434e89fcd3fcda430025eb7692244139a9cf54fdcf1fc7d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.4"
   typed_data:
     dependency: transitive
     description:
@@ -1381,6 +1434,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.5"
+  workmanager:
+    dependency: "direct main"
+    description:
+      name: workmanager
+      sha256: ed13530cccd28c5c9959ad42d657cd0666274ca74c56dea0ca183ddd527d3a00
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.2"
   xdg_directories:
     dependency: transitive
     description:

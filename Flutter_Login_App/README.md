@@ -29,7 +29,7 @@ Follow these steps to get started with the project:
 1. **Clone the repository**:
 
     ```bash
-    https://github.com/quan2003/Pro_Tech-App.git
+    git clone https://github.com/quan2003/Pro_Tech-App.git
     cd flutter-login-app
     ```
 

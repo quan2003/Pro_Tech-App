@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -113,7 +112,7 @@ class StepTrackingService extends GetxService {
 
     void _startTrackingTimer() {
     _trackingTimer?.cancel();
-    _trackingTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _trackingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (isTracking.value) {
         _elapsedSeconds++;
         minutes.value = (_elapsedSeconds / 60).round();
@@ -325,7 +324,7 @@ class StepTrackingService extends GetxService {
   }
 
  void _startSyncTimer() {
-    _syncTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+    _syncTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
       saveDataToFirebase();
     });
   }

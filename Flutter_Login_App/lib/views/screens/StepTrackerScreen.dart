@@ -7,6 +7,8 @@ import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class StepTrackingScreen extends StatefulWidget {
+  const StepTrackingScreen({super.key});
+
   @override
   _StepTrackingScreenState createState() => _StepTrackingScreenState();
 }
@@ -198,15 +200,15 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildStatItem("bước", "${_stepService.steps.value}", Icons.directions_walk),
-              _buildStatItem("kcal", "${_stepService.calories.value.toStringAsFixed(1)}", Icons.local_fire_department),
-              _buildStatItem("km", "${_stepService.distance.value.toStringAsFixed(2)}", Icons.directions),
+              _buildStatItem("kcal", _stepService.calories.value.toStringAsFixed(1), Icons.local_fire_department),
+              _buildStatItem("km", _stepService.distance.value.toStringAsFixed(2), Icons.directions),
               _buildStatItem("phút", "${_stepService.minutes.value}", Icons.timer),
             ],
           ),
           const SizedBox(height: 40),
           // Improved tracking button
           AnimatedContainer(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             width: 200,
             height: 60,
             decoration: BoxDecoration(
@@ -225,7 +227,7 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
                       : Colors.green.withOpacity(0.4),
                   spreadRadius: 1,
                   blurRadius: 8,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -247,10 +249,10 @@ class _StepTrackingScreenState extends State<StepTrackingScreen>
                     _stepService.isTracking.value ? Icons.stop : Icons.play_arrow,
                     color: Colors.white,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     _stepService.isTracking.value ? 'Dừng theo dõi' : 'Bắt đầu theo dõi',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

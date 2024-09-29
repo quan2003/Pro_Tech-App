@@ -1,10 +1,13 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_login_app/views/screens/CookiePolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
+import 'package:flutter_login_app/views/screens/PrivacyPolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/StepTrackerScreen.dart';
+import 'package:flutter_login_app/views/screens/TearmsAndConditionsScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -316,14 +319,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.rule),
                   title: const Text('Điều khoản & điều kiện'),
                   onTap: () {
-                    // Terms & Conditions
+                     Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TermsAndConditions()),
+                    );
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip),
                   title: const Text('Chính sách bảo mật'),
                   onTap: () {
-                    // Privacy Policy
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PrivacyPolicyScreen()),
+                    );
                   },
                 ),
                 ListTile(
@@ -337,7 +348,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.cookie),
                   title: const Text('Chính sách Cookie'),
                   onTap: () {
-                    // Cookie Policy
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CookiePolicyScreen()),
+                    );
                   },
                 ),
 

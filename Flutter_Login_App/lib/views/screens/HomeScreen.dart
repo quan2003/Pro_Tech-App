@@ -1,14 +1,17 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_login_app/views/screens/CookiePolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
-import 'package:flutter_login_app/views/screens/HealthScreen.dart';
+import 'package:flutter_login_app/views/screens/PrivacyPolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/StepTrackerScreen.dart';
+import 'package:flutter_login_app/views/screens/TearmsAndConditionsScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'ProfileScreen.dart';
 import '../Routes/AppRoutes.dart';
 import 'package:intl/intl.dart';
@@ -18,11 +21,15 @@ import 'AccountDataScreen.dart';
 import 'AboutUsScreen.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../controller/StepTrackingService.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:workmanager/workmanager.dart';
+
 
 // Function to show running reminder notification
 void _showRunningReminder() {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   flutterLocalNotificationsPlugin.show(
     0,
     'Nhắc nhở chạy bộ',
@@ -40,8 +47,7 @@ void _showRunningReminder() {
 
 // Function to show step count reminder notification
 void _showStepCountReminder() {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   flutterLocalNotificationsPlugin.show(
     1,
     'Thống kê bước chạy',
@@ -67,21 +73,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final StepTrackingService stepController = Get.put(StepTrackingService());
   final BMIController bmiController = Get.put(BMIController());
+ 
 
   int _selectedIndex = 0;
 
-  @override
+    @override
   void initState() {
     super.initState();
   }
-
+ 
   void _showNotificationPermissionDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Cấp quyền thông báo'),
-        content: const Text(
-            'Ứng dụng cần quyền thông báo để gửi nhắc nhở chạy bộ và thống kê bước chạy hàng ngày.'),
+        content: const Text('Ứng dụng cần quyền thông báo để gửi nhắc nhở chạy bộ và thống kê bước chạy hàng ngày.'),
         actions: <Widget>[
           TextButton(
             child: const Text('Để sau'),
@@ -98,6 +104,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  
+ 
 
   Future<void> _updateSteps() async {
     final steps = int.tryParse(stepController.stepCountString) ?? 0;
@@ -123,25 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    // Xử lý khi người dùng chọn các tab
-    switch (index) {
-      case 0: // Tab 'Trang chủ'
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => const HomeScreen()));
-        break;
-      case 1: // Tab 'Sức khoẻ'
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => const HealthScreen()));
-        break;
-      case 2: // Tab 'Thuốc'
-        // Navigator.of(context).push(MaterialPageRoute(builder: (_) => MedicationScreen()));
-        break;
-      case 3: // Tab 'Phần thưởng'
-        // Navigator.of(context).push(MaterialPageRoute(builder: (_) => RewardsScreen()));
-        break;
-      default:
-        break;
-    }
   }
 
   @override
@@ -159,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Trang chủ"),
+            title: Text("Trang chủ"),
             backgroundColor: Colors.teal,
             actions: [
               IconButton(
@@ -210,7 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.person), // Profile Icon
-                  title: const Text("Hồ sơ"),
+                  title:
+                      Text("Hồ sơ"),
                   onTap: () {
                     // Navigate to the profile screen
                     Get.to(() => ProfileScreen(userId: user!.uid));
@@ -328,14 +319,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.rule),
                   title: const Text('Điều khoản & điều kiện'),
                   onTap: () {
-                    // Terms & Conditions
+                     Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TermsAndConditions()),
+                    );
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip),
                   title: const Text('Chính sách bảo mật'),
                   onTap: () {
-                    // Privacy Policy
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PrivacyPolicyScreen()),
+                    );
                   },
                 ),
                 ListTile(
@@ -349,7 +348,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.cookie),
                   title: const Text('Chính sách Cookie'),
                   onTap: () {
-                    // Cookie Policy
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CookiePolicyScreen()),
+                    );
                   },
                 ),
 
@@ -381,8 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "Xin chào, $userName!",
+                              Text("Xin chào, $userName!",
                                 style: const TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
@@ -559,7 +561,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 16),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => StepTrackingScreen());
                               },
                               icon: Icons.bloodtype,
                               label: 'HA • tháng này',
@@ -568,7 +570,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => StepTrackingScreen());
                               },
                               icon: Icons.local_fire_department,
                               label: 'Khai báo một cơn đau',
@@ -577,7 +579,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => StepTrackingScreen());
                               },
                               icon: Icons.scale,
                               label: 'Cân nặng • tuần này',
@@ -590,7 +592,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onTap: () async {
                                   // Điều hướng đến StepTrackingScreen và chờ kết quả
                                   final steps =
-                                      await Get.to(() => const StepTrackingScreen());
+                                      await Get.to(() => StepTrackingScreen());
 
                                   // Kiểm tra và cập nhật số bước nếu có
                                   if (steps != null) {
@@ -608,7 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => StepTrackingScreen());
                               },
                               icon: Icons.timer,
                               label: 'Thời gian hồi phục',
@@ -635,8 +637,8 @@ class _HomeScreenState extends State<HomeScreen> {
               TabItem(icon: Icons.medication, title: 'Thuốc'),
               TabItem(icon: Icons.card_giftcard, title: 'Phần thưởng'),
             ],
-            initialActiveIndex: _selectedIndex, // Dùng để chỉ tab nào được chọn
-            onTap: _onItemTapped, // Gọi hàm khi tab được nhấn
+            initialActiveIndex: _selectedIndex,
+            onTap: _onItemTapped,
           ),
         );
       },

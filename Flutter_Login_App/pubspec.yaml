@@ -63,7 +63,13 @@ flutter:
 
   assets:
     - assets/images/
+<<<<<<< HEAD
+    - assets/images/terms_and_conditions.txt
+    - assets/images/privacy_policy.txt
+    - assets/images/cookie_policy.txt
+=======
     - assets/icons/
+>>>>>>> e16abd0ab8d75a924b93e43cdbbbfbb207869eee
     - assets/images/AppLogo.png
     - assets/images/default_avatar.png
     - assets/images/doctor.png

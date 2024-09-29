@@ -5,9 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_login_app/views/Routes/AppRoutes.dart';
 
-import 'package:flutter_login_app/views/controller/StepTrackingService.dart';
 import 'package:get/get.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:workmanager/workmanager.dart';
 
 @pragma('vm:entry-point')
@@ -84,8 +82,8 @@ void main() async {
   await Workmanager().registerPeriodicTask(
     "running-reminder",
     "runningReminder",
-    frequency: Duration(days: 1),
-    initialDelay: Duration(minutes: 1),  // Đặt thời gian delay ngắn hơn để kiểm tra
+    frequency: const Duration(days: 1),
+    initialDelay: const Duration(minutes: 1),  // Đặt thời gian delay ngắn hơn để kiểm tra
     constraints: Constraints(
       networkType: NetworkType.not_required,
     ),
@@ -95,8 +93,8 @@ void main() async {
   await Workmanager().registerPeriodicTask(
     "step-count-reminder",
     "stepCountReminder",
-    frequency: Duration(days: 1),
-    initialDelay: Duration(minutes: 2),  // Đặt thời gian delay ngắn hơn để kiểm tra
+    frequency: const Duration(days: 1),
+    initialDelay: const Duration(minutes: 2),  // Đặt thời gian delay ngắn hơn để kiểm tra
     constraints: Constraints(
       networkType: NetworkType.not_required,
     ),

@@ -45,6 +45,8 @@ dependencies:
   flutter_local_notifications: ^17.2.3
   timezone: ^0.9.4
   workmanager: ^0.5.2
+  flutter_keyboard_visibility: ^6.0.0
+  flutter_svg: ^2.0.10+1
 
 
 
@@ -61,9 +63,13 @@ flutter:
 
   assets:
     - assets/images/
+<<<<<<< HEAD
     - assets/images/terms_and_conditions.txt
     - assets/images/privacy_policy.txt
     - assets/images/cookie_policy.txt
+=======
+    - assets/icons/
+>>>>>>> e16abd0ab8d75a924b93e43cdbbbfbb207869eee
     - assets/images/AppLogo.png
     - assets/images/default_avatar.png
     - assets/images/doctor.png
@@ -71,6 +77,8 @@ flutter:
     - assets/images/female.png
     - assets/images/app_preview.png
     - assets/images/AboutUs_1.png
+    - assets/images/pill_icon.png
+    - assets/images/whodrugs_logo.png
 
 flutter_icons:
   android: true

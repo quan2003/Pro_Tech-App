@@ -11,7 +11,7 @@ import 'package:flutter_login_app/views/screens/TearmsAndConditionsScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'AddMedicationScreen.dart';
 import 'ProfileScreen.dart';
 import '../Routes/AppRoutes.dart';
 import 'package:intl/intl.dart';
@@ -21,10 +21,6 @@ import 'AccountDataScreen.dart';
 import 'AboutUsScreen.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../controller/StepTrackingService.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:workmanager/workmanager.dart';
 
 
 // Function to show running reminder notification
@@ -127,12 +123,26 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return 'Khách';
   }
+void _onItemTapped(int index) {
+  setState(() {
+    _selectedIndex = index;
+  });
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  switch (index) {
+    case 1: // Index 1 tương ứng với tab "Sức khoẻ"
+      Get.to(() => const AddMedicationScreen());
+      break;
+    case 2: // Index 2 tương ứng với tab "Thuốc"
+      // Có thể thêm chuyển hướng khác nếu cần
+      break;
+    case 3: // Index 3 tương ứng với tab "Phần thưởng"
+      // Có thể thêm chuyển hướng khác nếu cần
+      break;
+    default:
+      // Mặc định là tab "Trang chủ", không cần làm gì
+      break;
   }
+}
 
   @override
   Widget build(BuildContext context) {

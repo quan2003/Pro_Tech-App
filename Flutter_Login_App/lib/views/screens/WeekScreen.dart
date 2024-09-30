@@ -57,22 +57,20 @@ class _WeekScreenState extends State<WeekScreen> {
   Future<void> _loadCachedData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? cachedData = prefs.getString('weekData');
-    if (cachedData != null) {
-      Map<String, dynamic> data = json.decode(cachedData);
-      setState(() {
-        stepsPerDay = List<int>.from(data['stepsPerDay']);
-        caloriesPerDay = List<double>.from(data['caloriesPerDay']);
-        distancePerDay = List<double>.from(data['distancePerDay']);
-        minutesPerDay = List<int>.from(data['minutesPerDay']);
-        totalSteps = data['totalSteps'];
-        averageSteps = data['averageSteps'];
-        totalCalories = data['totalCalories'];
-        totalDistance = data['totalDistance'];
-        totalMinutes = data['totalMinutes'];
-        lastWeekAverageSteps = data['lastWeekAverageSteps'];
-      });
+    Map<String, dynamic> data = json.decode(cachedData!);
+    setState(() {
+      stepsPerDay = List<int>.from(data['stepsPerDay']);
+      caloriesPerDay = List<double>.from(data['caloriesPerDay']);
+      distancePerDay = List<double>.from(data['distancePerDay']);
+      minutesPerDay = List<int>.from(data['minutesPerDay']);
+      totalSteps = data['totalSteps'];
+      averageSteps = data['averageSteps'];
+      totalCalories = data['totalCalories'];
+      totalDistance = data['totalDistance'];
+      totalMinutes = data['totalMinutes'];
+      lastWeekAverageSteps = data['lastWeekAverageSteps'];
+    });
     }
-  }
 
   Future<void> _loadDataFromFirebase(String userId) async {
     DateTime now = DateTime.now();

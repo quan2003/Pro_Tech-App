@@ -58,8 +58,8 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
           _drugs.sort((a, b) {
             final aName = a['openfda']['brand_name']?.first ?? '';
             final bName = b['openfda']['brand_name']?.first ?? '';
-            final aManufacturer = a['openfda']['manufacturer_name']?.first ?? '';
-            final bManufacturer = b['openfda']['manufacturer_name']?.first ?? '';
+            // final aManufacturer = a['openfda']['manufacturer_name']?.first ?? '';
+            // final bManufacturer = b['openfda']['manufacturer_name']?.first ?? '';
 
             if (aName.toLowerCase().startsWith(query.toLowerCase()) && !bName.toLowerCase().startsWith(query.toLowerCase())) {
               return -1;

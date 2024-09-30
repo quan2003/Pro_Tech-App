@@ -48,14 +48,12 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _loadMessages() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? jsonMessages = prefs.getStringList(chatKey);
-    if (jsonMessages != null) {
-      setState(() {
-        _messages = jsonMessages
-            .map((msg) => ChatMessage.fromJson(json.decode(msg)))
-            .toList();
-      });
+    setState(() {
+      _messages = jsonMessages!
+          .map((msg) => ChatMessage.fromJson(json.decode(msg)))
+          .toList();
+    });
     }
-  }
 
   Future<void> sendPrompt(String prompt) async {
     setState(() {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 class CookiePolicyScreen extends StatefulWidget {
+  const CookiePolicyScreen({super.key});
+
   @override
   _CookiePolicyScreenState createState() => _CookiePolicyScreenState();
 }
@@ -40,18 +42,18 @@ class _CookiePolicyScreenState extends State<CookiePolicyScreen> {
 
     for (int i = 0; i < matches.length; i++) {
       if (i == 0) {
-        spans.add(TextSpan(text: matches[i], style: TextStyle(fontSize: 16, color: Colors.black))); // Thêm phần nội dung trước mục I
+        spans.add(TextSpan(text: matches[i], style: const TextStyle(fontSize: 16, color: Colors.black))); // Thêm phần nội dung trước mục I
       } else {
         // Thêm tiêu đề mục in đậm (I, II, III...)
         spans.add(TextSpan(
           text: titles[i - 1] ?? '', // Lấy tiêu đề từ danh sách titles
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
         ));
         
         // Thêm phần nội dung sau tiêu đề mục
         spans.add(TextSpan(
           text: matches[i],
-          style: TextStyle(fontSize: 16, color: Colors.black),
+          style: const TextStyle(fontSize: 16, color: Colors.black),
         ));
       }
     }
@@ -64,7 +66,7 @@ class _CookiePolicyScreenState extends State<CookiePolicyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Column(
           children: [
@@ -76,13 +78,13 @@ class _CookiePolicyScreenState extends State<CookiePolicyScreen> {
                 children: [
                   // Back Button
                   IconButton(
-                    icon: Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: () {
                       Navigator.pop(context); // Điều hướng quay lại trang trước
                     },
                   ),
                   // Avatar (logo)
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 32.0, // Kích thước avatar tương tự form mẫu
                     backgroundImage: NetworkImage(
                       'https://bacsigiadinhhanoi.vn/wp-content/uploads/2021/09/kham-benh-nguoi-gia.jpg',
@@ -92,7 +94,7 @@ class _CookiePolicyScreenState extends State<CookiePolicyScreen> {
               ),
             ),
             // Title
-            Padding(
+            const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text(
                 'Chính sách cookie',
@@ -107,7 +109,7 @@ class _CookiePolicyScreenState extends State<CookiePolicyScreen> {
             Expanded(
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -117,12 +119,12 @@ class _CookiePolicyScreenState extends State<CookiePolicyScreen> {
                           children: formattedText,
                         ),
                       ),
-                      SizedBox(height: 16.0), // Khoảng cách trước button
+                      const SizedBox(height: 16.0), // Khoảng cách trước button
                       // Button Row inside the scrollable area
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center, // Căn giữa toàn bộ nội dung trong hàng
                         children: [
-                          Text(
+                          const Text(
                             'Đồng ý chính sách',
                             style: TextStyle(
                               fontSize: 16,
@@ -130,7 +132,7 @@ class _CookiePolicyScreenState extends State<CookiePolicyScreen> {
                               color: Colors.black,
                             ),
                           ),
-                          SizedBox(width: 8.0), // Khoảng cách giữa Text và Button
+                          const SizedBox(width: 8.0), // Khoảng cách giữa Text và Button
                           ElevatedButton(
                             onPressed: () {
                               setState(() {

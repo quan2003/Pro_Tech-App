@@ -1,19 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'FrequencySelectorWidget.dart';
 
-// ignore: must_be_immutable
+// Main DrugDetailScreen widget
 class DrugDetailScreen extends StatefulWidget {
   final String drugName;
   final String manufacturerName;
   String form;
 
   DrugDetailScreen({
-    Key? key,
+    super.key,
     required this.drugName,
     required this.manufacturerName,
     required this.form,
     required String dosage,
-  }) : super(key: key);
+  });
 
   @override
   _DrugDetailScreenState createState() => _DrugDetailScreenState();
@@ -23,8 +25,13 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
   String dosage = '';
   bool isUnitSelected = false;
   String _selectedUnit = 'mg';
-  int _quantity = 30; // Số lượng mặc định
+  int _quantity = 30;
   String _treatmentCondition = '';
+  String _frequency = '';
+  Map<String, dynamic> _frequencyDetails = {};
+  List<Map<String, dynamic>> schedules = [
+    {'time': '08:00', 'dosage': '1 viên'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +41,7 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: SingleChildScrollView(
@@ -46,21 +51,15 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Center(
-                child: Column(
-                  children: [
-                    Text(
-                      'Thêm thuốc',
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                    ),
-                  ],
+                child: Text(
+                  'Thêm thuốc',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Detail Section
               _buildSectionHeader('Chi tiết'),
               _buildDetailCard(
                   Icons.local_hospital, 'Tên', widget.drugName, null),
@@ -71,54 +70,74 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
                 'Hàm lượng',
                 dosage.isNotEmpty ? dosage : '-',
                 null,
-                onTap: () {
-                  _showDosageForm(context);
-                },
+                onTap: () => _showDosageForm(context),
               ),
               _buildDetailCard(
                 Icons.bubble_chart,
                 'Dạng',
                 widget.form,
                 const Icon(Icons.chevron_right_sharp),
-                onTap: () {
-                  _showMedicationFormSelector(context);
-                },
+                onTap: () => _showMedicationFormSelector(context),
               ),
               _buildDetailCard(
                 Icons.local_hospital,
                 'Điều trị',
                 _treatmentCondition.isNotEmpty ? _treatmentCondition : 'Chọn',
                 const Icon(Icons.chevron_right_sharp),
-                onTap: () {
-                  _showTreatmentConditionSelector(context);
-                },
+                onTap: () => _showTreatmentConditionSelector(context),
               ),
               _buildDetailCard(
                 Icons.inventory,
                 'Trong hộp',
                 '$_quantity viên',
                 const Icon(Icons.chevron_right_sharp),
-                onTap: () {
-                  _showQuantitySelector(context);
-                },
+                onTap: () => _showQuantitySelector(context),
               ),
-
               const SizedBox(height: 20),
-
-              // Reminder Section
               _buildSectionHeader('Nhắc nhở'),
-              _buildDetailCard(Icons.repeat, 'Tần suất', 'Mỗi ngày', null),
               _buildDetailCard(
-                  Icons.access_time, 'Đặt lịch', '08:00 - Uống 1 viên', null),
-
+                Icons.repeat,
+                'Tần suất',
+                _getFrequencyDisplayText(),
+                const Icon(Icons.chevron_right_sharp),
+                onTap: () => _showFrequencySelector(context),
+              ),
+              _buildDetailCard(
+                Icons.access_time,
+                'Đặt lịch',
+                '${schedules.length} lịch',
+                const Icon(Icons.chevron_right_sharp),
+                onTap: () => _showScheduleManager(context),
+              ),
               const SizedBox(height: 40),
-
-              // Save Button
               Center(
                 child: ElevatedButton(
                   onPressed: (dosage.isNotEmpty && isUnitSelected)
-                      ? () {
-                          // Action for saving or confirming medication
+                      ? () async {
+                          // Save to Firestore
+                          await FirebaseFirestore.instance
+                              .collection('medications')
+                              .add({
+                            'drugName': widget.drugName,
+                            'manufacturerName': widget.manufacturerName,
+                            'form': widget.form,
+                            'dosage': dosage,
+                            'unit': _selectedUnit,
+                            'quantity': _quantity,
+                            'treatmentCondition': _treatmentCondition,
+                            'frequency': _frequency,
+                            'schedules': schedules,
+                          });
+
+                          // Optionally show a success message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Thông tin đã được lưu thành công')),
+                          );
+
+                          // Navigate back or perform other actions
+                          Navigator.of(context).pop();
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -180,8 +199,10 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
     );
   }
 
+  // Function to show dosage input form
   void _showDosageForm(BuildContext context) {
-    TextEditingController dosageController = TextEditingController();
+    TextEditingController dosageController =
+        TextEditingController(text: dosage);
 
     showModalBottomSheet(
       isScrollControlled: true,
@@ -200,7 +221,6 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Header
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -216,8 +236,6 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
                           ],
                         ),
                         const SizedBox(height: 20),
-
-                        // Dosage input field
                         TextField(
                           controller: dosageController,
                           keyboardType: const TextInputType.numberWithOptions(
@@ -228,14 +246,12 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
                                 borderRadius: BorderRadius.circular(8.0)),
                           ),
                           onChanged: (value) {
-                            setState(() {
+                            setModalState(() {
                               dosage = value;
                             });
                           },
                         ),
                         const SizedBox(height: 20),
-
-                        // Unit selection
                         const Text('Đơn vị', style: TextStyle(fontSize: 16)),
                         const SizedBox(height: 10),
                         Wrap(
@@ -246,25 +262,24 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
                               _selectedUnit = unit;
                               isUnitSelected = true;
                             });
-                            setState(() {
-                              isUnitSelected = true;
-                            });
                           }),
                         ),
                         const SizedBox(height: 20),
-
-                        // Save button
                         Center(
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context,
-                                  '${dosageController.text} $_selectedUnit');
-                            },
+                            onPressed: (dosage.isNotEmpty && isUnitSelected)
+                                ? () {
+                                    setState(() {
+                                      dosage = dosage;
+                                      // Update the main screen's state
+                                    });
+                                    Navigator.pop(context);
+                                  }
+                                : null,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 0, 0, 0),
+                              backgroundColor: _getButtonColor(),
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 12.0, horizontal: 100),
+                                  vertical: 16.0, horizontal: 80),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
@@ -283,15 +298,10 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
           },
         );
       },
-    ).then((value) {
-      if (value != null) {
-        setState(() {
-          dosage = value;
-        });
-      }
-    });
+    );
   }
 
+  // Function to show quantity selector
   void _showQuantitySelector(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -309,10 +319,9 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Trong hộp',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Trong hộp',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
@@ -320,10 +329,8 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Bạn hiện còn bao nhiêu viên thuốc?',
-                style: TextStyle(fontSize: 16),
-              ),
+              const Text('Bạn hiện còn bao nhiêu viên thuốc?',
+                  style: TextStyle(fontSize: 16)),
               const SizedBox(height: 20),
               Expanded(
                 child: CupertinoPickerWidget(
@@ -340,7 +347,7 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    setState(() {}); // Cập nhật UI
+                    setState(() {});
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
@@ -360,36 +367,7 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
     );
   }
 
-  Color _getButtonColor() {
-    if (dosage.isEmpty) {
-      return Colors.grey; // Màu bạc khi chưa nhập hàm lượng
-    } else if (dosage.isNotEmpty && !isUnitSelected) {
-      return Colors.black; // Màu đen sau khi nhập hàm lượng
-    } else {
-      return Colors.black; // Giữ màu đen sau khi chọn đơn vị
-    }
-  }
-
-  List<Widget> _buildUnitButtons(
-      String selectedUnit, Function(String) onSelected) {
-    final units = ['mL', 'IU', '%', 'mcg', 'mg', 'g'];
-    return units.map((unit) {
-      return ChoiceChip(
-        label: Text(unit),
-        selected: selectedUnit == unit,
-        onSelected: (bool selected) {
-          onSelected(unit);
-        },
-        selectedColor: Colors.purple[100],
-        labelStyle: TextStyle(
-          color: selectedUnit == unit ? Colors.white : Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
-        backgroundColor: Colors.grey[300],
-      );
-    }).toList();
-  }
-
+  // Function to show medication form selector
   void _showMedicationFormSelector(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -413,39 +391,135 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
     );
   }
 
+  // Function to show treatment condition selector
   void _showTreatmentConditionSelector(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (BuildContext context) {
-      return FractionallySizedBox(
-        heightFactor: 0.9,
-        child: TreatmentConditionSelector(
-          onSelect: (selectedCondition) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return FractionallySizedBox(
+          heightFactor: 0.9,
+          child: TreatmentConditionSelector(
+            onSelect: (selectedCondition) {
+              setState(() {
+                _treatmentCondition = selectedCondition;
+              });
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  // Function to show frequency selector
+  void _showFrequencySelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return FrequencySelectorWidget(
+          initialFrequency: _frequency,
+          initialFrequencyDetails: _frequencyDetails,
+          onSelect: (selectedFrequency, additionalData) {
             setState(() {
-              _treatmentCondition = selectedCondition;
+              _frequency = selectedFrequency;
+              _frequencyDetails = additionalData;
             });
           },
+        );
+      },
+    );
+  }
+
+  // Function to show schedule manager
+  void _showScheduleManager(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return ScheduleManagerWidget(
+          initialSchedules: schedules,
+          onSave: (updatedSchedules) {
+            setState(() {
+              schedules = updatedSchedules;
+            });
+          },
+        );
+      },
+    );
+  }
+
+  // Function to display frequency text
+  String _getFrequencyDisplayText() {
+    switch (_frequency) {
+      case 'Cách ngày':
+        int days = _frequencyDetails['Cách ngày'] ?? 2;
+        return 'Mỗi $days ngày';
+      case 'Mỗi ngày':
+        return 'Mỗi ngày';
+      case 'Ngày cụ thể trong tuần':
+        List<String> days = List<String>.from(
+            _frequencyDetails['Ngày cụ thể trong tuần'] ?? []);
+        return days.isEmpty ? 'Chọn ngày' : days.join(', ');
+      case 'Chỉ khi cần':
+        return 'Chỉ khi cần';
+      default:
+        return 'Chọn tần suất';
+    }
+  }
+
+  // Function to get button color based on input validation
+  Color _getButtonColor() {
+    if (dosage.isEmpty) {
+      return Colors.grey; // Color when dosage is not entered
+    } else if (dosage.isNotEmpty && !isUnitSelected) {
+      return Colors.black; // Color when dosage is entered but unit not selected
+    } else {
+      return Colors.black; // Keep color black after selecting unit
+    }
+  }
+
+  // Function to build unit buttons
+  List<Widget> _buildUnitButtons(
+      String selectedUnit, Function(String) onSelected) {
+    final units = ['mL', 'IU', '%', 'mcg', 'mg', 'g'];
+    return units.map((unit) {
+      return ChoiceChip(
+        label: Text(unit),
+        selected: selectedUnit == unit,
+        onSelected: (bool selected) {
+          onSelected(unit);
+        },
+        selectedColor: Colors.purple[100],
+        labelStyle: TextStyle(
+          color: selectedUnit == unit ? Colors.white : Colors.black,
+          fontWeight: FontWeight.bold,
         ),
+        backgroundColor: Colors.grey[300],
       );
-    },
-  );
+    }).toList();
+  }
 }
 
-}
-
+// CupertinoPickerWidget for selecting quantity
 class CupertinoPickerWidget extends StatelessWidget {
   final int initialValue;
   final ValueChanged<int> onValueChanged;
 
   const CupertinoPickerWidget({
-    Key? key,
+    super.key,
     required this.initialValue,
     required this.onValueChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -468,11 +542,11 @@ class CupertinoPickerWidget extends StatelessWidget {
   }
 }
 
+// MedicationFormSelector for selecting medication forms
 class MedicationFormSelector extends StatelessWidget {
   final Function(String) onSelect;
 
-  const MedicationFormSelector({Key? key, required this.onSelect})
-      : super(key: key);
+  const MedicationFormSelector({super.key, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -484,10 +558,8 @@ class MedicationFormSelector extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Thay đổi dạng thuốc',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              const Text('Thay đổi dạng thuốc',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
@@ -498,10 +570,9 @@ class MedicationFormSelector extends StatelessWidget {
             child: ListView(
               children: [
                 const SizedBox(height: 20),
-                const Text(
-                  'Dạng thuốc phổ biến',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                const Text('Dạng thuốc phổ biến',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 _buildMedicationFormItem(
                     'Viên', 'assets/icons/pill.png', onSelect),
@@ -510,10 +581,9 @@ class MedicationFormSelector extends StatelessWidget {
                 _buildMedicationFormItem(
                     'Mũi', 'assets/icons/injection.png', onSelect),
                 const SizedBox(height: 20),
-                const Text(
-                  'Khác',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                const Text('Khác',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 _buildMedicationFormItem(
                     'Ống', 'assets/icons/liquid.png', onSelect),
@@ -551,6 +621,7 @@ class MedicationFormSelector extends StatelessWidget {
     );
   }
 
+  // Function to build medication form items
   Widget _buildMedicationFormItem(
       String name, String iconPath, Function(String) onSelect) {
     return GestureDetector(
@@ -580,36 +651,55 @@ class MedicationFormSelector extends StatelessWidget {
   }
 }
 
+// TreatmentConditionSelector for selecting treatment conditions
 class TreatmentConditionSelector extends StatefulWidget {
   final Function(String) onSelect;
 
-  const TreatmentConditionSelector({Key? key, required this.onSelect}) : super(key: key);
+  const TreatmentConditionSelector({super.key, required this.onSelect});
 
   @override
-  _TreatmentConditionSelectorState createState() => _TreatmentConditionSelectorState();
+  _TreatmentConditionSelectorState createState() =>
+      _TreatmentConditionSelectorState();
 }
 
-class _TreatmentConditionSelectorState extends State<TreatmentConditionSelector> {
+class _TreatmentConditionSelectorState
+    extends State<TreatmentConditionSelector> {
   String? selectedCondition;
   TextEditingController customConditionController = TextEditingController();
 
   final List<Map<String, dynamic>> conditions = [
-    {'name': 'Cao huyết áp', 'icon': 'assets/icons/blood_pressure.png', 'color': Colors.red},
-    {'name': 'Tiểu đường', 'icon': 'assets/icons/diabetes.png', 'color': Colors.blue},
-    {'name': 'Mỡ máu cao', 'icon': 'assets/icons/cholesterol.png', 'color': Colors.yellow},
-    {'name': 'Đau thắt ngực', 'icon': 'assets/icons/heart_pain.png', 'color': Colors.red},
+    {
+      'name': 'Cao huyết áp',
+      'icon': 'assets/icons/blood_pressure.png',
+      'color': Colors.red
+    },
+    {
+      'name': 'Tiểu đường',
+      'icon': 'assets/icons/diabetes.png',
+      'color': Colors.blue
+    },
+    {
+      'name': 'Mỡ máu cao',
+      'icon': 'assets/icons/cholesterol.png',
+      'color': Colors.yellow
+    },
+    {
+      'name': 'Đau thắt ngực',
+      'icon': 'assets/icons/heart_pain.png',
+      'color': Colors.red
+    },
     {'name': 'Khác', 'icon': 'assets/icons/other.png', 'color': Colors.grey},
   ];
 
   @override
   Widget build(BuildContext context) {
-    // Lấy thông tin về chiều cao bàn phím nếu nó hiển thị
+    // Get the height of the keyboard if it is displayed
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return AnimatedPadding(
       padding: EdgeInsets.only(bottom: bottomPadding),
-      duration: const Duration(milliseconds: 300), // Thời gian chuyển đổi
-      curve: Curves.easeOut, // Để làm chuyển động mượt hơn
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
       child: Container(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -618,10 +708,9 @@ class _TreatmentConditionSelectorState extends State<TreatmentConditionSelector>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Điều trị cho',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                const Text('Điều trị cho',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
@@ -669,12 +758,13 @@ class _TreatmentConditionSelectorState extends State<TreatmentConditionSelector>
                 onPressed: () {
                   if (selectedCondition == 'Khác') {
                     if (customConditionController.text.isNotEmpty) {
-                      widget.onSelect('Khác: ${customConditionController.text}');
+                      widget
+                          .onSelect('Khác: ${customConditionController.text}');
                       Navigator.pop(context);
                     } else {
-                      // Hiển thị thông báo yêu cầu nhập điều kiện
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Vui lòng nhập điều kiện sức khỏe')),
+                        const SnackBar(
+                            content: Text('Vui lòng nhập điều kiện sức khỏe')),
                       );
                     }
                   } else if (selectedCondition != null) {
@@ -689,7 +779,8 @@ class _TreatmentConditionSelectorState extends State<TreatmentConditionSelector>
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Lưu', style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: const Text('Lưu',
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
             ),
           ],
@@ -698,7 +789,9 @@ class _TreatmentConditionSelectorState extends State<TreatmentConditionSelector>
     );
   }
 
-  Widget _buildConditionItem(String name, String iconPath, Color color, VoidCallback onTap) {
+  // Function to build condition items
+  Widget _buildConditionItem(
+      String name, String iconPath, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -724,6 +817,307 @@ class _TreatmentConditionSelectorState extends State<TreatmentConditionSelector>
               const Icon(Icons.check, color: Colors.pink),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ScheduleManagerWidget for managing schedules
+class ScheduleManagerWidget extends StatefulWidget {
+  final List<Map<String, dynamic>> initialSchedules;
+  final Function(List<Map<String, dynamic>>) onSave;
+
+  const ScheduleManagerWidget({
+    super.key,
+    required this.initialSchedules,
+    required this.onSave,
+  });
+
+  @override
+  _ScheduleManagerWidgetState createState() => _ScheduleManagerWidgetState();
+}
+
+class _ScheduleManagerWidgetState extends State<ScheduleManagerWidget> {
+  late List<Map<String, dynamic>> schedules;
+
+  @override
+  void initState() {
+    super.initState();
+    schedules = List.from(widget.initialSchedules);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Đặt lịch',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView.builder(
+              itemCount: schedules.length,
+              itemBuilder: (context, index) {
+                return _buildScheduleItem(schedules[index], index);
+              },
+            ),
+          ),
+          _buildAddScheduleButton(),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                widget.onSave(schedules);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text('Lưu',
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Function to build individual schedule items
+  Widget _buildScheduleItem(Map<String, dynamic> schedule, int index) {
+    return GestureDetector(
+      onTap: () => _showEditScheduleDialog(index),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Text(
+              schedule['time'],
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              'Uống ${schedule['dosage']}',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _deleteSchedule(index),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Function to build the button for adding a new schedule
+  Widget _buildAddScheduleButton() {
+    return GestureDetector(
+      onTap: _showAddScheduleDialog,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Thêm lịch cử thuốc',
+                style: TextStyle(color: Colors.blue, fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Function to show dialog for editing a schedule
+  void _showEditScheduleDialog(int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return ScheduleEditDialog(
+          initialTime: schedules[index]['time'],
+          initialDosage: schedules[index]['dosage'],
+          onSave: (time, dosage) {
+            setState(() {
+              schedules[index] = {'time': time, 'dosage': dosage};
+            });
+          },
+        );
+      },
+    );
+  }
+
+  // Function to show dialog for adding a new schedule
+  void _showAddScheduleDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return ScheduleEditDialog(
+          onSave: (time, dosage) {
+            setState(() {
+              schedules.add({'time': time, 'dosage': dosage});
+            });
+          },
+        );
+      },
+    );
+  }
+
+  // Function to delete a schedule
+  void _deleteSchedule(int index) {
+    setState(() {
+      schedules.removeAt(index);
+    });
+  }
+}
+
+// ScheduleEditDialog for editing or adding schedules
+class ScheduleEditDialog extends StatefulWidget {
+  final String? initialTime;
+  final String? initialDosage;
+  final Function(String, String) onSave;
+
+  const ScheduleEditDialog({
+    super.key,
+    this.initialTime,
+    this.initialDosage,
+    required this.onSave,
+  });
+
+  @override
+  _ScheduleEditDialogState createState() => _ScheduleEditDialogState();
+}
+
+class _ScheduleEditDialogState extends State<ScheduleEditDialog> {
+  late String _time;
+  late String _dosage;
+
+  @override
+  void initState() {
+    super.initState();
+    _time = widget.initialTime ?? '08:00';
+    _dosage = widget.initialDosage ?? '1';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        top: 16,
+        left: 16,
+        right: 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.initialTime != null ? 'Sửa lịch' : 'Thêm lịch',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Thời gian', style: TextStyle(fontSize: 16)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: TextEditingController(text: _time),
+                      decoration: InputDecoration(
+                        hintText: 'Ví dụ: 08:00',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onChanged: (value) {
+                        _time = value;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Hàm lượng', style: TextStyle(fontSize: 16)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: TextEditingController(text: _dosage),
+                      decoration: InputDecoration(
+                        hintText: 'Ví dụ: 1 viên',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onChanged: (value) {
+                        _dosage = value;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                widget.onSave(_time, _dosage);
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text('Lưu',
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
+            ),
+          ),
+        ],
       ),
     );
   }

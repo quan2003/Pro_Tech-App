@@ -1,4 +1,5 @@
 import 'package:flutter_login_app/views/screens/HealthGoalsScreen.dart';
+import 'package:flutter_login_app/views/screens/SplashScreen.dart';
 import 'package:flutter_login_app/views/screens/WeightGoalScreen.dart';
 import 'package:flutter_login_app/views/screens/WeightInputScreen.dart';
 import 'package:get/get.dart';
@@ -16,8 +17,9 @@ import '../screens/WelcomeScreen.dart';
 import '../screens/HealthConditionsScreen.dart';
 import '../screens/WeightFrequencyScreen.dart';
 
+
 class AppRoutes {
-  static const SIGNINSCREEN = '/';
+  static const SIGNINSCREEN = '/signin_screen';
   static const HOMESCREEN = '/home';
   static const HOMEFIRSTSCREEN = '/home_first';
   static const TERMSANDCONDITIONS = '/terms_and_conditions';
@@ -32,8 +34,13 @@ class AppRoutes {
   static const HEALTH_CONDITION_SCREEN = '/health_condition';
   static const WEIGHT_GOALS_SCREEN = '/weight_goals';
   static const WEIGHT_FREQUENCY_SCREEN = '/weight_frequency';
+  static const SPLASH_SCREEN = '/';
 
   static final routes = [
+     GetPage(
+      name: SPLASH_SCREEN,
+      page: () => SplashScreen(),
+    ),
     GetPage(
       name: SIGNINSCREEN,
       page: () => const SignInScreen(),

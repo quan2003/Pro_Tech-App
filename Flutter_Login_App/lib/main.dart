@@ -138,7 +138,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Pro-Tech',
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.SIGNINSCREEN,
+      initialRoute: AppRoutes.SPLASH_SCREEN,
       getPages: AppRoutes.routes,
       theme: ThemeData(
         primarySwatch: Colors.purple,

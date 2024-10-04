@@ -6,6 +6,7 @@ chỉnh sửa vào bất cứ lúc nào bằng cách cập nhật thông báo n�
 sẽ có giá trị áp dụng và ràng buộc đối với Quý Khách, do đó, Quý Khách vui lòng truy cập
 trang web này thường xuyên theo định kỳ để xem xét các quy định có giá trị ràng buộc áp
 dụng với Quý Khách tại từng thời điểm.
+
 II. QUYỀN KHƯỚC TỪ
 1. Trong phạm vi tối đa được pháp luật hiện hành cho phép, (1) tài liệu trên trang web này
 được cung cấp “như tình trạng hiện có” và không có bất kỳ bảo đảm nào dưới bất kỳ hình
@@ -32,6 +33,7 @@ các trang web bên ngoài. Việc cung cấp bất kỳ đường dẫn nào đ
 không có nghĩa là MAP Life đồng ý hoặc bảo chứng cho các trang web đó hoặc nội dung
 của trang web đó. Quý Khách công nhận và đồng ý rằng Quý Khách chịu trách nhiệm đối
 với các rủi ro khi truy cập các trang web đó.
+
 III. GIỚI HẠN TRÁCH NHIỆM
 1. Mặc dù MAP Life đã sử dụng mọi nỗ lực hợp lý để đưa và cập nhật các thông tin chính
 xác lên trang web này, đôi khi lỗi hoặc thiếu sót vẫn có thể xảy ra. Trong phạm vi tối đa
@@ -51,6 +53,7 @@ quan đến bất kỳ thiệt hại hoặc vi rút có thể gây hại đến 
 của Quý Khách phát sinh từ việc truy cập, sử dụng hoặc duyệt tìm trong trang web hoặc
 phát sinh từ việc Quý Khách tải xuống bất kỳ tài liệu, dữ liệu, văn bản, hình ảnh, dữ liệu
 âm thanh, và dữ liệu hình ảnh từ trang web này.
+
 IV. HẠN CHẾ SỬ DỤNG TÀI LIỆU
 1. Trang web này thuộc quyền sở hữu và điều hành bởi MAP Life. Trừ trường hợp MAP Life
 có quy định rõ ràng khác tại đây, mọi tài liệu từ trang web này hoặc từ bất kỳ trang web
@@ -68,6 +71,7 @@ và dữ liệu hình ảnh động (video) nếu không có sự chấp thuận
 Life.
 2. MAP Life không bảo đảm cũng như cam kết việc Quý Khách sử dụng các tài liệu được
 hiển thị trên trang web này sẽ không vi phạm các quyền của bên thứ ba.
+
 V. QUYỀN TÀI PHÁN
 1. Trừ trường hợp được nêu rõ ràng tại đây, MAP Life không bảo đảm rằng các tài liệu trên
 trang web này phù hợp hoặc có thể được sử dụng tại bất kỳ địa điểm nào. Quý Khách
@@ -80,6 +84,7 @@ hoặc được bán bởi MAP Life, sẽ có hiệu lực thực thi tại mộ
 hoặc bán các sản phẩm đó được xem là vi phạm luật kinh doanh bảo hiểm hoặc các quy
 định pháp luật khác tại quốc gia đó. Một số sản phẩm và dịch vụ mà MAP Life cung cấp
 có thể không được cung cấp tại một số vùng miền/quốc gia.
+
 VI. QUYỀN SỞ HỮU THÔNG TIN
 1. Ngoại trừ dữ liệu hoặc thông tin cá nhân, bất kỳ thông tin nào mà Quý Khách chuyển giao
 cho MAP Life thông qua trang web này, bằng thư điện tử hoặc hình thức khác, bao gồm
@@ -94,6 +99,7 @@ nào, bao gồm nhưng không giới hạn, phát triển và tiếp thị sản
 thông tin đó. Quý Khách sẽ từ bỏ mọi quyền áp dụng mà Quý Khách có thể có đối với
 thông tin (ngoại trừ dữ liệu cá nhân) được Quý Khách chuyển giao cho MAP Life thông
 qua trang web hoặc bằng hình thức khác, cho mục đích của Quy Định Sử Dụng.
+
 VII. QUYỀN SỞ HỮU TRÍ TUỆ
 Mọi nhãn hiệu, nhãn hiệu dịch vụ, tên thương mại, lô gô và biểu tượng đều thuộc quyền
 sở hữu của MAP Life. Ngoại trừ các quy định được nêu rõ ràng trong Quy Tắc Sử Dụng
@@ -104,6 +110,7 @@ hiệu hoặc lô gô) hiển thị trên trang web này, mà không có sự ch
 của MAP Life. Việc Quý Khách sử dụng nhãn hiệu hoặc lô gô hiển thị trên trang web
 này hoặc bất kỳ nội dung nào khác trên trang web này, trừ khi được quy định tại đây,
 đều bị nghiêm cấm.
+
 VIII. BẢN QUYỀN PHẦN MỀM
 Trong phạm vi cho phép, các phần mềm được sử dụng hoặc được cung cấp đến Quý
 Khách tại trang web này, MAP Life sẽ cấp cho Quý Khách quyền cá nhân, giới hạn và
@@ -113,6 +120,7 @@ quyền bao gồm quyền sở hữu trí tuệ liên quan đến phần mềm �
 MAP Life hoặc bên cấp phép hoặc bên sở hữu phần mềm liên quan. Trừ khi được pháp
 luật cho phép, Quý Khách không được đảo ngược thiết kế, giải mã, sửa đổi hoặc can
 thiệp vào phần mềm.
+
 IX. BẢO MẬT
 Quý Khách công nhận và xác nhận rằng internet không phải là hình thức an toàn để bảo
 đảm quyền riêng tư và rằng khó có thể thực hiện bảo mật và bảo đảm đầy đủ. Quyền bảo
@@ -122,6 +130,7 @@ web) có thể bị truy cập bởi, hoặc tiết lộ cho những người kh
 quyền khước từ nào khác tại đây, MAP Life sẽ không chịu trách nhiệm với bất kỳ tổn thất
 nào mà Quý Khách hoặc bất kỳ người nào khác phải gánh chịu liên quan đến các vi phạm
 về bảo mật hoặc an toàn thông tin.
+
 X. HÌNH THỨC TRAO ĐỔI THÔNG TIN
 1. MAP Life có quyền quy định, tùy từng thời điểm, hình thức thông báo (bằng văn bản hoặc
 hình thức khác) và các kênh trao đổi thông tin liên quan đến việc cấp thông báo căn cứ
@@ -143,6 +152,7 @@ fax hoặc hình thức khác sẽ được xem là đã được gửi đến t
 hợp gửi trực tiếp) tại thời điểm gửi, (trong trường hợp gửi bằng fax) vào ngày gửi fax,
 (trong trường hợp gửi qua hình thức chuyển thư) khi được bỏ vào hộp thư, (trong trường
 hợp gửi qua phương tiện điện tử) tại thời điểm gửi thư điện tử.
+
 XI. CÁC DỊCH VỤ TRỰC TUYẾN
 1. Việc Quý Khách sử dụng mật khẩu của mình để truy cập các tài liệu và thông tin hợp
 đồng của Quý Khách thể hiện rằng Quý Khách đồng ý sử dụng dịch vụ trực tuyến của
@@ -178,6 +188,7 @@ bên thứ ba chưa được ủy quyền, hoặc dịch vụ của MAP Life đa
 Quý Khách vẫn phải chịu trách nhiệm đối với bất kỳ việc sử dụng dịch vụ chưa được cấp
 phép cho đến khi chúng tôi nhận được thông báo về tình trạng sử dụng không được phép
 đó.
+
 XII. CÁC GIAO DỊCH TRÊN INTERNET
 Các giao dịch thông qua mạng Internet có thể gặp rủi ro mất đường truyền, gián đoạn,
 chậm trễ hoặc sai sót. MAP Life không chịu trách nhiệm cho bất kỳ thiệt hại nào liên quan
@@ -185,6 +196,7 @@ chậm trễ hoặc sai sót. MAP Life không chịu trách nhiệm cho bất k�
 dịch được thực hiện thông qua trang web này phát sinh từ hoặc liên quan đến bất kỳ sai
 sót nào gây ra từ các phương tiện trao đổi thông tin nằm ngoài tầm kiểm soát của MAP
 Life.
+
 XIII. TẢI THÔNG TIN
 MAP Life không bảo đảm việc truyền tải thông tin qua trang web này sẽ không có bất kỳ
 chậm trễ, thất bại, lỗi, thiếu sót hoặc bị mất mát thông tin. MAP Life không bảo đảm các

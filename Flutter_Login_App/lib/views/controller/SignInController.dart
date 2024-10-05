@@ -159,37 +159,35 @@ void _showErrorSnackbar(String message) {
   }
 
   /// Xử lý Đăng ký với Email và Mật khẩu
-  Future<void> handleSignup(SignupData signupData) async {
-    try {
-      UserCredential userCredential =
-          await firebaseAuth.createUserWithEmailAndPassword(
-        email: signupData.name!,
-        password: signupData.password!,
-      );
-      
+Future<void> handleSignup(String email, String password) async {
+  try {
+    UserCredential userCredential = await firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-      User? user = userCredential.user;
+    User? user = userCredential.user;
 
-      if (user != null) {
-        Get.snackbar(
-          "Sign Up Successful",
-          "Welcome ${user.email}!",
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-        Get.offNamed(AppRoutes
-            .TERMSANDCONDITIONS); // Điều hướng đến Điều khoản và Dịch vụ sau khi đăng ký
-      }
-    } catch (e) {
+    if (user != null) {
       Get.snackbar(
-        "Sign Up Failed",
-        e.toString(),
-        backgroundColor: Colors.red,
+        "Sign Up Successful",
+        "Welcome ${user.email}!",
+        backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      print("Sign up error: $e");
+      Get.offNamed(AppRoutes.TERMSANDCONDITIONS);
     }
+  } catch (e) {
+    Get.snackbar(
+      "Sign Up Failed",
+      e.toString(),
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    print("Sign up error: $e");
   }
+}
+
 
   /// Xử lý Đăng nhập với Email và Mật khẩu
   Future<void> handleLogin(LoginData loginData) async {

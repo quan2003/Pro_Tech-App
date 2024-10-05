@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
-import '../controller/SignInController.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'SignupScreen.dart'; // Import màn hình đăng ký
+import '../controller/SignInController.dart';
+import 'SignInScreen.dart'; // Import màn hình đăng nhập
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  _SignInScreenState createState() => _SignInScreenState();
+  _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final SignInController controller = Get.put(SignInController());
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
   bool isPasswordVisible = false; // Trạng thái hiển thị mật khẩu
-  bool isRememberMe = false; // Trạng thái của hộp "Remember Me"
+  bool isConfirmPasswordVisible =
+      false; // Trạng thái hiển thị mật khẩu xác nhận
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +36,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(height: 50),
                 _buildLogo(),
                 const SizedBox(height: 50),
-                _buildLoginForm(),
-                const SizedBox(height: 20),
+                _buildSignupForm(),
+                const SizedBox(height: 5),
                 _buildSocialLoginButtons(),
                 const SizedBox(height: 30), // Thêm khoảng trống giữa các phần
                 _buildFooter(context), // Thêm phần footer
@@ -46,8 +49,10 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildLogo() {
-    return Container(
+Widget _buildLogo() {
+  return Hero(
+    tag: 'signup-hero', // Sử dụng cùng một tag để liên kết hoạt ảnh
+    child: Container(
       width: MediaQuery.of(context).size.width * 0.6, // Chiều rộng của logo
       height: 120, // Chiều cao của logo
       decoration: BoxDecoration(
@@ -63,46 +68,12 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
         ],
       ),
-      child: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              ' ',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    blurRadius: 5.0,
-                    color: Colors.black54,
-                    offset: Offset(2.0, 2.0),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              ' ',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white70,
-                shadows: [
-                  Shadow(
-                    blurRadius: 5.0,
-                    color: Colors.black54,
-                    offset: Offset(1.0, 1.0),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildLoginForm() {
+
+  Widget _buildSignupForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -124,75 +95,40 @@ class _SignInScreenState extends State<SignInScreen> {
             });
           },
         ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Checkbox(
-                  value: isRememberMe,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      isRememberMe = newValue ?? false;
-                    });
-                  },
-                  activeColor: const Color(0xFFFF955F),
-                ),
-                const Text(
-                  "Remember Me",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ],
-            ),
-            TextButton(
-              onPressed: () {
-                // Xử lý quên mật khẩu
-                if (emailController.text.isNotEmpty) {
-                  controller.handlePasswordRecovery(emailController.text);
-                } else {
-                  Get.snackbar(
-                    "Error",
-                    "Please enter your email first",
-                    backgroundColor: Colors.red,
-                    colorText: Colors.white,
-                  );
-                }
-              },
-              child: const Text(
-                'Forgot Password?',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
+        const SizedBox(height: 20),
+        _buildInputField(
+          controller: confirmPasswordController,
+          icon: Icons.lock_outline,
+          hintText: 'Confirm Password',
+          isPassword: true,
+          isPasswordVisible: isConfirmPasswordVisible,
+          onPasswordToggle: () {
+            setState(() {
+              isConfirmPasswordVisible = !isConfirmPasswordVisible;
+            });
+          },
         ),
         const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () async {
-            try {
-              await controller.handleLogin(LoginData(
-                name: emailController.text,
-                password: passwordController.text,
-              ));
-              // Đăng nhập thành công, chuyển hướng được xử lý trong controller
-            } catch (e) {
-              Get.snackbar(
-                "Login Failed",
-                e.toString(),
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFF955F),
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _handleSignup,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 4,
+              backgroundColor: const Color(0xFFFF955F),
+              shadowColor:
+                  Colors.black.withOpacity(0.3), // Bổ sung hiệu ứng bóng
+            ),
+            child: Text(
+              'SIGN UP',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
-          child: Text('LOGIN'),
-        ),
+        )
       ],
     );
   }
@@ -206,13 +142,22 @@ class _SignInScreenState extends State<SignInScreen> {
     VoidCallback? onPasswordToggle,
   }) {
     return Container(
+      width: MediaQuery.of(context).size.width * 0.8,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1), // Màu bóng mờ
+            blurRadius: 10, // Độ mờ của bóng
+            offset: const Offset(0, 4), // Độ lệch của bóng
+          ),
+        ],
       ),
       child: TextField(
         controller: controller,
-        obscureText: isPassword && !isPasswordVisible, // Ẩn hoặc hiển thị mật khẩu
+        obscureText:
+            isPassword && !isPasswordVisible, // Ẩn hoặc hiển thị mật khẩu
         decoration: InputDecoration(
           hintText: hintText,
           prefixIcon: Icon(icon, color: Colors.grey),
@@ -230,6 +175,43 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
+  }
+
+  _handleSignup() async {
+    if (emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please fill in all fields",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      Get.snackbar(
+        "Error",
+        "Passwords do not match",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    try {
+      await controller.handleSignup(
+          emailController.text, passwordController.text);
+      // Đăng ký thành công, chuyển hướng đã được xử lý trong controller
+    } catch (e) {
+      Get.snackbar(
+        "Sign Up Failed",
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   Widget _buildSocialLoginButtons() {
@@ -284,49 +266,49 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Widget _buildSocialButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: color,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2), // Bóng nhẹ để tạo hiệu ứng nổi
-              blurRadius: 8, // Độ mờ của bóng
-              offset: const Offset(0, 4), // Độ lệch của bóng
-            ),
-          ],
-        ),
-        child: Icon(icon, color: Colors.white),
+  required IconData icon,
+  required Color color,
+  required VoidCallback onTap,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2), // Bóng nhẹ để tạo hiệu ứng nổi
+            blurRadius: 8, // Độ mờ của bóng
+            offset: const Offset(0, 4), // Độ lệch của bóng
+          ),
+        ],
       ),
-    );
-  }
+      child: Icon(icon, color: Colors.white),
+    ),
+  );
+}
 
- Widget _buildFooter(BuildContext context) {
-  return Align(
-    alignment: Alignment.center,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          "Don’t have an account? ",
-          style: TextStyle(color: Colors.white),
-        ),
-        Hero(
-          tag: 'signup-hero', // Đặt một tag chung để liên kết giữa hai màn hình
-          child: TextButton(
+
+  Widget _buildFooter(BuildContext context) {
+    return Align(
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Already have an account? ",
+            style: TextStyle(color: Colors.white),
+          ),
+          TextButton(
             onPressed: () {
-              _navigateToSignupScreen(context); // Gọi hàm chuyển trang với hiệu ứng
+              // Điều hướng sang màn hình SignInScreen khi người dùng nhấn "Sign In"
+              Get.to(() => SignInScreen());
             },
             child: const Text(
-              'Sign Up',
+              'Sign In',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -334,20 +316,8 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-void _navigateToSignupScreen(BuildContext context) {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => SignupScreen(),
-    ),
-  );
-}
-
-
+        ],
+      ),
+    );
+  }
 }

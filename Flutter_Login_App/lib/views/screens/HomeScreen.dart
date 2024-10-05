@@ -1,6 +1,7 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_login_app/views/screens/BluetoothConnectionScreen.dart';
 import 'package:flutter_login_app/views/screens/CookiePolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
@@ -297,7 +298,7 @@ void _onItemTapped(int index) {
                   leading: const Icon(Icons.bluetooth),
                   title: const Text('Thiết bị Bluetooth'),
                   onTap: () {
-                    // Navigate to Bluetooth Devices
+                    Get.to(() => const BluetoothConnectionScreen());
                   },
                 ),
 

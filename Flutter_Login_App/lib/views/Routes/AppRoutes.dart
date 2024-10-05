@@ -39,11 +39,11 @@ class AppRoutes {
   static final routes = [
      GetPage(
       name: SPLASH_SCREEN,
-      page: () => SplashScreen(),
+      page: () => const SplashScreen(),
     ),
     GetPage(
       name: SIGNINSCREEN,
-      page: () => const SignInScreen(),
+      page: () =>  SignInScreen(),
     ),
     GetPage(
       name: HOMESCREEN,

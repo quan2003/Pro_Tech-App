@@ -4,13 +4,15 @@ import 'package:get/get.dart';
 import '../Routes/AppRoutes.dart';
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
     home: SplashScreen(),
   ));
 }
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -30,19 +32,19 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Interval(0.0, 0.5, curve: Curves.elasticOut)),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.elasticOut)),
     );
 
     _drawAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Interval(0.5, 1.0, curve: Curves.easeInOut)),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.5, 1.0, curve: Curves.easeInOut)),
     );
 
     _textOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Interval(0.7, 1.0, curve: Curves.easeIn)),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.7, 1.0, curve: Curves.easeIn)),
     );
 
     _controller.forward().then((_) {
-      Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         Get.offNamed(AppRoutes.SIGNINSCREEN);
       });
     });
@@ -74,10 +76,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     ),
                     size: Size(MediaQuery.of(context).size.width, 100),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Opacity(
                     opacity: _textOpacityAnimation.value,
-                    child: Text(
+                    child: const Text(
                       'YOUR HEART, YOUR LIFE',
                       style: TextStyle(
                         fontSize: 24,
@@ -105,7 +107,7 @@ class DrawingTextPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final textStyle = TextStyle(
+    const textStyle = TextStyle(
       color: Colors.deepOrangeAccent,
       fontSize: 60,
       fontWeight: FontWeight.bold,

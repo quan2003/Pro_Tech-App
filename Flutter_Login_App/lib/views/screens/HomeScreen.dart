@@ -5,6 +5,7 @@ import 'package:flutter_login_app/views/screens/BluetoothConnectionScreen.dart';
 import 'package:flutter_login_app/views/screens/CookiePolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
+import 'package:flutter_login_app/views/screens/HealthScreen.dart';
 import 'package:flutter_login_app/views/screens/PrivacyPolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/StepTrackerScreen.dart';
@@ -12,7 +13,8 @@ import 'package:flutter_login_app/views/screens/TearmsAndConditionsScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'AddMedicationScreen.dart';
+import 'BulletinBoardScreen.dart';
+import 'MedicineScreen.dart';
 import 'ProfileScreen.dart';
 import '../Routes/AppRoutes.dart';
 import 'package:intl/intl.dart';
@@ -124,26 +126,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return 'Khách';
   }
-void _onItemTapped(int index) {
+void _onItemTapped(int index) async {
+  if (index == 1) { // Index 1 tương ứng với tab "Sức khoẻ"
+    await Get.to(() => const HealthScreen());
+  } else if (index == 2) { // Index 2 tương ứng với tab "Thuốc"
+   Get.to(() =>  const MedicineScreen());
+  } else if (index == 3) { // Index 3 tương ứng với tab "Phần thưởng"
+    Get.to(() => const BulletinBoardScreen());
+  }
+
+  // Cập nhật lại chỉ số sau khi quay lại từ trang khác
   setState(() {
     _selectedIndex = index;
   });
-
-  switch (index) {
-    case 1: // Index 1 tương ứng với tab "Sức khoẻ"
-      Get.to(() => const AddMedicationScreen());
-      break;
-    case 2: // Index 2 tương ứng với tab "Thuốc"
-      // Có thể thêm chuyển hướng khác nếu cần
-      break;
-    case 3: // Index 3 tương ứng với tab "Phần thưởng"
-      // Có thể thêm chuyển hướng khác nếu cần
-      break;
-    default:
-      // Mặc định là tab "Trang chủ", không cần làm gì
-      break;
-  }
 }
+
 
   @override
   Widget build(BuildContext context) {
@@ -646,7 +643,7 @@ void _onItemTapped(int index) {
               TabItem(icon: Icons.home, title: 'Trang chủ'),
               TabItem(icon: Icons.favorite, title: 'Sức khoẻ'),
               TabItem(icon: Icons.medication, title: 'Thuốc'),
-              TabItem(icon: Icons.card_giftcard, title: 'Phần thưởng'),
+              TabItem(icon: Icons.forum, title: 'Bảng tin'),
             ],
             initialActiveIndex: _selectedIndex,
             onTap: _onItemTapped,

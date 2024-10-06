@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter_login_app/views/screens/AddMedicationScreen.dart';
-import 'package:flutter_login_app/views/screens/HomeScreen.dart'; // Thêm thư viện này nếu chưa có
+import 'package:flutter_login_app/views/screens/BulletinBoardScreen.dart';
+import 'package:flutter_login_app/views/screens/HomeScreen.dart';
+
+import 'MedicineScreen.dart'; // Thêm thư viện này nếu chưa có
 
 class HealthScreen extends StatefulWidget {
   const HealthScreen({super.key});
@@ -43,7 +46,7 @@ class HealthScreen extends StatefulWidget {
           TabItem(icon: Icons.home, title: 'Trang chủ'),
           TabItem(icon: Icons.favorite, title: 'Sức khoẻ'),
           TabItem(icon: Icons.medication, title: 'Thuốc'),
-          TabItem(icon: Icons.card_giftcard, title: 'Phần thưởng'),
+          TabItem(icon: Icons.forum, title: 'Bảng tin'),
         ],
         initialActiveIndex: 1, // Tab "Sức khoẻ" có index 1
         onTap: (int index) {
@@ -65,12 +68,12 @@ class HealthScreen extends StatefulWidget {
         break;
       case 2: // Tab 'Thuốc'
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const MedicineScreen()),
         );
         break;
       case 3: // Tab 'Phần thưởng'
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const BulletinBoardScreen()),
         );
         break;
       default:

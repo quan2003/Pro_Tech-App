@@ -53,7 +53,8 @@ class _SignInScreenState extends State<SignInScreen> {
       decoration: BoxDecoration(
         image: const DecorationImage(
           image: AssetImage('assets/images/AppLogo.png'), // Ảnh nền là logo
-          fit: BoxFit.contain, // Co dãn ảnh để phù hợp với kích thước của container
+          fit: BoxFit
+              .cover, // Co dãn ảnh để phù hợp với kích thước của container
         ),
         boxShadow: [
           BoxShadow(
@@ -62,6 +63,12 @@ class _SignInScreenState extends State<SignInScreen> {
             offset: const Offset(0, 5),
           ),
         ],
+        border: Border.all(
+          // Thêm viền
+          color: Colors.white, // Màu viền
+          width: 2.0, // Độ dày của viền
+        ),
+        borderRadius: BorderRadius.circular(8.0), // Bo tròn các góc nếu cần
       ),
       child: const Center(
         child: Column(
@@ -191,7 +198,7 @@ class _SignInScreenState extends State<SignInScreen> {
               borderRadius: BorderRadius.circular(30),
             ),
           ),
-          child: Text('LOGIN'),
+          child: const Text('LOGIN'),
         ),
       ],
     );
@@ -212,7 +219,8 @@ class _SignInScreenState extends State<SignInScreen> {
       ),
       child: TextField(
         controller: controller,
-        obscureText: isPassword && !isPasswordVisible, // Ẩn hoặc hiển thị mật khẩu
+        obscureText:
+            isPassword && !isPasswordVisible, // Ẩn hoặc hiển thị mật khẩu
         decoration: InputDecoration(
           hintText: hintText,
           prefixIcon: Icon(icon, color: Colors.grey),
@@ -226,7 +234,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
     );
@@ -298,7 +307,8 @@ class _SignInScreenState extends State<SignInScreen> {
           color: color,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2), // Bóng nhẹ để tạo hiệu ứng nổi
+              color:
+                  Colors.black.withOpacity(0.2), // Bóng nhẹ để tạo hiệu ứng nổi
               blurRadius: 8, // Độ mờ của bóng
               offset: const Offset(0, 4), // Độ lệch của bóng
             ),
@@ -309,45 +319,44 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
- Widget _buildFooter(BuildContext context) {
-  return Align(
-    alignment: Alignment.center,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          "Don’t have an account? ",
-          style: TextStyle(color: Colors.white),
-        ),
-        Hero(
-          tag: 'signup-hero', // Đặt một tag chung để liên kết giữa hai màn hình
-          child: TextButton(
-            onPressed: () {
-              _navigateToSignupScreen(context); // Gọi hàm chuyển trang với hiệu ứng
-            },
-            child: const Text(
-              'Sign Up',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
+  Widget _buildFooter(BuildContext context) {
+    return Align(
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Don’t have an account? ",
+            style: TextStyle(color: Colors.white),
+          ),
+          Hero(
+            tag:
+                'signup-hero', // Đặt một tag chung để liên kết giữa hai màn hình
+            child: TextButton(
+              onPressed: () {
+                _navigateToSignupScreen(
+                    context); // Gọi hàm chuyển trang với hiệu ứng
+              },
+              child: const Text(
+                'Sign Up',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
-
-void _navigateToSignupScreen(BuildContext context) {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => SignupScreen(),
-    ),
-  );
-}
-
-
+  void _navigateToSignupScreen(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const SignupScreen(),
+      ),
+    );
+  }
 }

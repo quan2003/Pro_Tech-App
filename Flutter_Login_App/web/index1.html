@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="loginForm">
+        <h2>Admin Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <div id="adminPanel" style="display: none;">
+        <h1>Admin Panel</h1>
+        <button onclick="logout()">Logout</button>
+        
+        <div id="tabButtons">
+            <button onclick="showTab('posts')">Posts</button>
+            <button onclick="showTab('users')">Users</button>
+        </div>
+
+        <div id="postsTab">
+            <h2>Add New Post</h2>
+            <input type="text" id="postTitle" placeholder="Title">
+            <textarea id="postContent" placeholder="Content"></textarea>
+            <input type="file" id="postImage" accept="image/*">
+            <button onclick="addPost()">Add Post</button>
+
+            <h2>Posts</h2>
+            <div id="postsList"></div>
+        </div>
+
+        <div id="usersTab" style="display: none;">
+          <h2>Quản lý người dùng</h2>
+          <button id="addUserBtn">+ Thêm mới</button>
+          <table id="usersTable">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>ID</th>
+                    <th>Health Conditions</th>
+                    <th>Health Goals</th>
+                    <th>Weight Goal</th>
+                    <th>Weight Frequency</th>
+                    <th>Tác vụ</th>
+                </tr>
+            </thead>
+            <tbody id="usersList">
+                <!-- User data will be inserted here -->
+            </tbody>
+        </table>
+      </div>
+      
+      <!-- Modal for adding/editing user -->
+      <div id="userModal" class="modal" style="display: none;">
+          <div class="modal-content">
+              <h3 id="modalTitle">Thêm người dùng mới</h3>
+              <input type="email" id="userEmail" placeholder="Email">
+              <input type="text" id="userName" placeholder="Tên">
+              <input type="tel" id="userPhone" placeholder="Số điện thoại">
+              <select id="userStatus">
+                  <option value="active">Hoạt động</option>
+                  <option value="inactive">Không hoạt động</option>
+              </select>
+              <button id="saveUserBtn">Lưu</button>
+              <button id="closeModalBtn">Đóng</button>
+          </div>
+      </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+
+    <script src="admin.js"></script>
+</body>
+</html>

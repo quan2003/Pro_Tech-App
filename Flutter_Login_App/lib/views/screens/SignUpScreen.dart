@@ -50,15 +50,14 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
 Widget _buildLogo() {
-  return Hero(
-    tag: 'signup-hero', // Sử dụng cùng một tag để liên kết hoạt ảnh
-    child: Container(
+    return Container(
       width: MediaQuery.of(context).size.width * 0.6, // Chiều rộng của logo
       height: 120, // Chiều cao của logo
       decoration: BoxDecoration(
         image: const DecorationImage(
           image: AssetImage('assets/images/AppLogo.png'), // Ảnh nền là logo
-          fit: BoxFit.contain, // Co dãn ảnh để phù hợp với kích thước của container
+          fit: BoxFit
+              .cover, // Co dãn ảnh để phù hợp với kích thước của container
         ),
         boxShadow: [
           BoxShadow(
@@ -67,11 +66,51 @@ Widget _buildLogo() {
             offset: const Offset(0, 5),
           ),
         ],
+        border: Border.all(
+          // Thêm viền
+          color: Colors.white, // Màu viền
+          width: 2.0, // Độ dày của viền
+        ),
+        borderRadius: BorderRadius.circular(8.0), // Bo tròn các góc nếu cần
       ),
-    ),
-  );
-}
-
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              ' ',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    blurRadius: 5.0,
+                    color: Colors.black54,
+                    offset: Offset(2.0, 2.0),
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              ' ',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white70,
+                shadows: [
+                  Shadow(
+                    blurRadius: 5.0,
+                    color: Colors.black54,
+                    offset: Offset(1.0, 1.0),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildSignupForm() {
     return Column(
@@ -123,7 +162,7 @@ Widget _buildLogo() {
               shadowColor:
                   Colors.black.withOpacity(0.3), // Bổ sung hiệu ứng bóng
             ),
-            child: Text(
+            child: const Text(
               'SIGN UP',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
@@ -305,7 +344,7 @@ Widget _buildLogo() {
           TextButton(
             onPressed: () {
               // Điều hướng sang màn hình SignInScreen khi người dùng nhấn "Sign In"
-              Get.to(() => SignInScreen());
+              Get.to(() => const SignInScreen());
             },
             child: const Text(
               'Sign In',

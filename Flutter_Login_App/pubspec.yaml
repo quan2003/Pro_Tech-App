@@ -48,6 +48,7 @@ dependencies:
   flutter_keyboard_visibility: ^6.0.0
   flutter_svg: ^2.0.10+1
   flutter_blue: ^0.8.0
+  firebase_messaging_web: ^3.9.2
 
 
 

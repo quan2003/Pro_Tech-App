@@ -43,7 +43,7 @@ class AppRoutes {
     ),
     GetPage(
       name: SIGNINSCREEN,
-      page: () =>  SignInScreen(),
+      page: () =>  const SignInScreen(),
     ),
     GetPage(
       name: HOMESCREEN,

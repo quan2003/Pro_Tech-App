@@ -19,14 +19,16 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   List<ChatMessage> _messages = [];
   final String apiKey = 'AIzaSyAdnxWY5yt9-2h-qndZlN60IGXHzCdLH0Y';
-  final String apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+  final String apiUrl =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
   late String chatKey; // Khóa lưu trữ cho mỗi người dùng
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    chatKey = 'chat_messages_${widget.userId}'; // Tạo khóa duy nhất cho mỗi người dùng
+    chatKey =
+        'chat_messages_${widget.userId}'; // Tạo khóa duy nhất cho mỗi người dùng
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
@@ -41,7 +43,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _saveMessages() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> jsonMessages = _messages.map((msg) => json.encode(msg.toJson())).toList();
+    List<String> jsonMessages =
+        _messages.map((msg) => json.encode(msg.toJson())).toList();
     await prefs.setStringList(chatKey, jsonMessages);
   }
 
@@ -53,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .map((msg) => ChatMessage.fromJson(json.decode(msg)))
           .toList();
     });
-    }
+  }
 
   Future<void> sendPrompt(String prompt) async {
     setState(() {
@@ -67,13 +70,21 @@ class _ChatScreenState extends State<ChatScreen> {
         Uri.parse('$apiUrl?key=$apiKey'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'contents': [{'parts': [{'text': prompt}]}],
+          'contents': [
+            {
+              'parts': [
+                {'text': prompt}
+              ]
+            }
+          ],
         }),
       );
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
-        final aiResponse = jsonResponse['candidates'][0]['content']['parts'][0]['text'] ?? 'No response received';
+        final aiResponse = jsonResponse['candidates'][0]['content']['parts'][0]
+                ['text'] ??
+            'No response received';
         setState(() {
           _messages.add(ChatMessage(text: aiResponse, isUser: false));
           isLoading = false;
@@ -81,14 +92,17 @@ class _ChatScreenState extends State<ChatScreen> {
         await _saveMessages();
       } else {
         setState(() {
-          _messages.add(ChatMessage(text: 'Failed to get response: ${response.statusCode}', isUser: false));
+          _messages.add(ChatMessage(
+              text: 'Failed to get response: ${response.statusCode}',
+              isUser: false));
           isLoading = false;
         });
         await _saveMessages();
       }
     } catch (e) {
       setState(() {
-        _messages.add(ChatMessage(text: 'An error occurred: $e', isUser: false));
+        _messages
+            .add(ChatMessage(text: 'An error occurred: $e', isUser: false));
         isLoading = false;
       });
       await _saveMessages();
@@ -217,7 +231,8 @@ class ChatMessageWidget extends StatelessWidget {
           Flexible(
             child: Container(
               decoration: BoxDecoration(
-                color: message.isUser ? const Color(0xFF1E1E2D) : Colors.grey[200],
+                color:
+                    message.isUser ? const Color(0xFF1E1E2D) : Colors.grey[200],
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

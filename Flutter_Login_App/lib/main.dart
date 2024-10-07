@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_login_app/views/Routes/AppRoutes.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
@@ -31,8 +30,6 @@ void main() async {
     try {
       await _ensureFirebaseInitialized();
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-      print('Background message handler set up successfully');
-
       if (!kIsWeb) {
      
         await initializeWorkmanager();
@@ -46,7 +43,7 @@ void main() async {
       
       runApp(const MyApp());
    
-    } catch (error, stackTrace) {
+    } catch (error) {
       runApp(MaterialApp(
         home: Scaffold(
           body: Center(
@@ -60,11 +57,10 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    print('Building MyApp widget');
     return GetMaterialApp(
       title: 'Pro-Tech',
       debugShowCheckedModeBanner: false,

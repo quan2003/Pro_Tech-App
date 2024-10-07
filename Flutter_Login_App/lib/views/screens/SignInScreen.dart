@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:flutter_login_app/views/admin/AdminHomePage.dart';
 import 'package:get/get.dart';
 import '../controller/SignInController.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,6 +22,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size; // Get screen size
+
     return Scaffold(
       backgroundColor: const Color(0xFF61C9F9),
       body: SafeArea(
@@ -30,13 +33,13 @@ class _SignInScreenState extends State<SignInScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 50),
-                _buildLogo(),
-                const SizedBox(height: 50),
+                SizedBox(height: screenSize.height * 0.05),
+                _buildLogo(screenSize), // Pass screen size for responsiveness
+                SizedBox(height: screenSize.height * 0.05),
                 _buildLoginForm(),
                 const SizedBox(height: 20),
                 _buildSocialLoginButtons(),
-                const SizedBox(height: 30), // Thêm khoảng trống giữa các phần
+                SizedBox(height: screenSize.height * 0.03), // More responsive space
                 _buildFooter(context), // Thêm phần footer
               ],
             ),
@@ -46,7 +49,7 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildLogo(Size screenSize) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.6, // Chiều rộng của logo
       height: 120, // Chiều cao của logo
@@ -154,7 +157,6 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
             TextButton(
               onPressed: () {
-                // Xử lý quên mật khẩu
                 if (emailController.text.isNotEmpty) {
                   controller.handlePasswordRecovery(emailController.text);
                 } else {
@@ -176,18 +178,25 @@ class _SignInScreenState extends State<SignInScreen> {
         const SizedBox(height: 20),
         ElevatedButton(
           onPressed: () async {
-            try {
-              await controller.handleLogin(LoginData(
-                name: emailController.text,
-                password: passwordController.text,
-              ));
-              // Đăng nhập thành công, chuyển hướng được xử lý trong controller
-            } catch (e) {
-              Get.snackbar(
-                "Login Failed",
-                e.toString(),
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
+           try {
+      if (emailController.text == 'admin@gmail.com' && passwordController.text == 'admin123') {
+        // Navigate to admin web page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminHomePage()),
+        );
+      } else {
+        await controller.handleLogin(LoginData(
+          name: emailController.text,
+          password: passwordController.text,
+        ));
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Login Failed",
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
               );
             }
           },
@@ -219,8 +228,7 @@ class _SignInScreenState extends State<SignInScreen> {
       ),
       child: TextField(
         controller: controller,
-        obscureText:
-            isPassword && !isPasswordVisible, // Ẩn hoặc hiển thị mật khẩu
+        obscureText: isPassword && !isPasswordVisible, // Hide or show password
         decoration: InputDecoration(
           hintText: hintText,
           prefixIcon: Icon(icon, color: Colors.grey),
@@ -234,8 +242,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
     );
@@ -307,8 +314,7 @@ class _SignInScreenState extends State<SignInScreen> {
           color: color,
           boxShadow: [
             BoxShadow(
-              color:
-                  Colors.black.withOpacity(0.2), // Bóng nhẹ để tạo hiệu ứng nổi
+              color: Colors.black.withOpacity(0.2), // Bóng nhẹ để tạo hiệu ứng nổi
               blurRadius: 8, // Độ mờ của bóng
               offset: const Offset(0, 4), // Độ lệch của bóng
             ),
@@ -330,12 +336,10 @@ class _SignInScreenState extends State<SignInScreen> {
             style: TextStyle(color: Colors.white),
           ),
           Hero(
-            tag:
-                'signup-hero', // Đặt một tag chung để liên kết giữa hai màn hình
+            tag: 'signup-hero', // Đặt một tag chung để liên kết giữa hai màn hình
             child: TextButton(
               onPressed: () {
-                _navigateToSignupScreen(
-                    context); // Gọi hàm chuyển trang với hiệu ứng
+                _navigateToSignupScreen(context); // Gọi hàm chuyển trang với hiệu ứng
               },
               child: const Text(
                 'Sign Up',

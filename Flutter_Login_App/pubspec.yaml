@@ -76,6 +76,9 @@ flutter:
     - assets/images/AboutUs_1.png
     - assets/images/pill_icon.png
     - assets/images/whodrugs_logo.png
+    - assets/images/empty_box.png
+
+    
 
 flutter_icons:
   android: true

@@ -8,7 +8,8 @@ import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 
 // Conditional import for Workmanager
-import './views/utils/workmanager_helper.dart' if (dart.library.js) './views/utils/workmanager_web_stub.dart';
+import './views/utils/workmanager_helper.dart'
+    if (dart.library.js) './views/utils/workmanager_web_stub.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('Handling a background message: ${message.messageId}');
@@ -18,7 +19,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> _ensureFirebaseInitialized() async {
   if (!Firebase.apps.isNotEmpty) {
     await Firebase.initializeApp(
-      options: kIsWeb ? DefaultFirebaseOptions.web : DefaultFirebaseOptions.android,
+      options:
+          kIsWeb ? DefaultFirebaseOptions.web : DefaultFirebaseOptions.android,
     );
   }
 }
@@ -30,8 +32,9 @@ void main() async {
     try {
       await _ensureFirebaseInitialized();
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      print('Background message handler set up successfully');
+
       if (!kIsWeb) {
-     
         await initializeWorkmanager();
         await registerPeriodicTasks();
         await SystemChrome.setPreferredOrientations([
@@ -40,10 +43,9 @@ void main() async {
         ]);
       }
 
-      
       runApp(const MyApp());
    
-    } catch (error) {
+    } catch (error, stackTrace) {
       runApp(MaterialApp(
         home: Scaffold(
           body: Center(
@@ -52,8 +54,7 @@ void main() async {
         ),
       ));
     }
-  }, (error, stackTrace) {
-  });
+  }, (error, stackTrace) {});
 }
 
 class MyApp extends StatelessWidget {
@@ -84,11 +85,14 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg',
-    appId: '1:989890578847:web:903a936a3b2278ed9d95aa', // Giữ nguyên giá trị web app ID nếu bạn đã có
+    appId:
+        '1:989890578847:web:903a936a3b2278ed9d95aa', // Giữ nguyên giá trị web app ID nếu bạn đã có
     messagingSenderId: '989890578847',
     projectId: 'signin-example-b56ee',
     storageBucket: 'signin-example-b56ee.appspot.com',
-    authDomain: 'signin-example-b56ee.firebaseapp.com', // Thêm authDomain nếu cần thiết cho web
-    measurementId: 'G-6C63FNQH88', // Giữ nguyên nếu bạn đã có Measurement ID cho web
+    authDomain:
+        'signin-example-b56ee.firebaseapp.com', // Thêm authDomain nếu cần thiết cho web
+    measurementId:
+        'G-6C63FNQH88', // Giữ nguyên nếu bạn đã có Measurement ID cho web
   );
 }

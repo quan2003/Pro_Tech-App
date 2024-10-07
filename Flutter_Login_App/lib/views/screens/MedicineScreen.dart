@@ -31,7 +31,7 @@ class _MedicineScreenState extends State<MedicineScreen> {
         Get.to(() => const HealthScreen());
         break;
       case 2:
-        Get.to(() =>  const MedicineScreen());
+        Get.to(() => const MedicineScreen());
         break;
       case 3:
         Get.to(() => const BulletinBoardScreen());
@@ -49,30 +49,34 @@ class _MedicineScreenState extends State<MedicineScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     'Thuốc của tôi',
-                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                   ),
                   Container(
                     width: 40.0, // Đặt chiều rộng của hình tròn
                     height: 40.0, // Đặt chiều cao của hình tròn
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color.fromARGB(255, 201, 195, 195), // Màu nền của hình tròn
+                      color: Color.fromARGB(
+                          255, 201, 195, 195), // Màu nền của hình tròn
                     ),
                     alignment: Alignment.center,
                     child: IconButton(
-                      onPressed: () {}, 
+                      onPressed: () {},
                       icon: const Icon(
-                        Icons.add, 
+                        Icons.add,
                         color: Colors.white, // Màu biểu tượng
                         size: 20.0, // Kích thước biểu tượng
                       ),
-                      padding: EdgeInsets.zero, // Xóa padding để biểu tượng nằm chính giữa
+                      padding: EdgeInsets
+                          .zero, // Xóa padding để biểu tượng nằm chính giữa
                     ),
                   ),
                 ],
@@ -82,7 +86,8 @@ class _MedicineScreenState extends State<MedicineScreen> {
 
             // DateSlider được đặt trực tiếp trong cột
             const DateSlider(),
-            const SizedBox(height: 8.0), // Khoảng cách giữa thanh trượt và dòng chữ
+            const SizedBox(
+                height: 8.0), // Khoảng cách giữa thanh trượt và dòng chữ
 
             // Dòng chữ "Hôm nay"
             const Center(
@@ -111,7 +116,8 @@ class _MedicineScreenState extends State<MedicineScreen> {
                 icon: const Icon(Icons.edit), // Biểu tượng cho nút
                 label: const Text('Chỉnh sửa hộp thuốc'), // Văn bản cho nút
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50), // Đặt kích thước tối thiểu
+                  minimumSize: const Size(
+                      double.infinity, 50), // Đặt kích thước tối thiểu
                   textStyle: const TextStyle(fontSize: 16), // Kích thước chữ
                 ),
               ),
@@ -156,7 +162,7 @@ class TodayText extends StatelessWidget {
 class MedicationList extends StatelessWidget {
   final List<String> medications = [];
 
-   MedicationList({super.key}); // Danh sách thuốc (hiện tại rỗng)
+  MedicationList({super.key}); // Danh sách thuốc (hiện tại rỗng)
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +222,8 @@ class _DateSliderState extends State<DateSlider> {
   void _scrollToToday() {
     // Tính toán chỉ số của ngày hôm nay trong danh sách
     int todayIndex = 4; // Chỉ số cho ngày hôm nay (ở giữa danh sách 21 ngày)
-    _scrollController.jumpTo(todayIndex * 60.0); // Cuộn đến vị trí cần thiết (60 là chiều rộng của hộp)
+    _scrollController.jumpTo(todayIndex *
+        60.0); // Cuộn đến vị trí cần thiết (60 là chiều rộng của hộp)
   }
 
   @override
@@ -228,14 +235,18 @@ class _DateSliderState extends State<DateSlider> {
         scrollDirection: Axis.horizontal,
         itemCount: 21, // Hiển thị 21 ngày (7 trước, 7 sau, và tuần hiện tại)
         itemBuilder: (context, index) {
-          DateTime date = today.add(Duration(days: index - 7)); // Dịch chuyển -7 để bắt đầu 1 tuần trước hôm nay
-          
+          DateTime date = today.add(Duration(
+              days:
+                  index - 7)); // Dịch chuyển -7 để bắt đầu 1 tuần trước hôm nay
+
           // Kiểm tra xem ngày hiện tại có khớp với ngày hôm nay không
           bool isToday = date.isAtSameMomentAs(today);
 
-          String dayOfWeek = DateFormat('EEE').format(date); // Ngày trong tuần (Thứ hai, Thứ ba, v.v.)
-          String dayOfMonth = DateFormat('d').format(date); // Ngày trong tháng (1, 2, 3, v.v.)
-          
+          String dayOfWeek = DateFormat('EEE')
+              .format(date); // Ngày trong tuần (Thứ hai, Thứ ba, v.v.)
+          String dayOfMonth =
+              DateFormat('d').format(date); // Ngày trong tháng (1, 2, 3, v.v.)
+
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: isToday // Kiểm tra nếu là ngày hôm nay
@@ -243,7 +254,8 @@ class _DateSliderState extends State<DateSlider> {
                     width: 60.0, // Đặt chiều rộng của hộp
                     decoration: BoxDecoration(
                       color: Colors.grey[300], // Màu nền nếu là hôm nay
-                      border: Border.all(color: Colors.grey), // Đường viền màu xám
+                      border:
+                          Border.all(color: Colors.grey), // Đường viền màu xám
                       borderRadius: BorderRadius.circular(8.0), // Bo góc hộp
                     ),
                     alignment: Alignment.center,
@@ -256,7 +268,8 @@ class _DateSliderState extends State<DateSlider> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.black, // Màu nền của vòng tròn
-                            border: Border.all(color: Colors.grey), // Đường viền
+                            border:
+                                Border.all(color: Colors.grey), // Đường viền
                           ),
                           alignment: Alignment.center,
                           child: Text(
@@ -267,7 +280,9 @@ class _DateSliderState extends State<DateSlider> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 4.0), // Khoảng cách giữa vòng tròn và ngày trong tuần
+                        const SizedBox(
+                            height:
+                                4.0), // Khoảng cách giữa vòng tròn và ngày trong tuần
                         Text(
                           dayOfWeek, // Hiển thị ngày trong tuần
                           style: const TextStyle(
@@ -286,7 +301,8 @@ class _DateSliderState extends State<DateSlider> {
                         height: 40.0, // Đặt chiều cao của vòng tròn
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.transparent, // Màu nền không phải hôm nay
+                          color:
+                              Colors.transparent, // Màu nền không phải hôm nay
                           border: Border.all(color: Colors.grey), // Đường viền
                         ),
                         alignment: Alignment.center,
@@ -298,7 +314,9 @@ class _DateSliderState extends State<DateSlider> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4.0), // Khoảng cách giữa vòng tròn và ngày trong tuần
+                      const SizedBox(
+                          height:
+                              4.0), // Khoảng cách giữa vòng tròn và ngày trong tuần
                       Text(
                         dayOfWeek, // Hiển thị ngày trong tuần
                         style: const TextStyle(

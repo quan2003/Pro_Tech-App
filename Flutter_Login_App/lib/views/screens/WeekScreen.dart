@@ -70,7 +70,7 @@ class _WeekScreenState extends State<WeekScreen> {
       totalMinutes = data['totalMinutes'];
       lastWeekAverageSteps = data['lastWeekAverageSteps'];
     });
-    }
+  }
 
   Future<void> _loadDataFromFirebase(String userId) async {
     DateTime now = DateTime.now();
@@ -228,10 +228,12 @@ class _WeekScreenState extends State<WeekScreen> {
             children: [
               Text(
                 '${totalSteps ?? 0} bước',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(20),
@@ -250,8 +252,10 @@ class _WeekScreenState extends State<WeekScreen> {
           _buildWeekChart(),
           const Expanded(child: SizedBox()),
           _buildStatItem('bước', totalSteps.toString(), Icons.directions_walk),
-          _buildStatItem('kcal', totalCalories.toStringAsFixed(1), Icons.local_fire_department),
-          _buildStatItem('km', totalDistance.toStringAsFixed(2), Icons.directions),
+          _buildStatItem('kcal', totalCalories.toStringAsFixed(1),
+              Icons.local_fire_department),
+          _buildStatItem(
+              'km', totalDistance.toStringAsFixed(2), Icons.directions),
           _buildStatItem('phút', totalMinutes.toString(), Icons.timer),
         ],
       ),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_login_app/views/screens/PostDetailScreen.dart';
-
+import 'package:flutter_login_app/views/admin/CommentManagementPage.dart';
 import 'AdminPostDetailPage.dart';
 
 class BulletinBoardManagementPage extends StatefulWidget {
@@ -24,10 +23,14 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
     return Scaffold(
       appBar: _buildAppBar(),
       body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSidebar(context),
           Expanded(
-            child: _buildPostTable(),
+            child: Container(
+              color: Colors.grey[100],
+              child: _buildPostTable(),
+            ),
           ),
         ],
       ),
@@ -59,8 +62,8 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
           onPressed: () {},
         ),
         PopupMenuButton(
-          child: Row(
-            children: const [
+          child: const Row(
+            children: [
               Text('Pro - Tech', style: TextStyle(color: Colors.black)),
               Icon(Icons.arrow_drop_down, color: Colors.black),
             ],
@@ -74,8 +77,8 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
           backgroundImage: AssetImage('assets/images/default_avatar.png'),
         ),
         PopupMenuButton(
-          child: Row(
-            children: const [
+          child: const Row(
+            children: [
               Text('Admin', style: TextStyle(color: Colors.black)),
               Icon(Icons.arrow_drop_down, color: Colors.black),
             ],
@@ -90,30 +93,37 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
   }
 
   Widget _buildSidebar(BuildContext context) {
-    return Container(
-      width: 200,
-      color: const Color(0xFF00A19D),
-      child: ListView(
-        children: [
-          const UserAccountsDrawerHeader(
-            accountName: Text('Super Admin'),
-            accountEmail: null,
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: AssetImage('assets/images/default_avatar.png'),
-            ),
-            decoration: BoxDecoration(color: Color(0xFF00A19D)),
+  return Container(
+    width: 200,
+    color: const Color(0xFF00A19D),
+    child: ListView(
+      children: [
+        const UserAccountsDrawerHeader(
+          accountName: Text('Super Admin'),
+          accountEmail: null,
+          currentAccountPicture: CircleAvatar(
+            backgroundImage: AssetImage('assets/images/default_avatar.png'),
           ),
-          _buildSidebarItem('Dashboard', Icons.dashboard, onTap: () {
-            Navigator.pop(context);
-          }),
-          _buildSidebarItem('Post Management', Icons.post_add, isSelected: true),
-          _buildSidebarItem('Quiz Management', Icons.question_answer),
-          _buildSidebarItem('Settings', Icons.settings),
-          _buildSidebarItem('Logout', Icons.exit_to_app),
-        ],
-      ),
-    );
-  }
+          decoration: BoxDecoration(color: Color(0xFF00A19D)),
+        ),
+        _buildSidebarItem('Dashboard', Icons.dashboard, onTap: () {
+          Navigator.pop(context);
+        }),
+        _buildSidebarItem('Post Management', Icons.post_add, isSelected: true),
+        _buildSidebarItem('Comment Management', Icons.comment, onTap: () {
+          // Navigate to CommentManagementPage
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CommentManagementPage()),
+          );
+        }),
+        _buildSidebarItem('Quiz Management', Icons.question_answer),
+        _buildSidebarItem('Settings', Icons.settings),
+        _buildSidebarItem('Logout', Icons.exit_to_app),
+      ],
+    ),
+  );
+}
 
   Widget _buildSidebarItem(String title, IconData icon, {bool isSelected = false, VoidCallback? onTap}) {
     return ListTile(
@@ -124,6 +134,7 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
       onTap: onTap,
     );
   }
+
   Widget _buildPostTable() {
   return StreamBuilder<QuerySnapshot>(
     stream: FirebaseFirestore.instance.collection('posts_quiz').snapshots(),
@@ -140,6 +151,8 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
         return const Center(child: Text('No posts available'));
       }
 
+      List<DataRow> rows = _buildDataRows(snapshot.data!.docs);
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -155,9 +168,7 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
                 ElevatedButton.icon(
                   icon: const Icon(Icons.add),
                   label: const Text('Add Post/Quiz'),
-                  onPressed: () {
-                    _showAddPostDialog(context);
-                  },
+                  onPressed: () => _showAddPostDialog(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00A19D),
                     shape: RoundedRectangleBorder(
@@ -170,8 +181,9 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
           ),
           Expanded(
             child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
+              scrollDirection: Axis.vertical,
               child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columns: const [
                     DataColumn(label: Text('STT')),
@@ -181,68 +193,8 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
                     DataColumn(label: Text('Image')),
                     DataColumn(label: Text('Responses')),
                     DataColumn(label: Text('Actions')),
-                    DataColumn(label: Text('Post Details')),
                   ],
-                  rows: List<DataRow>.generate(
-                    snapshot.data!.docs.length,
-                    (index) {
-                      DocumentSnapshot document = snapshot.data!.docs[index];
-                      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                      Timestamp? timestamp = data['timestamp'] as Timestamp?;
-                      String description = data['description'] ?? '';
-
-                      if (description.isEmpty && timestamp != null) {
-                        final now = DateTime.now();
-                        final postTime = timestamp.toDate();
-                        final difference = now.difference(postTime);
-                        if (difference.inMinutes < 1) {
-                          description = 'Pro - Tech: Vừa xong';
-                        } else {
-                          description = 'Pro - Tech: ${difference.inMinutes} phút trước';
-                        }
-                      }
-
-                      return DataRow(
-                        cells: [
-                          DataCell(Text('${index + 1}')),
-                          DataCell(Text(data['title'] ?? '')),
-                          DataCell(Text(data['type'] ?? 'Post')),
-                          DataCell(Text(description)),
-                          DataCell(data['imageUrl'] != null
-                              ? Image.network(data['imageUrl'], width: 50, height: 50, fit: BoxFit.cover)
-                              : const Text('No image')),
-                          DataCell(Text(data['responses']?.toString() ?? '0')),
-                          DataCell(Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () {
-                                  _showEditPostDialog(context, document);
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  _deletePost(document.id);
-                                },
-                              ),
-                            ],
-                          )),
-                          DataCell(TextButton(
-                            child: const Text('View Detail', style: TextStyle(color: Colors.blue)),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AdminPostDetailPage(postId: document.id),
-                                ),
-                              );
-                            },
-                          )),
-                        ],
-                      );
-                    },
-                  ),
+                  rows: rows,
                 ),
               ),
             ),
@@ -253,55 +205,154 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
   );
 }
 
-  void _showAddDetailDialog(BuildContext context, String postId) {
-    final TextEditingController detailController = TextEditingController();
+  List<DataRow> _buildDataRows(List<DocumentSnapshot> docs) {
+  return docs.asMap().entries.map((entry) {
+    final index = entry.key;
+    final doc = entry.value;
+    final data = doc.data() as Map<String, dynamic>;
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Add Post Detail'),
-          content: TextField(
-            controller: detailController,
-            decoration: const InputDecoration(hintText: "Enter post detail"),
-            maxLines: 5,
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+    String responsesText = '';
+    if (data['type'] == 'Post') {
+      responsesText = '${data['views'] ?? 0} views\n${data['likeCount'] ?? 0} likes\n${data['commentCount'] ?? 0} comments';
+    } else {
+      responsesText = '${data['responses'] ?? 0} trả lời';
+    }
+
+    return DataRow(
+      cells: [
+        DataCell(Text('${index + 1}')),
+        DataCell(Text(data['title'] ?? '')),
+        DataCell(Text(data['type'] ?? 'Post')),
+        DataCell(Text(_getDescription(data))),
+        DataCell(_buildImageCell(data['imageUrl'])),
+        DataCell(Text(responsesText)),
+        DataCell(Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.blue),
+              onPressed: () => _showEditPostDialog(context, doc),
             ),
-            TextButton(
-              child: const Text('Add'),
-              onPressed: () async {
-                try {
-                  await FirebaseFirestore.instance
-                      .collection('posts_quiz')
-                      .doc(postId)
-                      .collection('PostDetail')
-                      .add({
-                    'detail': detailController.text,
-                    'timestamp': FieldValue.serverTimestamp(),
-                  });
-
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Detail added successfully!')),
-                  );
-                } catch (e) {
-                  print('Error adding detail: $e');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Error adding detail. Please try again.')),
-                  );
-                }
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _deletePost(doc.id),
+            ),
+            IconButton(
+              icon: const Icon(Icons.visibility, color: Colors.green),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AdminPostDetailPage(postId: doc.id),
+                  ),
+                );
               },
             ),
           ],
-        );
-      },
+        )),
+      ],
     );
+  }).toList();
+}
+
+void _showCommentsDialog(BuildContext context, String postId) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Comments'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('posts_quiz')
+                .doc(postId)
+                .collection('comments')
+                .orderBy('timestamp', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              }
+
+              return ListView(
+                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  Map<String, dynamic> comment = document.data() as Map<String, dynamic>;
+                  return ListTile(
+                    title: Text(comment['text']),
+                    subtitle: Text(comment['user']),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => _deleteComment(postId, document.id),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Close'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _deleteComment(String postId, String commentId) {
+  FirebaseFirestore.instance
+      .collection('posts_quiz')
+      .doc(postId)
+      .collection('comments')
+      .doc(commentId)
+      .delete()
+      .then((_) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Comment deleted successfully')),
+    );
+  }).catchError((error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to delete comment: $error')),
+    );
+  });
+
+  // Update the comment count
+  FirebaseFirestore.instance
+      .collection('posts_quiz')
+      .doc(postId)
+      .update({'commentCount': FieldValue.increment(-1)});
+}
+
+  String _getDescription(Map<String, dynamic> data) {
+    String description = data['description'] ?? '';
+    if (description.isNotEmpty) return description;
+
+    Timestamp? timestamp = data['timestamp'] as Timestamp?;
+    if (timestamp == null) return '';
+
+    final now = DateTime.now();
+    final postTime = timestamp.toDate();
+    final difference = now.difference(postTime);
+
+    if (difference.inMinutes < 1) {
+      return 'Pro - Tech: Vừa xong';
+    } else {
+      return 'Pro - Tech: ${difference.inMinutes} phút trước';
+    }
+  }
+
+  Widget _buildImageCell(String? imageUrl) {
+    return imageUrl != null && imageUrl.isNotEmpty
+        ? Image.network(imageUrl, width: 50, height: 50, fit: BoxFit.cover)
+        : const Text('No image');
   }
 
   void _showAddPostDialog(BuildContext context) {
@@ -427,8 +478,7 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
                           : descriptionController.text;
                       final views = int.tryParse(viewsController.text) ?? 0;
                       final likes = int.tryParse(likesController.text) ?? 0;
-                      final comments =
-                          int.tryParse(commentsController.text) ?? 0;
+                      final comments = int.tryParse(commentsController.text) ?? 0;
 
                       await FirebaseFirestore.instance.collection('posts_quiz').add({
                         'title': titleController.text,
@@ -441,8 +491,7 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
                         'comments': comments,
                         'timestamp': FieldValue.serverTimestamp(),
                         if (postType == 'Quiz') ...{
-                          'options':
-                              optionControllers.map((controller) => controller.text).toList(),
+                          'options': optionControllers.map((controller) => controller.text).toList(),
                           'correctAnswer': correctAnswer,
                         },
                       });

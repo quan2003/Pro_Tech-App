@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 class AdminPostDetailPage extends StatefulWidget {
   final String postId;
 
-  const AdminPostDetailPage({Key? key, required this.postId}) : super(key: key);
+  const AdminPostDetailPage({super.key, required this.postId});
 
   @override
   _AdminPostDetailPageState createState() => _AdminPostDetailPageState();
@@ -30,20 +30,24 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
   }
 
   Future<void> _loadLatestDetail() async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('posts_quiz')
-        .doc(widget.postId)
-        .collection('PostDetail')
-        .orderBy('timestamp', descending: true)
-        .limit(1)
-        .get();
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('posts_quiz')
+          .doc(widget.postId)
+          .collection('PostDetail')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
 
-    if (snapshot.docs.isNotEmpty) {
-      final doc = snapshot.docs.first;
-      setState(() {
-        _markdownController.text = doc['detail'] ?? '';
-        _currentDetailId = doc.id;
-      });
+      if (snapshot.docs.isNotEmpty) {
+        final doc = snapshot.docs.first;
+        setState(() {
+          _markdownController.text = doc['detail'] ?? '';
+          _currentDetailId = doc.id;
+        });
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error loading latest detail: $e');
     }
   }
 
@@ -55,45 +59,44 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
 
   Future<void> _savePostDetail() async {
     if (_markdownController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter some content')),
-      );
+      _showErrorSnackBar('Please enter some content');
       return;
     }
 
     try {
+      final postDetailRef = FirebaseFirestore.instance
+          .collection('posts_quiz')
+          .doc(widget.postId)
+          .collection('PostDetail');
+
+      final data = {
+        'detail': _markdownController.text,
+        'timestamp': FieldValue.serverTimestamp(),
+      };
+
       if (_currentDetailId != null) {
-        // Update existing detail
-        await FirebaseFirestore.instance
-            .collection('posts_quiz')
-            .doc(widget.postId)
-            .collection('PostDetail')
-            .doc(_currentDetailId)
-            .update({
-          'detail': _markdownController.text,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+        await postDetailRef.doc(_currentDetailId).update(data);
       } else {
-        // Add new detail
-        await FirebaseFirestore.instance
-            .collection('posts_quiz')
-            .doc(widget.postId)
-            .collection('PostDetail')
-            .add({
-          'detail': _markdownController.text,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+        await postDetailRef.add(data);
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PostDetail saved successfully')),
-      );
-      _loadLatestDetail(); // Reload to get the latest version
+      _showSuccessSnackBar('PostDetail saved successfully');
+      await _loadLatestDetail();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving PostDetail: $e')),
-      );
+      _showErrorSnackBar('Error saving PostDetail: $e');
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
+    );
   }
 
   @override
@@ -114,72 +117,105 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _isPreview
-                ? Markdown(data: _markdownController.text)
-                : TextField(
-                    controller: _markdownController,
-                    maxLines: null,
-                    expands: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your markdown here...',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.all(16),
-                    ),
-                  ),
-          ),
-          _buildDetailHistory(),
-        ],
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth > 600) {
+              return _buildWideLayout();
+            } else {
+              return _buildNarrowLayout();
+            }
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildDetailHistory() {
-    return Container(
-      height: 200,
-      child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('posts_quiz')
-            .doc(widget.postId)
-            .collection('PostDetail')
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
+  Widget _buildWideLayout() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 2,
+          child: _buildEditor(),
+        ),
+        Expanded(
+          flex: 1,
+          child: _buildDetailHistory(),
+        ),
+      ],
+    );
+  }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          }
+  Widget _buildNarrowLayout() {
+    return Column(
+      children: [
+        Expanded(
+          child: _buildEditor(),
+        ),
+        SizedBox(
+          height: 200,
+          child: _buildDetailHistory(),
+        ),
+      ],
+    );
+  }
 
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              var doc = snapshot.data!.docs[index];
-              var data = doc.data() as Map<String, dynamic>;
-              var timestamp = data['timestamp'] as Timestamp?;
-              var formattedDate = timestamp != null
-                  ? DateFormat('yyyy-MM-dd HH:mm').format(timestamp.toDate())
-                  : 'No date';
-
-              return ListTile(
-                title: Text('Version ${snapshot.data!.docs.length - index}'),
-                subtitle: Text(formattedDate),
-                onTap: () {
-                  setState(() {
-                    _markdownController.text = data['detail'] ?? '';
-                    _currentDetailId = doc.id;
-                    _isPreview = false;
-                  });
-                },
-              );
-            },
+  Widget _buildEditor() {
+    return _isPreview
+        ? Markdown(data: _markdownController.text)
+        : TextField(
+            controller: _markdownController,
+            maxLines: null,
+            expands: true,
+            decoration: const InputDecoration(
+              hintText: 'Enter your markdown here...',
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.all(16),
+            ),
           );
-        },
-      ),
+  }
+
+  Widget _buildDetailHistory() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('posts_quiz')
+          .doc(widget.postId)
+          .collection('PostDetail')
+          .orderBy('timestamp', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return ListView.builder(
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (context, index) {
+            var doc = snapshot.data!.docs[index];
+            var data = doc.data() as Map<String, dynamic>;
+            var timestamp = data['timestamp'] as Timestamp?;
+            var formattedDate = timestamp != null
+                ? DateFormat('yyyy-MM-dd HH:mm').format(timestamp.toDate())
+                : 'No date';
+
+            return ListTile(
+              title: Text('Version ${snapshot.data!.docs.length - index}'),
+              subtitle: Text(formattedDate),
+              onTap: () {
+                setState(() {
+                  _markdownController.text = data['detail'] ?? '';
+                  _currentDetailId = doc.id;
+                  _isPreview = false;
+                });
+              },
+            );
+          },
+        );
+      },
     );
   }
 }

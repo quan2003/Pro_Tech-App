@@ -1,41 +1,92 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_login_app/views/screens/HealthScreen.dart';
-import 'package:flutter_login_app/views/screens/HomeScreen.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart'; // Để định dạng ngày tháng
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
-import 'BulletinBoardScreen.dart'; // Import ConvexAppBar
+import '../utils/NotificationService.dart';
+import 'HealthScreen.dart';
+import 'HomeScreen.dart';
 
 class MedicineScreen extends StatefulWidget {
-  const MedicineScreen({super.key});
+  const MedicineScreen({Key? key}) : super(key: key);
 
   @override
   _MedicineScreenState createState() => _MedicineScreenState();
 }
 
 class _MedicineScreenState extends State<MedicineScreen> {
-  int _selectedIndex = 2; // The initial index for 'Thuốc' tab
+  int _selectedIndex = 2;
+  DateTime selectedDate = DateTime.now();
+  final NotificationService _notificationService = NotificationService();
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationService.initNotification();
+    _scheduleNotifications();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
 
-    // You can add navigation logic for other pages here
     switch (index) {
       case 0:
-        Get.to(() => const HomeScreen());
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
         break;
       case 1:
-        Get.to(() => const HealthScreen());
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HealthScreen()),
+        );
         break;
       case 2:
-        Get.to(() => const MedicineScreen());
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MedicineScreen()),
+        );
         break;
-      case 3:
-        Get.to(() => const BulletinBoardScreen());
-        break;
+    }
+  }
+
+  Future<void> _scheduleNotifications() async {
+    final medications = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('medications')
+        .get();
+
+    for (var med in medications.docs) {
+      final data = med.data();
+      final schedules = data['schedules'] as List<dynamic>?;
+      if (schedules != null) {
+        for (var schedule in schedules) {
+          final time = schedule['time'] as String;
+          final timeParts = time.split(':');
+          final now = DateTime.now();
+          final scheduledDate = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            int.parse(timeParts[0]),
+            int.parse(timeParts[1]),
+          );
+
+          if (scheduledDate.isAfter(now)) {
+            await _notificationService.showNotification(
+              med.id.hashCode,
+              'Nhắc nhở uống thuốc',
+              'Đã đến giờ uống ${data['drugName']}',
+              scheduledDate,
+            );
+          }
+        }
+      }
     }
   }
 
@@ -43,82 +94,59 @@ class _MedicineScreenState extends State<MedicineScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-        margin: const EdgeInsets.only(top: 50.0), // Thêm khoảng cách ở trên
+      body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     'Thuốc của tôi',
-                    style:
-                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  Container(
-                    width: 40.0, // Đặt chiều rộng của hình tròn
-                    height: 40.0, // Đặt chiều cao của hình tròn
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color.fromARGB(
-                          255, 201, 195, 195), // Màu nền của hình tròn
-                    ),
-                    alignment: Alignment.center,
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.add,
-                        color: Colors.white, // Màu biểu tượng
-                        size: 20.0, // Kích thước biểu tượng
-                      ),
-                      padding: EdgeInsets
-                          .zero, // Xóa padding để biểu tượng nằm chính giữa
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      // Thêm chức năng thêm thuốc mới
+                    },
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20.0),
-
-            // DateSlider được đặt trực tiếp trong cột
-            const DateSlider(),
-            const SizedBox(
-                height: 8.0), // Khoảng cách giữa thanh trượt và dòng chữ
-
-            // Dòng chữ "Hôm nay"
-            const Center(
-              child: TodayText(),
+            DateSlider(
+              onDateSelected: (date) {
+                setState(() {
+                  selectedDate = date;
+                });
+              },
             ),
-
-            // Container cuộn cho thuốc hoặc thông báo không có thuốc
-            Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16.0), // Khoảng cách bên trong
-                  child: Center(
-                    child: MedicationList(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Center(
+                child: Text(
+                  'Hôm nay, ${DateFormat('d MMMM yyyy').format(selectedDate)}',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 16.0,
                   ),
                 ),
               ),
             ),
-
-            // Nút chỉnh sửa hộp thuốc
+            Expanded(
+              child: MedicationList(selectedDate: selectedDate),
+            ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton.icon(
+              child: ElevatedButton(
                 onPressed: () {
-                  // Thêm hành động của nút ở đây
+                  // Chức năng chỉnh sửa hộp thuốc
                 },
-                icon: const Icon(Icons.edit), // Biểu tượng cho nút
-                label: const Text('Chỉnh sửa hộp thuốc'), // Văn bản cho nút
+                child: const Text('Chỉnh sửa hộp thuốc'),
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(
-                      double.infinity, 50), // Đặt kích thước tối thiểu
-                  textStyle: const TextStyle(fontSize: 16), // Kích thước chữ
+                  minimumSize: const Size(double.infinity, 50),
                 ),
               ),
             ),
@@ -143,189 +171,305 @@ class _MedicineScreenState extends State<MedicineScreen> {
   }
 }
 
-class TodayText extends StatelessWidget {
-  const TodayText({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final DateTime today = DateTime.now(); // Lấy ngày hôm nay
-    return Text(
-      'Hôm nay, ${DateFormat('d MMMM yyyy').format(today)}', // Ngày tháng hiện tại
-      style: const TextStyle(
-        color: Colors.red, // Màu chữ
-        fontSize: 16.0, // Kích thước chữ
-      ),
-    );
-  }
-}
-
-class MedicationList extends StatelessWidget {
-  final List<String> medications = [];
-
-  MedicationList({super.key}); // Danh sách thuốc (hiện tại rỗng)
-
-  @override
-  Widget build(BuildContext context) {
-    if (medications.isEmpty) {
-      // Hiển thị thông báo nếu không có thuốc
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/images/empty_box.png', // Đường dẫn tới hình ảnh hộp giấy trống
-            height: 100.0, // Chiều cao của hình ảnh
-            width: 100.0, // Chiều rộng của hình ảnh
-          ),
-          const SizedBox(height: 16.0), // Khoảng cách giữa hình ảnh và văn bản
-          const Text(
-            'Hiện không có thuốc đặt lịch',
-            style: TextStyle(fontSize: 16.0, color: Colors.grey), // Màu chữ
-          ),
-        ],
-      );
-    } else {
-      // Nếu có thuốc, hiển thị danh sách thuốc
-      return ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: medications.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(medications[index]), // Hiển thị tên thuốc
-          );
-        },
-      );
-    }
-  }
-}
-
 class DateSlider extends StatefulWidget {
-  const DateSlider({super.key});
+  final Function(DateTime) onDateSelected;
+
+  const DateSlider({Key? key, required this.onDateSelected}) : super(key: key);
 
   @override
   _DateSliderState createState() => _DateSliderState();
 }
 
 class _DateSliderState extends State<DateSlider> {
-  final DateTime today = DateTime.now(); // Lấy ngày hôm nay
-  final ScrollController _scrollController = ScrollController();
+  late PageController _pageController;
+  late DateTime _selectedDate;
+  final int _daysBeforeAfter = 15;
 
   @override
   void initState() {
     super.initState();
-    // Cuộn đến ngày hôm nay khi màn hình được xây dựng
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToToday();
-    });
-  }
-
-  void _scrollToToday() {
-    // Tính toán chỉ số của ngày hôm nay trong danh sách
-    int todayIndex = 4; // Chỉ số cho ngày hôm nay (ở giữa danh sách 21 ngày)
-    _scrollController.jumpTo(todayIndex *
-        60.0); // Cuộn đến vị trí cần thiết (60 là chiều rộng của hộp)
+    _selectedDate = DateTime.now();
+    _pageController =
+        PageController(initialPage: _daysBeforeAfter, viewportFraction: 0.2);
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100.0, // Đặt chiều cao cố định cho thanh trượt ngày
-      child: ListView.builder(
-        controller: _scrollController, // Thêm ScrollController
-        scrollDirection: Axis.horizontal,
-        itemCount: 21, // Hiển thị 21 ngày (7 trước, 7 sau, và tuần hiện tại)
+      height: 80,
+      child: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedDate =
+                DateTime.now().add(Duration(days: index - _daysBeforeAfter));
+            widget.onDateSelected(_selectedDate);
+          });
+        },
         itemBuilder: (context, index) {
-          DateTime date = today.add(Duration(
-              days:
-                  index - 7)); // Dịch chuyển -7 để bắt đầu 1 tuần trước hôm nay
+          final date =
+              DateTime.now().add(Duration(days: index - _daysBeforeAfter));
+          final isSelected = date.day == _selectedDate.day &&
+              date.month == _selectedDate.month &&
+              date.year == _selectedDate.year;
 
-          // Kiểm tra xem ngày hiện tại có khớp với ngày hôm nay không
-          bool isToday = date.isAtSameMomentAs(today);
-
-          String dayOfWeek = DateFormat('EEE')
-              .format(date); // Ngày trong tuần (Thứ hai, Thứ ba, v.v.)
-          String dayOfMonth =
-              DateFormat('d').format(date); // Ngày trong tháng (1, 2, 3, v.v.)
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: isToday // Kiểm tra nếu là ngày hôm nay
-                ? Container(
-                    width: 60.0, // Đặt chiều rộng của hộp
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300], // Màu nền nếu là hôm nay
-                      border:
-                          Border.all(color: Colors.grey), // Đường viền màu xám
-                      borderRadius: BorderRadius.circular(8.0), // Bo góc hộp
+          return GestureDetector(
+            onTap: () {
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.blue : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    DateFormat('EEE').format(date),
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey,
+                      fontWeight: FontWeight.bold,
                     ),
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 40.0, // Đặt chiều rộng của vòng tròn
-                          height: 40.0, // Đặt chiều cao của vòng tròn
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black, // Màu nền của vòng tròn
-                            border:
-                                Border.all(color: Colors.grey), // Đường viền
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            dayOfMonth, // Hiển thị ngày trong tháng
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.white, // Màu chữ trong vòng tròn
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                            height:
-                                4.0), // Khoảng cách giữa vòng tròn và ngày trong tuần
-                        Text(
-                          dayOfWeek, // Hiển thị ngày trong tuần
-                          style: const TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.grey, // Màu chữ ngày trong tuần
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 40.0, // Đặt chiều rộng của vòng tròn
-                        height: 40.0, // Đặt chiều cao của vòng tròn
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color:
-                              Colors.transparent, // Màu nền không phải hôm nay
-                          border: Border.all(color: Colors.grey), // Đường viền
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          dayOfMonth, // Hiển thị ngày trong tháng
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black, // Màu chữ không phải hôm nay
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                          height:
-                              4.0), // Khoảng cách giữa vòng tròn và ngày trong tuần
-                      Text(
-                        dayOfWeek, // Hiển thị ngày trong tuần
-                        style: const TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.grey, // Màu chữ ngày trong tuần
-                        ),
-                      ),
-                    ],
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    date.day.toString(),
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class MedicationList extends StatelessWidget {
+  final DateTime selectedDate;
+
+  const MedicationList({Key? key, required this.selectedDate})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection('medications')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(child: Text('Đã xảy ra lỗi'));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        List<QueryDocumentSnapshot> medications = snapshot.data!.docs;
+
+        if (medications.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.medication, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'Không có thuốc nào được lên lịch',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
+            ),
+          );
+        }
+
+        Map<String, List<QueryDocumentSnapshot>> groupedMedications = {
+          'Sáng': [],
+          'Chiều': [],
+          'Tối': [],
+        };
+
+        for (var med in medications) {
+          String period = _getPeriod(
+              med['schedules'] != null && med['schedules'].isNotEmpty
+                  ? med['schedules'][0]['time']
+                  : '12:00');
+          groupedMedications[period]!.add(med);
+        }
+
+        return ListView.builder(
+          itemCount: groupedMedications.length,
+          itemBuilder: (context, index) {
+            String period = groupedMedications.keys.elementAt(index);
+            List<QueryDocumentSnapshot> meds = groupedMedications[period]!;
+
+            if (meds.isEmpty) return const SizedBox.shrink();
+
+            return Card(
+              margin: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    leading: _getPeriodIcon(period),
+                    title: Text(
+                      period.toUpperCase(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    subtitle: Text('Nhắc nhở tiếp theo: ${_getNextReminder(meds)}'),
+                    trailing: ElevatedButton(
+                      onPressed: () => _takeMedications(meds),
+                      child: const Text('Uống tất cả'),
+                    ),
+                  ),
+                  const Divider(),
+                  ...meds.map((med) => MedicationItem(medication: med)).toList(),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+   String _getNextReminder(List<QueryDocumentSnapshot> medications) {
+    DateTime now = DateTime.now();
+    DateTime? nextReminder;
+    for (var med in medications) {
+      final schedules = med['schedules'] as List<dynamic>?;
+      if (schedules != null) {
+        for (var schedule in schedules) {
+          final time = schedule['time'] as String;
+          final timeParts = time.split(':');
+          final scheduledDate = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            int.parse(timeParts[0]),
+            int.parse(timeParts[1]),
+          );
+          if (scheduledDate.isAfter(now) && (nextReminder == null || scheduledDate.isBefore(nextReminder))) {
+            nextReminder = scheduledDate;
+          }
+        }
+      }
+    }
+    return nextReminder != null ? DateFormat('HH:mm').format(nextReminder) : 'Không có';
+  }
+
+
+  String _getPeriod(String time) {
+    int hour = int.parse(time.split(':')[0]);
+    if (hour < 12) return 'Sáng';
+    if (hour < 18) return 'Chiều';
+    return 'Tối';
+  }
+
+  Icon _getPeriodIcon(String period) {
+    switch (period) {
+      case 'Sáng':
+        return const Icon(Icons.wb_sunny, color: Colors.orange);
+      case 'Chiều':
+        return const Icon(Icons.wb_twighlight, color: Colors.amber);
+      case 'Tối':
+        return const Icon(Icons.nightlight_round, color: Colors.indigo);
+      default:
+        return const Icon(Icons.access_time);
+    }
+  }
+
+  void _takeMedications(List<QueryDocumentSnapshot> medications) {
+    for (var med in medications) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection('medications')
+          .doc(med.id)
+          .update({'taken': true});
+    }
+  }
+}
+
+class MedicationItem extends StatelessWidget {
+  final QueryDocumentSnapshot medication;
+
+  const MedicationItem({Key? key, required this.medication}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, dynamic> data = medication.data() as Map<String, dynamic>;
+    final String name = data['drugName'] ?? 'Không có tên';
+    final String dosage = data['dosage'] ?? 'Không có liều lượng';
+    final List<dynamic> schedules = data['schedules'] ?? [];
+    final String time =
+        schedules.isNotEmpty ? schedules[0]['time'] : 'Không có thời gian';
+    final bool taken = data['taken'] ?? false;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: ListTile(
+        leading: Icon(
+          Icons.medication,
+          color: taken ? Colors.green : Colors.grey,
+        ),
+        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text('$dosage - $time'),
+        trailing: IconButton(
+          icon: Icon(
+            taken ? Icons.check_circle : Icons.circle_outlined,
+            color: taken ? Colors.green : Colors.grey,
+          ),
+          onPressed: () {
+            FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .collection('medications')
+                .doc(medication.id)
+                .update({'taken': !taken});
+          },
+        ),
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(name),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Liều lượng: $dosage'),
+                  Text('Thời gian: $time'),
+                  Text('Đã uống: ${taken ? 'Có' : 'Chưa'}'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Đóng'),
+                ),
+              ],
+            ),
           );
         },
       ),

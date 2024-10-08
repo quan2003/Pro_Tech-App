@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'FrequencySelectorWidget.dart';
 
-// Main DrugDetailScreen widget
+// ignore: must_be_immutable
 class DrugDetailScreen extends StatefulWidget {
   final String drugName;
   final String manufacturerName;
@@ -18,6 +19,7 @@ class DrugDetailScreen extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DrugDetailScreenState createState() => _DrugDetailScreenState();
 }
 
@@ -68,7 +70,7 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
               _buildDetailCard(
                 Icons.opacity,
                 'Hàm lượng',
-                dosage.isNotEmpty ? dosage : '-',
+                dosage.isNotEmpty ? '$dosage $_selectedUnit' : '-',
                 null,
                 onTap: () => _showDosageForm(context),
               ),
@@ -114,30 +116,7 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
                 child: ElevatedButton(
                   onPressed: (dosage.isNotEmpty && isUnitSelected)
                       ? () async {
-                          // Save to Firestore
-                          await FirebaseFirestore.instance
-                              .collection('medications')
-                              .add({
-                            'drugName': widget.drugName,
-                            'manufacturerName': widget.manufacturerName,
-                            'form': widget.form,
-                            'dosage': dosage,
-                            'unit': _selectedUnit,
-                            'quantity': _quantity,
-                            'treatmentCondition': _treatmentCondition,
-                            'frequency': _frequency,
-                            'schedules': schedules,
-                          });
-
-                          // Optionally show a success message
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text('Thông tin đã được lưu thành công')),
-                          );
-
-                          // Navigate back or perform other actions
-                          Navigator.of(context).pop();
+                          await _saveMedicationToFirestore();
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -157,6 +136,46 @@ class _DrugDetailScreenState extends State<DrugDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _saveMedicationToFirestore() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser == null) {
+        throw Exception('No user logged in');
+      }
+
+      CollectionReference userMedications = FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('medications');
+
+      await userMedications.add({
+        'drugName': widget.drugName,
+        'manufacturerName': widget.manufacturerName,
+        'form': widget.form,
+        'dosage': dosage,
+        'unit': _selectedUnit, // Explicitly saving the unit
+        'quantity': _quantity,
+        'treatmentCondition': _treatmentCondition,
+        'frequency': _frequency,
+        'frequencyDetails': _frequencyDetails,
+        'schedules': schedules,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Thông tin đã được lưu thành công')),
+      );
+
+      Navigator.of(context).pop();
+    } catch (e) {
+      print('Error saving medication: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Có lỗi xảy ra khi lưu thông tin')),
+      );
+    }
   }
 
   Widget _buildSectionHeader(String title) {

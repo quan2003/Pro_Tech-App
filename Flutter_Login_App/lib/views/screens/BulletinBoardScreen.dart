@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart'; // For formatting dates
+// For formatting dates
 
 import 'HealthScreen.dart';
 import 'HomeScreen.dart';
@@ -78,30 +78,47 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                     }
 
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(child: Text('Không có bài đăng nào.'));
+                      return const Center(
+                          child: Text('Không có bài đăng nào.'));
+                    }
+                    int parseNumericValue(dynamic value) {
+                      if (value == null) return 0;
+                      if (value is int) return value;
+                      if (value is double) return value.toInt();
+                      if (value is String) return int.tryParse(value) ?? 0;
+                      if (value is List && value.isNotEmpty) {
+                        return parseNumericValue(value.first);
+                      }
+                      return 0;
                     }
 
                     return ListView(
-                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                      children:
+                          snapshot.data!.docs.map((DocumentSnapshot document) {
                         Map<String, dynamic> data =
                             document.data() as Map<String, dynamic>;
                         String docId = document.id;
 
-                        // Ensure proper data types and avoiding null values
                         String imageUrl = data['imageUrl'] ?? '';
                         String title = data['title'] ?? 'Không có tiêu đề';
                         String description = data['description'] ?? '';
                         Timestamp? timestamp = data['timestamp'] as Timestamp?;
 
-                        // If description is empty, generate a time-based description
                         if (description.isEmpty && timestamp != null) {
-                          description = _generateTimeBasedDescription(timestamp);
+                          description =
+                              _generateTimeBasedDescription(timestamp);
                         }
 
-                        List<String> options = List<String>.from(data['options'] ?? []);
-                        String responses = data['responses']?.toString() ?? '0 người đã trả lời';
-                        String? correctOption = data['correctAnswer']?.toString();
+                        List<String> options =
+                            List<String>.from(data['options'] ?? []);
+                        int responses = parseNumericValue(data['responses']);
+                        String? correctOption =
+                            data['correctAnswer']?.toString();
                         String? type = data['type'];
+                        int views = parseNumericValue(data['views']);
+                        int commentCount =
+                            parseNumericValue(data['commentCount']);
+                        int likeCount = parseNumericValue(data['likeCount']);
 
                         return _buildBulletinCard(
                           docId: docId,
@@ -112,6 +129,9 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                           responses: responses,
                           correctOption: correctOption,
                           type: type,
+                          views: views,
+                          likeCount: likeCount,
+                          commentCount: commentCount,
                         );
                       }).toList(),
                     );
@@ -162,12 +182,12 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
     required String title,
     required String description,
     required List<String> options,
-    required String responses,
+    int responses = 0,
     String? correctOption,
     String? type,
-    int views = 0, // Default value for views, likes, and comments
-    int likes = 0,
-    int comments = 0,
+    int views = 0,
+    int likeCount = 0,
+    int commentCount = 0,
   }) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -208,7 +228,6 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                   int index = entry.key;
                   String option = entry.value;
 
-                  // Convert correctOption to int and compare index
                   bool isCorrect = int.tryParse(correctOption ?? '') == index;
                   bool isSelected = selectedOptions[docId] == option;
 
@@ -216,7 +235,7 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                     onTap: () {
                       setState(() {
                         selectedOptions[docId] = option;
-                        _incrementQuizResponses(docId); // Increase quiz responses when option selected
+                        _incrementQuizResponses(docId);
                       });
                     },
                     child: Container(
@@ -266,26 +285,30 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.remove_red_eye, color: Colors.grey, size: 20),
+                      const Icon(Icons.remove_red_eye,
+                          color: Colors.grey, size: 20),
                       const SizedBox(width: 4),
                       Text('$views lượt xem',
-                          style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.grey)),
                     ],
                   ),
                   Row(
                     children: [
                       const Icon(Icons.thumb_up, color: Colors.grey, size: 20),
                       const SizedBox(width: 4),
-                      Text('$likes lượt thích',
-                          style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                      Text('$likeCount lượt thích',
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.grey)),
                     ],
                   ),
                   Row(
                     children: [
                       const Icon(Icons.comment, color: Colors.grey, size: 20),
                       const SizedBox(width: 4),
-                      Text('$comments bình luận',
-                          style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                      Text('$commentCount bình luận',
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.grey)),
                     ],
                   ),
                 ],
@@ -295,8 +318,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    _incrementPostResponses(docId); // Increase post responses when user views details
-                    _showPostDetails(docId); // This function will show the post details
+                    _incrementPostViews(docId);
+                    _showPostDetails(docId);
                   },
                   child: const Text('Xem chi tiết'),
                 ),
@@ -304,7 +327,9 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
             ],
             const SizedBox(height: 8),
             Text(
-              responses,
+              type?.toLowerCase() == 'quiz'
+                  ? '$responses người đã trả lời'
+                  : '$views lượt xem',
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
@@ -318,12 +343,11 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PostDetailScreen(postId: docId), // Define PostDetailScreen for details
+        builder: (context) => PostDetailScreen(postId: docId),
       ),
     );
   }
 
-  // Increment responses for quizzes
   void _incrementQuizResponses(String docId) {
     FirebaseFirestore.instance
         .collection('posts_quiz')
@@ -331,11 +355,10 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
         .update({'responses': FieldValue.increment(1)});
   }
 
-  // Increment responses for posts
-  void _incrementPostResponses(String docId) {
+  void _incrementPostViews(String docId) {
     FirebaseFirestore.instance
         .collection('posts_quiz')
         .doc(docId)
-        .update({'responses': FieldValue.increment(1)});
+        .update({'views': FieldValue.increment(1)});
   }
 }

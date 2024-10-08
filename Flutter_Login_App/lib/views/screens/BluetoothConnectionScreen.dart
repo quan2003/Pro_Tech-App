@@ -18,13 +18,13 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
   int _heartRate = 0;
   int _stepCount = 0;
 
-  final String targetMacAddress = "D0:62:2C:0B:D6:73"; // MAC Address for Xiaomi Band 8
+  final String targetMacAddress = "D0:62:2C:0B:D6:73"; // MAC Address cho Xiaomi Band 8
 
-  // UUIDs for Xiaomi Band 8 (you may need to adjust these)
+  // UUIDs
   final String HEART_RATE_SERVICE_UUID = "0000180d-0000-1000-8000-00805f9b34fb";
   final String HEART_RATE_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb";
-  final String STEP_COUNT_SERVICE_UUID = "0000fee0-0000-1000-8000-00805f9b34fb";
-  final String STEP_COUNT_CHARACTERISTIC_UUID = "00000007-0000-3512-2118-0009af100700";
+  final String STEP_COUNT_SERVICE_UUID = "0000fee0-0000-1000-8000-00805f9b34fb"; 
+  final String STEP_COUNT_CHARACTERISTIC_UUID = "00000007-0000-3512-2118-0009af100700"; 
 
   @override
   void initState() {
@@ -48,7 +48,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
             statuses[Permission.locationAlways]?.isGranted == true)) {
       _initializeBluetooth();
     } else {
-      print("Bluetooth or Location permission not granted");
+      print("Bluetooth hoặc quyền vị trí chưa được cấp.");
     }
   }
 
@@ -58,7 +58,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
       setState(() {});
       _checkBluetoothState();
     } catch (e) {
-      print("Error initializing Bluetooth: $e");
+      print("Lỗi khi khởi tạo Bluetooth: $e");
     }
   }
 
@@ -105,7 +105,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
         });
       });
     }).catchError((error) {
-      print("Error starting scan: $error");
+      print("Lỗi khi bắt đầu quét: $error");
     }).whenComplete(() {
       setState(() {
         _isScanning = false;
@@ -113,6 +113,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
     });
   }
 
+  // Hàm dừng quét
   void _stopScan() {
     flutterBlue.stopScan();
     setState(() {
@@ -127,7 +128,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
       setState(() {
         connectedDevices.add(device);
       });
-      print("Connected to device: ${device.name}");
+      print("Đã kết nối với thiết bị: ${device.name}");
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Kết nối thành công với ${device.name}')),
@@ -135,22 +136,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
 
       _discoverServices(device);
     } catch (e) {
-      print("Failed to connect to device: ${device.name}, error: $e");
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Lỗi kết nối'),
-            content: Text('Không thể kết nối với thiết bị ${device.name}. Vui lòng thử lại.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          );
-        },
-      );
+      print("Không thể kết nối với thiết bị ${device.name}, lỗi: $e");
     }
   }
 
@@ -179,7 +165,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
         setState(() {
           _heartRate = value[1];
         });
-        print('Heart Rate: $_heartRate');
+        print('Nhịp tim: $_heartRate');
       }
     });
   }
@@ -191,41 +177,13 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
         setState(() {
           _stepCount = _decodeStepCount(value);
         });
-        print('Step Count: $_stepCount');
+        print('Số bước chân: $_stepCount');
       }
     });
   }
 
   int _decodeStepCount(List<int> value) {
-    // This decoding method may need to be adjusted based on the actual data format
     return value[1] << 8 | value[0];
-  }
-
-  Widget _buildDeviceList() {
-    if (scanResults.isEmpty && !_isScanning) {
-      return const Center(
-        child: Text('Không tìm thấy thiết bị. Vui lòng thử quét lại.'),
-      );
-    }
-    return ListView.builder(
-      itemCount: scanResults.length,
-      itemBuilder: (context, index) {
-        final device = scanResults[index].device;
-        final isTargetDevice = device.id.toString().toUpperCase() == targetMacAddress;
-        return ListTile(
-          title: Text(device.name.isNotEmpty
-              ? device.name
-              : isTargetDevice
-                  ? 'Xiaomi Smart Band 8'
-                  : 'Thiết bị không tên'),
-          subtitle: Text(device.id.toString()),
-          trailing: ElevatedButton(
-            child: const Text('Kết nối'),
-            onPressed: () => _connectToDevice(device),
-          ),
-        );
-      },
-    );
   }
 
   @override
@@ -243,33 +201,18 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Đồng bộ dữ liệu sức khoẻ qua các thiết bị kết nối Bluetooth',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            Text(
+              'Nhịp tim: $_heartRate',
+              style: TextStyle(fontSize: 18),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Hướng dẫn:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              'Số bước chân: $_stepCount',
+              style: TextStyle(fontSize: 18),
             ),
-            const Text(
-              '1. Đặt dây đeo thông minh gần điện thoại.\n'
-              '2. Nhấn "Kết nối thiết bị mới" để quét.\n'
-              '3. Thiết bị có tín hiệu mạnh nhất (số dBm cao nhất) có khả năng là dây đeo của bạn.\n'
-              '4. Nhấn "Kết nối" bên cạnh thiết bị để thử kết nối.',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _isScanning ? _stopScan : _checkBluetoothState,
-              child: Text(_isScanning ? 'Dừng quét' : 'Kết nối thiết bị mới'),
+              onPressed: _isScanning ? _stopScan : _startScan,
+              child: Text(_isScanning ? 'Dừng quét' : 'Quét thiết bị'),
             ),
-            const SizedBox(height: 16),
-            if (_isScanning)
-              const Center(child: CircularProgressIndicator()),
-            Text('Nhịp tim: $_heartRate', style: const TextStyle(fontSize: 18)),
-            Text('Số bước chân: $_stepCount', style: const TextStyle(fontSize: 18)),
-            Expanded(child: _buildDeviceList()),
           ],
         ),
       ),

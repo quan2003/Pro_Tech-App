@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 // Conditional import for Workmanager
 import './views/utils/workmanager_helper.dart'
     if (dart.library.js) './views/utils/workmanager_web_stub.dart';
+import 'views/utils/NotificationService.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('Handling a background message: ${message.messageId}');
@@ -35,7 +36,11 @@ void main() async {
       print('Background message handler set up successfully');
 
       if (!kIsWeb) {
+        await Firebase.initializeApp();
+        await NotificationService().initNotification();
+        // await initializeBackgroundService();
         await initializeWorkmanager();
+        
         await registerPeriodicTasks();
         await SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,
@@ -45,7 +50,7 @@ void main() async {
 
       runApp(const MyApp());
    
-    } catch (error, stackTrace) {
+    } catch (error) {
       runApp(MaterialApp(
         home: Scaffold(
           body: Center(

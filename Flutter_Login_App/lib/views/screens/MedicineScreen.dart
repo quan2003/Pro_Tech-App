@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_login_app/views/screens/BulletinBoardScreen.dart';
 import 'package:intl/intl.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
@@ -45,10 +46,10 @@ class _MedicineScreenState extends State<MedicineScreen> {
           MaterialPageRoute(builder: (context) => const HealthScreen()),
         );
         break;
-      case 2:
+      case 3:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MedicineScreen()),
+          MaterialPageRoute(builder: (context) => const BulletinBoardScreen()),
         );
         break;
     }

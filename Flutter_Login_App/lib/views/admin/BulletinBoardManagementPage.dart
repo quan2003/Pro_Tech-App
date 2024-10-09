@@ -119,8 +119,7 @@ class _BulletinBoardManagementPageState
             // Navigate to CommentManagementPage
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => const CommentManagementPage()),
+              MaterialPageRoute(builder: (context) => CommentManagementPage()),
             );
           }),
           _buildSidebarItem('Quiz Management', Icons.question_answer),

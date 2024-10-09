@@ -114,7 +114,7 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
           // Navigate to CommentManagementPage
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CommentManagementPage()),
+            MaterialPageRoute(builder: (context) => const CommentManagementPage()),
           );
         }),
         _buildSidebarItem('Quiz Management', Icons.question_answer),

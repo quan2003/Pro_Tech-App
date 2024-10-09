@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_login_app/views/screens/BulletinBoardScreen.dart';
 import 'package:intl/intl.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
@@ -9,7 +10,7 @@ import 'HealthScreen.dart';
 import 'HomeScreen.dart';
 
 class MedicineScreen extends StatefulWidget {
-  const MedicineScreen({Key? key}) : super(key: key);
+  const MedicineScreen({super.key});
 
   @override
   _MedicineScreenState createState() => _MedicineScreenState();
@@ -45,10 +46,10 @@ class _MedicineScreenState extends State<MedicineScreen> {
           MaterialPageRoute(builder: (context) => const HealthScreen()),
         );
         break;
-      case 2:
+      case 3:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MedicineScreen()),
+          MaterialPageRoute(builder: (context) => const BulletinBoardScreen()),
         );
         break;
     }
@@ -144,10 +145,10 @@ class _MedicineScreenState extends State<MedicineScreen> {
                 onPressed: () {
                   // Chức năng chỉnh sửa hộp thuốc
                 },
-                child: const Text('Chỉnh sửa hộp thuốc'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
+                child: const Text('Chỉnh sửa hộp thuốc'),
               ),
             ),
           ],
@@ -174,7 +175,7 @@ class _MedicineScreenState extends State<MedicineScreen> {
 class DateSlider extends StatefulWidget {
   final Function(DateTime) onDateSelected;
 
-  const DateSlider({Key? key, required this.onDateSelected}) : super(key: key);
+  const DateSlider({super.key, required this.onDateSelected});
 
   @override
   _DateSliderState createState() => _DateSliderState();
@@ -259,8 +260,7 @@ class _DateSliderState extends State<DateSlider> {
 class MedicationList extends StatelessWidget {
   final DateTime selectedDate;
 
-  const MedicationList({Key? key, required this.selectedDate})
-      : super(key: key);
+  const MedicationList({super.key, required this.selectedDate});
 
   @override
   Widget build(BuildContext context) {
@@ -340,7 +340,7 @@ class MedicationList extends StatelessWidget {
                     ),
                   ),
                   const Divider(),
-                  ...meds.map((med) => MedicationItem(medication: med)).toList(),
+                  ...meds.map((med) => MedicationItem(medication: med)),
                 ],
               ),
             );
@@ -410,7 +410,7 @@ class MedicationList extends StatelessWidget {
 class MedicationItem extends StatelessWidget {
   final QueryDocumentSnapshot medication;
 
-  const MedicationItem({Key? key, required this.medication}) : super(key: key);
+  const MedicationItem({super.key, required this.medication});
 
   @override
   Widget build(BuildContext context) {

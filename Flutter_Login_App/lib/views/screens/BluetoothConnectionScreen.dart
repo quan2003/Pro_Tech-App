@@ -203,11 +203,11 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
           children: [
             Text(
               'Nhịp tim: $_heartRate',
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
             ),
             Text(
               'Số bước chân: $_stepCount',
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
             ),
             ElevatedButton(
               onPressed: _isScanning ? _stopScan : _startScan,

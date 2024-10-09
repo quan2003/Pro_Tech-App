@@ -12,19 +12,21 @@ import './views/utils/workmanager_helper.dart'
     if (dart.library.js) './views/utils/workmanager_web_stub.dart';
 import 'views/utils/NotificationService.dart';
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
   print('Handling a background message: ${message.messageId}');
-  await _ensureFirebaseInitialized();
+  await NotificationService().handleBackgroundMessage(message);
 }
 
 Future<void> _ensureFirebaseInitialized() async {
   if (!Firebase.apps.isNotEmpty) {
     await Firebase.initializeApp(
-      options:
-          kIsWeb ? DefaultFirebaseOptions.web : DefaultFirebaseOptions.android,
+      options: kIsWeb ? DefaultFirebaseOptions.web : DefaultFirebaseOptions.android,
     );
   }
 }
+
 
 void main() async {
   await runZonedGuarded(() async {
@@ -32,15 +34,13 @@ void main() async {
 
     try {
       await _ensureFirebaseInitialized();
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
       print('Background message handler set up successfully');
 
       if (!kIsWeb) {
         await Firebase.initializeApp();
         await NotificationService().initNotification();
-        // await initializeBackgroundService();
         await initializeWorkmanager();
-        
         await registerPeriodicTasks();
         await SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,

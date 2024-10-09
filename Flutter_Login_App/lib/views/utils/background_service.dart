@@ -22,7 +22,7 @@ Future<void> initializeBackgroundService() async {
   await Workmanager().registerPeriodicTask(
     'rescheduleNotifications',
     'rescheduleNotifications',
-    frequency: Duration(hours: 1),
+    frequency: const Duration(hours: 1),
     constraints: Constraints(
       networkType: NetworkType.not_required,
       requiresBatteryNotLow: false,

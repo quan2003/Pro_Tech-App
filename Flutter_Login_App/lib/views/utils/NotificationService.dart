@@ -7,8 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
 
 class NotificationService {
-  static final NotificationService _notificationService = NotificationService._internal();
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static final NotificationService _notificationService =
+      NotificationService._internal();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   factory NotificationService() {
@@ -28,25 +30,28 @@ class NotificationService {
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
       final DarwinInitializationSettings initializationSettingsIOS =
-          DarwinInitializationSettings(
+          const DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestSoundPermission: true,
       );
-      final InitializationSettings initializationSettings = InitializationSettings(
+      final InitializationSettings initializationSettings =
+          InitializationSettings(
         android: initializationSettingsAndroid,
         iOS: initializationSettingsIOS,
       );
       await flutterLocalNotificationsPlugin.initialize(
         initializationSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        onDidReceiveNotificationResponse:
+            (NotificationResponse response) async {
           print('Notification tapped: ${response.payload}');
         },
       );
 
       if (Platform.isIOS) {
         await flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+            .resolvePlatformSpecificImplementation<
+                IOSFlutterLocalNotificationsPlugin>()
             ?.requestPermissions(
               alert: true,
               badge: true,
@@ -54,12 +59,14 @@ class NotificationService {
             );
       } else if (Platform.isAndroid) {
         final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-            flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>();
-        
+            flutterLocalNotificationsPlugin
+                .resolvePlatformSpecificImplementation<
+                    AndroidFlutterLocalNotificationsPlugin>();
+
         if (androidImplementation != null) {
           // Request notification permission on Android 13+
-          final bool? granted = await androidImplementation.requestNotificationsPermission();
+          final bool? granted =
+              await androidImplementation.requestNotificationsPermission();
           print('Android notification permission granted: $granted');
         } else {
           print('Unable to resolve Android implementation');
@@ -90,14 +97,15 @@ class NotificationService {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
-  Future<void> showNotification(int id, String title, String body, DateTime scheduledDate) async {
+  Future<void> showNotification(
+      int id, String title, String body, DateTime scheduledDate) async {
     try {
       await flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
         body,
         tz.TZDateTime.from(scheduledDate, tz.local),
-        NotificationDetails(
+        const NotificationDetails(
           android: AndroidNotificationDetails(
             'medication_channel',
             'Medication Reminders',
@@ -105,10 +113,11 @@ class NotificationService {
             importance: Importance.max,
             priority: Priority.high,
           ),
-          iOS: const DarwinNotificationDetails(),
+          iOS: DarwinNotificationDetails(),
         ),
         androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
       );
       print('Notification scheduled for $scheduledDate');
@@ -118,7 +127,8 @@ class NotificationService {
     }
   }
 
-  Future<void> _saveNotification(int id, String title, String body, DateTime scheduledDate) async {
+  Future<void> _saveNotification(
+      int id, String title, String body, DateTime scheduledDate) async {
     final prefs = await SharedPreferences.getInstance();
     final notifications = prefs.getStringList('notifications') ?? [];
     notifications.add(jsonEncode({

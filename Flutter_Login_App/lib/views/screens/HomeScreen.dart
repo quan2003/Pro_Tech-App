@@ -10,6 +10,7 @@ import 'package:flutter_login_app/views/screens/PrivacyPolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/StepTrackerScreen.dart';
 import 'package:flutter_login_app/views/screens/TearmsAndConditionsScreen.dart';
+import 'package:flutter_login_app/views/screens/WeightInputTodayScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,10 +26,10 @@ import 'AboutUsScreen.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../controller/StepTrackingService.dart';
 
-
 // Function to show running reminder notification
 void _showRunningReminder() {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   flutterLocalNotificationsPlugin.show(
     0,
     'Nhắc nhở chạy bộ',
@@ -46,7 +47,8 @@ void _showRunningReminder() {
 
 // Function to show step count reminder notification
 void _showStepCountReminder() {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   flutterLocalNotificationsPlugin.show(
     1,
     'Thống kê bước chạy',
@@ -72,21 +74,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final StepTrackingService stepController = Get.put(StepTrackingService());
   final BMIController bmiController = Get.put(BMIController());
- 
 
   int _selectedIndex = 0;
 
-    @override
+  @override
   void initState() {
     super.initState();
   }
- 
+
   void _showNotificationPermissionDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Cấp quyền thông báo'),
-        content: const Text('Ứng dụng cần quyền thông báo để gửi nhắc nhở chạy bộ và thống kê bước chạy hàng ngày.'),
+        content: const Text(
+            'Ứng dụng cần quyền thông báo để gửi nhắc nhở chạy bộ và thống kê bước chạy hàng ngày.'),
         actions: <Widget>[
           TextButton(
             child: const Text('Để sau'),
@@ -103,9 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  
- 
 
   Future<void> _updateSteps() async {
     final steps = int.tryParse(stepController.stepCountString) ?? 0;
@@ -126,21 +125,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return 'Khách';
   }
-void _onItemTapped(int index) async {
-  if (index == 1) { // Index 1 tương ứng với tab "Sức khoẻ"
-    await Get.to(() => const HealthScreen());
-  } else if (index == 2) { // Index 2 tương ứng với tab "Thuốc"
-   Get.to(() =>  const MedicineScreen());
-  } else if (index == 3) { // Index 3 tương ứng với tab "Phần thưởng"
-    Get.to(() => const BulletinBoardScreen());
+
+  void _onItemTapped(int index) async {
+    if (index == 1) {
+      // Index 1 tương ứng với tab "Sức khoẻ"
+      await Get.to(() => const HealthScreen());
+    } else if (index == 2) {
+      // Index 2 tương ứng với tab "Thuốc"
+      Get.to(() => const MedicineScreen());
+    } else if (index == 3) {
+      // Index 3 tương ứng với tab "Phần thưởng"
+      Get.to(() => const BulletinBoardScreen());
+    }
+
+    // Cập nhật lại chỉ số sau khi quay lại từ trang khác
+    setState(() {
+      _selectedIndex = index;
+    });
   }
-
-  // Cập nhật lại chỉ số sau khi quay lại từ trang khác
-  setState(() {
-    _selectedIndex = index;
-  });
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -208,8 +210,7 @@ void _onItemTapped(int index) async {
                 ),
                 ListTile(
                   leading: const Icon(Icons.person), // Profile Icon
-                  title:
-                      const Text("Hồ sơ"),
+                  title: const Text("Hồ sơ"),
                   onTap: () {
                     // Navigate to the profile screen
                     Get.to(() => ProfileScreen(userId: user!.uid));
@@ -327,7 +328,7 @@ void _onItemTapped(int index) async {
                   leading: const Icon(Icons.rule),
                   title: const Text('Điều khoản & điều kiện'),
                   onTap: () {
-                     Navigator.push(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const TermsAndConditions()),
@@ -392,7 +393,8 @@ void _onItemTapped(int index) async {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Xin chào, $userName!",
+                              Text(
+                                "Xin chào, $userName!",
                                 style: const TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
@@ -587,7 +589,7 @@ void _onItemTapped(int index) async {
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => WeightInputTodayScreen());
                               },
                               icon: Icons.scale,
                               label: 'Cân nặng • tuần này',
@@ -599,8 +601,8 @@ void _onItemTapped(int index) async {
                               return _buildHealthGoal(
                                 onTap: () async {
                                   // Điều hướng đến StepTrackingScreen và chờ kết quả
-                                  final steps =
-                                      await Get.to(() => const StepTrackingScreen());
+                                  final steps = await Get.to(
+                                      () => const StepTrackingScreen());
 
                                   // Kiểm tra và cập nhật số bước nếu có
                                   if (steps != null) {

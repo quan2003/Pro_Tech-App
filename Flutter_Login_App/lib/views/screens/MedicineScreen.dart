@@ -9,7 +9,7 @@ import 'HealthScreen.dart';
 import 'HomeScreen.dart';
 
 class MedicineScreen extends StatefulWidget {
-  const MedicineScreen({Key? key}) : super(key: key);
+  const MedicineScreen({super.key});
 
   @override
   _MedicineScreenState createState() => _MedicineScreenState();
@@ -144,10 +144,10 @@ class _MedicineScreenState extends State<MedicineScreen> {
                 onPressed: () {
                   // Chức năng chỉnh sửa hộp thuốc
                 },
-                child: const Text('Chỉnh sửa hộp thuốc'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
+                child: const Text('Chỉnh sửa hộp thuốc'),
               ),
             ),
           ],
@@ -174,7 +174,7 @@ class _MedicineScreenState extends State<MedicineScreen> {
 class DateSlider extends StatefulWidget {
   final Function(DateTime) onDateSelected;
 
-  const DateSlider({Key? key, required this.onDateSelected}) : super(key: key);
+  const DateSlider({super.key, required this.onDateSelected});
 
   @override
   _DateSliderState createState() => _DateSliderState();
@@ -259,8 +259,7 @@ class _DateSliderState extends State<DateSlider> {
 class MedicationList extends StatelessWidget {
   final DateTime selectedDate;
 
-  const MedicationList({Key? key, required this.selectedDate})
-      : super(key: key);
+  const MedicationList({super.key, required this.selectedDate});
 
   @override
   Widget build(BuildContext context) {
@@ -333,14 +332,15 @@ class MedicationList extends StatelessWidget {
                         fontSize: 18,
                       ),
                     ),
-                    subtitle: Text('Nhắc nhở tiếp theo: ${_getNextReminder(meds)}'),
+                    subtitle:
+                        Text('Nhắc nhở tiếp theo: ${_getNextReminder(meds)}'),
                     trailing: ElevatedButton(
                       onPressed: () => _takeMedications(meds),
                       child: const Text('Uống tất cả'),
                     ),
                   ),
                   const Divider(),
-                  ...meds.map((med) => MedicationItem(medication: med)).toList(),
+                  ...meds.map((med) => MedicationItem(medication: med)),
                 ],
               ),
             );
@@ -349,7 +349,8 @@ class MedicationList extends StatelessWidget {
       },
     );
   }
-   String _getNextReminder(List<QueryDocumentSnapshot> medications) {
+
+  String _getNextReminder(List<QueryDocumentSnapshot> medications) {
     DateTime now = DateTime.now();
     DateTime? nextReminder;
     for (var med in medications) {
@@ -365,15 +366,17 @@ class MedicationList extends StatelessWidget {
             int.parse(timeParts[0]),
             int.parse(timeParts[1]),
           );
-          if (scheduledDate.isAfter(now) && (nextReminder == null || scheduledDate.isBefore(nextReminder))) {
+          if (scheduledDate.isAfter(now) &&
+              (nextReminder == null || scheduledDate.isBefore(nextReminder))) {
             nextReminder = scheduledDate;
           }
         }
       }
     }
-    return nextReminder != null ? DateFormat('HH:mm').format(nextReminder) : 'Không có';
+    return nextReminder != null
+        ? DateFormat('HH:mm').format(nextReminder)
+        : 'Không có';
   }
-
 
   String _getPeriod(String time) {
     int hour = int.parse(time.split(':')[0]);
@@ -410,7 +413,7 @@ class MedicationList extends StatelessWidget {
 class MedicationItem extends StatelessWidget {
   final QueryDocumentSnapshot medication;
 
-  const MedicationItem({Key? key, required this.medication}) : super(key: key);
+  const MedicationItem({super.key, required this.medication});
 
   @override
   Widget build(BuildContext context) {

@@ -5,14 +5,18 @@ import 'package:flutter_login_app/views/screens/BluetoothConnectionScreen.dart';
 import 'package:flutter_login_app/views/screens/CookiePolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
+import 'package:flutter_login_app/views/screens/Hba1cTestScreen.dart';
 import 'package:flutter_login_app/views/screens/HealthScreen.dart';
 import 'package:flutter_login_app/views/screens/PrivacyPolicyScreen.dart';
+import 'package:flutter_login_app/views/screens/SleepTrackingScreen.dart';
 
 import 'package:flutter_login_app/views/screens/StepTrackerScreen.dart';
 import 'package:flutter_login_app/views/screens/TearmsAndConditionsScreen.dart';
+import 'package:flutter_login_app/views/screens/WeightInputTodayScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../model/OptionItem.dart';
 import 'BulletinBoardScreen.dart';
 import 'MedicineScreen.dart';
 import 'ProfileScreen.dart';
@@ -25,42 +29,43 @@ import 'AboutUsScreen.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../controller/StepTrackingService.dart';
 
-
 // Function to show running reminder notification
-void _showRunningReminder() {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  flutterLocalNotificationsPlugin.show(
-    0,
-    'Nhắc nhở chạy bộ',
-    'Đã đến giờ chạy bộ buổi sáng rồi!',
-    const NotificationDetails(
-      android: AndroidNotificationDetails(
-        'running_reminder_channel',
-        'Running Reminder',
-        importance: Importance.max,
-        priority: Priority.high,
-      ),
-    ),
-  );
-}
+// void _showRunningReminder() {
+//   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+//       FlutterLocalNotificationsPlugin();
+//   flutterLocalNotificationsPlugin.show(
+//     0,
+//     'Nhắc nhở chạy bộ',
+//     'Đã đến giờ chạy bộ buổi sáng rồi!',
+//     const NotificationDetails(
+//       android: AndroidNotificationDetails(
+//         'running_reminder_channel',
+//         'Running Reminder',
+//         importance: Importance.max,
+//         priority: Priority.high,
+//       ),
+//     ),
+//   );
+// }
 
-// Function to show step count reminder notification
-void _showStepCountReminder() {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  flutterLocalNotificationsPlugin.show(
-    1,
-    'Thống kê bước chạy',
-    'Hãy kiểm tra số bước chạy của bạn hôm nay!',
-    const NotificationDetails(
-      android: AndroidNotificationDetails(
-        'step_count_channel',
-        'Step Count Reminder',
-        importance: Importance.max,
-        priority: Priority.high,
-      ),
-    ),
-  );
-}
+// // Function to show step count reminder notification
+// void _showStepCountReminder() {
+//   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+//       FlutterLocalNotificationsPlugin();
+//   flutterLocalNotificationsPlugin.show(
+//     1,
+//     'Thống kê bước chạy',
+//     'Hãy kiểm tra số bước chạy của bạn hôm nay!',
+//     const NotificationDetails(
+//       android: AndroidNotificationDetails(
+//         'step_count_channel',
+//         'Step Count Reminder',
+//         importance: Importance.max,
+//         priority: Priority.high,
+//       ),
+//     ),
+//   );
+// }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -72,21 +77,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final StepTrackingService stepController = Get.put(StepTrackingService());
   final BMIController bmiController = Get.put(BMIController());
- 
 
   int _selectedIndex = 0;
 
-    @override
+  @override
   void initState() {
     super.initState();
   }
- 
+
   void _showNotificationPermissionDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Cấp quyền thông báo'),
-        content: const Text('Ứng dụng cần quyền thông báo để gửi nhắc nhở chạy bộ và thống kê bước chạy hàng ngày.'),
+        content: const Text(
+            'Ứng dụng cần quyền thông báo để gửi nhắc nhở chạy bộ và thống kê bước chạy hàng ngày.'),
         actions: <Widget>[
           TextButton(
             child: const Text('Để sau'),
@@ -103,9 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  
- 
 
   Future<void> _updateSteps() async {
     final steps = int.tryParse(stepController.stepCountString) ?? 0;
@@ -126,21 +128,115 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return 'Khách';
   }
-void _onItemTapped(int index) async {
-  if (index == 1) { // Index 1 tương ứng với tab "Sức khoẻ"
-    await Get.to(() => const HealthScreen());
-  } else if (index == 2) { // Index 2 tương ứng với tab "Thuốc"
-   Get.to(() =>  const MedicineScreen());
-  } else if (index == 3) { // Index 3 tương ứng với tab "Phần thưởng"
-    Get.to(() => const BulletinBoardScreen());
+
+   void _onItemTapped(int index) async {
+    if (index == 1) {
+      // Index 1 tương ứng với tab "Sức khoẻ"
+      await Get.to(() => const HealthScreen());
+    } else if (index == 2) {
+      // Index 2 tương ứng với tab "Thuốc"
+      Get.to(() => const MedicineScreen());
+    } else if (index == 3) {
+      // Index 3 tương ứng với tab "Phần thưởng"
+      Get.to(() => const BulletinBoardScreen());
+    }
+
+    // Cập nhật lại chỉ số sau khi quay lại từ trang khác
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
-  // Cập nhật lại chỉ số sau khi quay lại từ trang khác
-  setState(() {
-    _selectedIndex = index;
-  });
-}
-
+   void _showOptionsMenu() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.2,
+          maxChildSize: 0.75,
+          builder: (_, controller) {
+            return Stack(
+              children: [
+                CustomOptionsBottomSheet(
+                  options: [
+                    OptionItem(
+                      icon: Icons.science, 
+                      title: 'Xét nghiệm HbA1c', 
+                      subtitle: 'thêm kết quả',
+                      onTap: () {
+                        Get.to(() => const Hba1cTestScreen());
+                      },
+                    ),
+                    OptionItem(
+                      icon: Icons.opacity, 
+                      title: 'Đường huyết', 
+                      subtitle: 'thêm chỉ số đo',
+                      onTap: () {
+                        // Handle blood sugar action
+                      },
+                    ),
+                    OptionItem(
+                      icon: Icons.favorite, 
+                      title: 'Huyết áp', 
+                      subtitle: 'thêm chỉ số đo',
+                      onTap: () {
+                        // Handle blood pressure action
+                      },
+                    ),
+                    OptionItem(
+                      icon: Icons.coronavirus, 
+                      title: 'Cholesterol', 
+                      subtitle: 'thêm kết quả',
+                      onTap: () {
+                        // Handle cholesterol action
+                      },
+                    ),
+                    OptionItem(
+                      icon: Icons.monitor_weight, 
+                      title: 'Cân nặng', 
+                      subtitle: 'thêm chỉ số đo',
+                      onTap: () {
+                        Get.to(() => const WeightInputTodayScreen());
+                      },
+                    ),
+                    OptionItem(
+                      icon: Icons.medication, 
+                      title: 'Thuốc', 
+                      subtitle: 'thêm/sửa thuốc',
+                      onTap: () {
+                        Get.to(() => const MedicineScreen());
+                      },
+                    ),
+                  ],
+                ),
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+   Widget _buildMenuItem(IconData icon, String title, String subtitle) {
+    return ListTile(
+      leading: Icon(icon, size: 40),
+      title: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      subtitle: Text(subtitle),
+      onTap: () {
+        // Xử lý khi người dùng nhấn vào mục
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,6 +267,12 @@ void _onItemTapped(int index) async {
                   }
                 },
               ),
+              IconButton(
+                icon: const Icon(Icons.add_circle_sharp),
+                onPressed: () {
+                   _showOptionsMenu();
+                },
+                ),
               IconButton(
                 icon: const Icon(Icons.notifications),
                 onPressed: _showNotificationPermissionDialog,
@@ -208,8 +310,7 @@ void _onItemTapped(int index) async {
                 ),
                 ListTile(
                   leading: const Icon(Icons.person), // Profile Icon
-                  title:
-                      const Text("Hồ sơ"),
+                  title: const Text("Hồ sơ"),
                   onTap: () {
                     // Navigate to the profile screen
                     Get.to(() => ProfileScreen(userId: user!.uid));
@@ -327,7 +428,7 @@ void _onItemTapped(int index) async {
                   leading: const Icon(Icons.rule),
                   title: const Text('Điều khoản & điều kiện'),
                   onTap: () {
-                     Navigator.push(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const TermsAndConditions()),
@@ -392,7 +493,8 @@ void _onItemTapped(int index) async {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Xin chào, $userName!",
+                              Text(
+                                "Xin chào, $userName!",
                                 style: const TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
@@ -421,6 +523,7 @@ void _onItemTapped(int index) async {
                     Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20)),
+                      color: Colors.white, // Nền trắng
                       elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -546,6 +649,7 @@ void _onItemTapped(int index) async {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
+                      color: Colors.white, // Nền trắng
                       elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -571,7 +675,12 @@ void _onItemTapped(int index) async {
                               onTap: () {
                                 Get.to(() => const StepTrackingScreen());
                               },
-                              icon: Icons.bloodtype,
+                              icon: Image.asset(
+                                'assets/images/shoe.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
+                                height:
+                                    50.0, // Điều chỉnh kích thước hình ảnh nếu cần
+                                width: 50.0,
+                              ),
                               label: 'HA • tháng này',
                               value: '0 / 5',
                               color: Colors.redAccent,
@@ -580,18 +689,28 @@ void _onItemTapped(int index) async {
                               onTap: () {
                                 Get.to(() => const StepTrackingScreen());
                               },
-                              icon: Icons.local_fire_department,
+                              icon: Image.asset(
+                                'assets/images/shoe.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
+                                height:
+                                    50.0, // Điều chỉnh kích thước hình ảnh nếu cần
+                                width: 50.0,
+                              ),
                               label: 'Khai báo một cơn đau',
                               value: 'Đau thắt ngực',
                               color: Colors.orange,
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() => const WeightInputTodayScreen());
                               },
-                              icon: Icons.scale,
+                              icon: Image.asset(
+                                'assets/images/weigh.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
+                                height:
+                                    50.0, // Điều chỉnh kích thước hình ảnh nếu cần
+                                width: 50.0,
+                              ),
                               label: 'Cân nặng • tuần này',
-                              value: '1 / 3',
+                              value: '0 / 3',
                               color: Colors.blue,
                             ),
 
@@ -599,8 +718,8 @@ void _onItemTapped(int index) async {
                               return _buildHealthGoal(
                                 onTap: () async {
                                   // Điều hướng đến StepTrackingScreen và chờ kết quả
-                                  final steps =
-                                      await Get.to(() => const StepTrackingScreen());
+                                  final steps = await Get.to(
+                                      () => const StepTrackingScreen());
 
                                   // Kiểm tra và cập nhật số bước nếu có
                                   if (steps != null) {
@@ -608,7 +727,12 @@ void _onItemTapped(int index) async {
                                         steps; // Cập nhật số bước
                                   }
                                 },
-                                icon: Icons.directions_walk,
+                                icon: Image.asset(
+                                  'assets/images/shoe.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
+                                  height:
+                                      50.0, // Điều chỉnh kích thước hình ảnh nếu cần
+                                  width: 50.0,
+                                ),
                                 label: 'Bước • hôm nay',
                                 value: stepController
                                     .stepCountString, // Hiển thị số bước
@@ -618,9 +742,14 @@ void _onItemTapped(int index) async {
 
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const StepTrackingScreen());
+                                Get.to(() =>  const SleepTrackingScreen());
                               },
-                              icon: Icons.timer,
+                              icon: Image.asset(
+                                'assets/images/sleep.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
+                                height:
+                                    50.0, // Điều chỉnh kích thước hình ảnh nếu cần
+                                width: 50.0,
+                              ),
                               label: 'Thời gian hồi phục',
                               value: '9m • 83% hồi phục',
                               color: Colors.teal,
@@ -654,7 +783,7 @@ void _onItemTapped(int index) async {
   }
 
   Widget _buildHealthGoal({
-    required IconData icon,
+    required Widget icon, // Thay IconData bằng Widget
     required String label,
     required String value,
     required Color color,
@@ -669,7 +798,7 @@ void _onItemTapped(int index) async {
           children: [
             Row(
               children: [
-                Icon(icon, color: color, size: 30),
+                icon, // Hiển thị Widget icon (có thể là Icon hoặc Image)
                 const SizedBox(width: 15),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -52,6 +52,7 @@ dependencies:
   flutter_markdown: ^0.7.3+2
   rxdart: ^0.26.0
   flutter_timezone: ^3.0.1
+  share_plus: ^10.0.3
 
 
 

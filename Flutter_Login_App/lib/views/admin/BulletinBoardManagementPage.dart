@@ -135,75 +135,74 @@ class _BulletinBoardManagementPageState extends State<BulletinBoardManagementPag
     );
   }
 
-  Widget _buildPostTable() {
-  return StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance.collection('posts_quiz').snapshots(),
-    builder: (context, snapshot) {
-      if (snapshot.hasError) {
-        return Center(child: Text('Error occurred: ${snapshot.error}'));
-      }
+    Widget _buildPostTable() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('posts_quiz').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error occurred: ${snapshot.error}'));
+        }
 
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-        return const Center(child: Text('No posts available'));
-      }
-
-      List<DataRow> rows = _buildDataRows(snapshot.data!.docs);
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Posts and Quizzes',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Post/Quiz'),
-                  onPressed: () => _showAddPostDialog(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A19D),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Posts and Quizzes',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Post/Quiz'),
+                    onPressed: () => _showAddPostDialog(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00A19D),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
+              const Center(
+                child: Text('No posts available', style: TextStyle(fontSize: 18)),
+              )
+            else
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('STT')),
+                        DataColumn(label: Text('Title')),
+                        DataColumn(label: Text('Type')),
+                        DataColumn(label: Text('Description')),
+                        DataColumn(label: Text('Image')),
+                        DataColumn(label: Text('Responses')),
+                        DataColumn(label: Text('Actions')),
+                      ],
+                      rows: _buildDataRows(snapshot.data!.docs),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: const [
-                    DataColumn(label: Text('STT')),
-                    DataColumn(label: Text('Title')),
-                    DataColumn(label: Text('Type')),
-                    DataColumn(label: Text('Description')),
-                    DataColumn(label: Text('Image')),
-                    DataColumn(label: Text('Responses')),
-                    DataColumn(label: Text('Actions')),
-                  ],
-                  rows: rows,
-                ),
               ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
+          ],
+        );
+      },
+    );
+  }
 
   List<DataRow> _buildDataRows(List<DocumentSnapshot> docs) {
   return docs.asMap().entries.map((entry) {
@@ -356,165 +355,143 @@ void _deleteComment(String postId, String commentId) {
   }
 
   void _showAddPostDialog(BuildContext context) {
-    final TextEditingController titleController = TextEditingController();
-    final TextEditingController descriptionController = TextEditingController();
-    final TextEditingController imageUrlController = TextEditingController();
-    final TextEditingController viewsController = TextEditingController();
-    final TextEditingController likesController = TextEditingController();
-    final TextEditingController commentsController = TextEditingController();
-    String postType = 'Post';
-    List<TextEditingController> optionControllers =
-        List.generate(3, (_) => TextEditingController());
-    int correctAnswer = 0;
-    String? imagePreviewUrl;
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController imageUrlController = TextEditingController();
+  String postType = 'Post';
+  List<TextEditingController> optionControllers = List.generate(3, (_) => TextEditingController());
+  int correctAnswer = 0;
+  String? imagePreviewUrl;
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Add New Post/Quiz'),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(hintText: "Enter title"),
-                    ),
-                    TextField(
-                      controller: descriptionController,
-                      decoration: const InputDecoration(hintText: "Enter description"),
-                    ),
-                    DropdownButton<String>(
-                      value: postType,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          postType = newValue!;
-                        });
-                      },
-                      items: <String>['Post', 'Quiz']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                    if (postType == 'Quiz')
-                      ...List.generate(3, (index) {
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: optionControllers[index],
-                                decoration: InputDecoration(hintText: "Option ${index + 1}"),
-                              ),
-                            ),
-                            Radio<int>(
-                              value: index,
-                              groupValue: correctAnswer,
-                              onChanged: (int? value) {
-                                setState(() {
-                                  correctAnswer = value!;
-                                });
-                              },
-                            ),
-                          ],
-                        );
-                      }),
-                    TextField(
-                      controller: imageUrlController,
-                      decoration: const InputDecoration(hintText: "Enter Image URL"),
-                      onChanged: (value) {
-                        setState(() {
-                          imagePreviewUrl = value;
-                        });
-                      },
-                    ),
-                    if (imagePreviewUrl != null && imagePreviewUrl!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.network(
-                          imagePreviewUrl!,
-                          height: 100,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Text('Invalid URL');
-                          },
-                        ),
-                      ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: viewsController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(hintText: "Enter initial views count"),
-                    ),
-                    TextField(
-                      controller: likesController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(hintText: "Enter initial likes count"),
-                    ),
-                    TextField(
-                      controller: commentsController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(hintText: "Enter initial comments count"),
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: const Text('Add'),
-                  onPressed: () async {
-                    try {
-                      final description = descriptionController.text.trim().isEmpty
-                          ? null
-                          : descriptionController.text;
-                      final views = int.tryParse(viewsController.text) ?? 0;
-                      final likes = int.tryParse(likesController.text) ?? 0;
-                      final comments = int.tryParse(commentsController.text) ?? 0;
-
-                      await FirebaseFirestore.instance.collection('posts_quiz').add({
-                        'title': titleController.text,
-                        'description': description,
-                        'imageUrl': imageUrlController.text,
-                        'type': postType,
-                        'responses': 0,
-                        'views': views,
-                        'likes': likes,
-                        'comments': comments,
-                        'timestamp': FieldValue.serverTimestamp(),
-                        if (postType == 'Quiz') ...{
-                          'options': optionControllers.map((controller) => controller.text).toList(),
-                          'correctAnswer': correctAnswer,
-                        },
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Add New Post/Quiz'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(hintText: "Enter title"),
+                  ),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(hintText: "Enter description"),
+                  ),
+                  DropdownButton<String>(
+                    value: postType,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        postType = newValue!;
                       });
+                    },
+                    items: <String>['Post', 'Quiz']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  if (postType == 'Quiz')
+                    ...List.generate(3, (index) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: optionControllers[index],
+                              decoration: InputDecoration(hintText: "Option ${index + 1}"),
+                            ),
+                          ),
+                          Radio<int>(
+                            value: index,
+                            groupValue: correctAnswer,
+                            onChanged: (int? value) {
+                              setState(() {
+                                correctAnswer = value!;
+                              });
+                            },
+                          ),
+                        ],
+                      );
+                    }),
+                  TextField(
+                    controller: imageUrlController,
+                    decoration: const InputDecoration(hintText: "Enter Image URL"),
+                    onChanged: (value) {
+                      setState(() {
+                        imagePreviewUrl = value;
+                      });
+                    },
+                  ),
+                  if (imagePreviewUrl != null && imagePreviewUrl!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.network(
+                        imagePreviewUrl!,
+                        height: 100,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Text('Invalid URL');
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text('Add'),
+                onPressed: () async {
+                  try {
+                    final description = descriptionController.text.trim().isEmpty
+                        ? null
+                        : descriptionController.text;
 
-                      Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Post added successfully!')),
-                      );
-                    } catch (e) {
-                      print('Error adding post: $e');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Error adding post. Please try again.')),
-                      );
-                    }
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
+                    await FirebaseFirestore.instance.collection('posts_quiz').add({
+                      'title': titleController.text,
+                      'description': description,
+                      'imageUrl': imageUrlController.text,
+                      'type': postType,
+                      'responses': 0,
+                      'views': 0, // Giá trị mặc định là 0
+                      'likes': 0, // Giá trị mặc định là 0
+                      'comments': 0, // Giá trị mặc định là 0
+                      'timestamp': FieldValue.serverTimestamp(),
+                      if (postType == 'Quiz') ...{
+                        'options': optionControllers.map((controller) => controller.text).toList(),
+                        'correctAnswer': correctAnswer,
+                      },
+                    });
+
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Post added successfully!')),
+                    );
+                  } catch (e) {
+                    print('Error adding post: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Error adding post. Please try again.')),
+                    );
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 
   void _showEditPostDialog(BuildContext context, DocumentSnapshot document) {
     final data = document.data() as Map<String, dynamic>?;

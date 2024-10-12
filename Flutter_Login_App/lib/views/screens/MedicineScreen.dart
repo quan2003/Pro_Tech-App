@@ -286,7 +286,11 @@ class MedicationList extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.medication, size: 64, color: Colors.grey),
+                Image(
+                  image: AssetImage('assets/images/empty_box.png'),
+                  width: 120,
+                  height: 120,
+                ),
                 SizedBox(height: 16),
                 Text(
                   'Không có thuốc nào được lên lịch',
@@ -333,7 +337,8 @@ class MedicationList extends StatelessWidget {
                         fontSize: 18,
                       ),
                     ),
-                    subtitle: Text('Nhắc nhở tiếp theo: ${_getNextReminder(meds)}'),
+                    subtitle:
+                        Text('Nhắc nhở tiếp theo: ${_getNextReminder(meds)}'),
                     trailing: ElevatedButton(
                       onPressed: () => _takeMedications(meds),
                       child: const Text('Uống tất cả'),
@@ -349,7 +354,8 @@ class MedicationList extends StatelessWidget {
       },
     );
   }
-   String _getNextReminder(List<QueryDocumentSnapshot> medications) {
+
+  String _getNextReminder(List<QueryDocumentSnapshot> medications) {
     DateTime now = DateTime.now();
     DateTime? nextReminder;
     for (var med in medications) {
@@ -365,15 +371,17 @@ class MedicationList extends StatelessWidget {
             int.parse(timeParts[0]),
             int.parse(timeParts[1]),
           );
-          if (scheduledDate.isAfter(now) && (nextReminder == null || scheduledDate.isBefore(nextReminder))) {
+          if (scheduledDate.isAfter(now) &&
+              (nextReminder == null || scheduledDate.isBefore(nextReminder))) {
             nextReminder = scheduledDate;
           }
         }
       }
     }
-    return nextReminder != null ? DateFormat('HH:mm').format(nextReminder) : 'Không có';
+    return nextReminder != null
+        ? DateFormat('HH:mm').format(nextReminder)
+        : 'Không có';
   }
-
 
   String _getPeriod(String time) {
     int hour = int.parse(time.split(':')[0]);

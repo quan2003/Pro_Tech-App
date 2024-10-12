@@ -17,6 +17,215 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text('Chi tiết bài viết', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.pink),
+            onPressed: () {
+              // Implement share functionality
+            },
+          ),
+        ],
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: _firestore.collection('posts_quiz').doc(widget.postId).snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text('Bài viết không tồn tại'));
+          }
+
+          var postData = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+          List<String> likes = [];
+          int likeCount = 0;
+          
+          if (postData['likes'] is List) {
+            likes = List<String>.from(postData['likes'] as List? ?? []);
+            likeCount = likes.length;
+          } else if (postData['likes'] is int) {
+            likeCount = postData['likes'] as int;
+          }
+
+          bool isLiked = likes.contains(_auth.currentUser?.uid);
+          int commentCount = postData['commentCount'] as int? ?? 0;
+
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (postData['imageUrl'] != null)
+                        Image.network(
+                          postData['imageUrl'] as String,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'PRO - TECH',
+                              style: TextStyle(
+                                  color: Colors.pink, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              postData['title'] as String? ?? 'Không có tiêu đề',
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            _formatTimestamp(postData['timestamp'] as Timestamp?),
+                            const SizedBox(height: 16),
+                            if (postData['detail'] != null)
+                              MarkdownBody(
+                                data: postData['detail'] as String? ?? '',
+                              ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    isLiked ? Icons.favorite : Icons.favorite_border,
+                                    color: isLiked ? Colors.red : Colors.grey,
+                                  ),
+                                  onPressed: () => _toggleLike(likes),
+                                ),
+                                const SizedBox(width: 8),
+                                Text('$likeCount'),
+                                const SizedBox(width: 16),
+                                const Icon(Icons.comment, color: Colors.grey),
+                                const SizedBox(width: 8),
+                                Text('$commentCount'),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            const Text('Nhận xét:',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            StreamBuilder<QuerySnapshot>(
+                              stream: _firestore
+                                  .collection('posts_quiz')
+                                  .doc(widget.postId)
+                                  .collection('comments')
+                                  .orderBy('timestamp', descending: true)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) return const SizedBox();
+                                return Column(
+                                  children: snapshot.data!.docs.map((doc) {
+                                    var data = doc.data() as Map<String, dynamic>;
+                                    return FutureBuilder<DocumentSnapshot>(
+                                      future: _firestore
+                                          .collection('users')
+                                          .doc(data['userId'])
+                                          .get(),
+                                      builder: (context, userSnapshot) {
+                                        String userName = 'Người dùng';
+                                        if (userSnapshot.hasData &&
+                                            userSnapshot.data != null &&
+                                            userSnapshot.data!.exists) {
+                                          userName = (userSnapshot.data!.data()
+                                                      as Map<String, dynamic>?)?['name'] ??
+                                              'Người dùng';
+                                        }
+                                        return ListTile(
+                                          leading: CircleAvatar(
+                                            child: Text(userName[0].toUpperCase()),
+                                          ),
+                                          title: Text(userName),
+                                          subtitle: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(data['comment'] as String? ?? ''),
+                                              _formatTimestamp(
+                                                  data['timestamp'] as Timestamp?),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }).toList(),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _commentController,
+                        decoration: InputDecoration(
+                          hintText: 'Viết nhận xét...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send, color: Colors.pink),
+                      onPressed: _addComment,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _toggleLike(List<String> currentLikes) async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      DocumentReference postRef = _firestore.collection('posts_quiz').doc(widget.postId);
+      
+      if (currentLikes.contains(user.uid)) {
+        currentLikes.remove(user.uid);
+      } else {
+        currentLikes.add(user.uid);
+      }
+
+      await postRef.update({
+        'likes': currentLikes,
+        'likeCount': currentLikes.length,
+      });
+    }
+  }
+
   Future<void> _addComment() async {
     if (_commentController.text.isNotEmpty) {
       User? user = _auth.currentUser;
@@ -31,34 +240,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           'timestamp': FieldValue.serverTimestamp(),
         });
 
-        // Increment comment count
         await _firestore.collection('posts_quiz').doc(widget.postId).update({
           'commentCount': FieldValue.increment(1),
         });
 
         _commentController.clear();
-      }
-    }
-  }
-
-  Future<void> _toggleLike() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      DocumentReference postRef =
-          _firestore.collection('posts_quiz').doc(widget.postId);
-      DocumentSnapshot postDoc = await postRef.get();
-
-      if (postDoc.exists) {
-        List<String> likes = List<String>.from(postDoc.get('likes') ?? []);
-        if (likes.contains(user.uid)) {
-          likes.remove(user.uid);
-        } else {
-          likes.add(user.uid);
-        }
-        await postRef.update({
-          'likes': likes,
-          'likeCount': likes.length,
-        });
       }
     }
   }
@@ -82,198 +268,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         const SizedBox(width: 4),
         Text(timeAgo, style: const TextStyle(color: Colors.grey, fontSize: 14)),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text('Chi tiết bài viết', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share, color: Colors.pink),
-            onPressed: () {
-              // Implement share functionality
-            },
-          ),
-        ],
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream:
-            _firestore.collection('posts_quiz').doc(widget.postId).snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Bài viết không tồn tại'));
-          }
-
-          var postData = snapshot.data!.data() as Map<String, dynamic>? ?? {};
-          List<String> likes = List<String>.from(postData['likes'] ?? []);
-          bool isLiked = likes.contains(_auth.currentUser?.uid);
-
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (postData['imageUrl'] != null)
-                  Image.network(
-                    postData['imageUrl'] as String,
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'PRO - TECH',
-                        style: TextStyle(
-                            color: Colors.pink, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        postData['title'] as String? ?? 'Không có tiêu đề',
-                        style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      _formatTimestamp(postData['timestamp'] as Timestamp?),
-                      const SizedBox(height: 16),
-                      StreamBuilder<QuerySnapshot>(
-                        stream: _firestore
-                            .collection('posts_quiz')
-                            .doc(widget.postId)
-                            .collection('PostDetail')
-                            .orderBy('timestamp', descending: false)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) return const SizedBox();
-                          String detailContent = snapshot.data!.docs
-                              .map((doc) => doc['detail'] as String? ?? '')
-                              .join('\n\n');
-                          return MarkdownBody(data: detailContent);
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Icon(isLiked ? Icons.favorite : Icons.favorite_border,
-                              color: isLiked ? Colors.red : Colors.grey),
-                          const SizedBox(width: 8),
-                          Text('${postData['likeCount'] ?? 0}'),
-                          const SizedBox(width: 16),
-                          const Icon(Icons.comment, color: Colors.grey),
-                          const SizedBox(width: 8),
-                          Text('${postData['commentCount'] ?? 0}'),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _toggleLike,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isLiked ? Colors.grey : Colors.pink,
-                          minimumSize: const Size(double.infinity, 40),
-                        ),
-                        child: Text(isLiked ? 'Bỏ thích' : 'Thích bài viết'),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text('Nhận xét:',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      StreamBuilder<QuerySnapshot>(
-                        stream: _firestore
-                            .collection('posts_quiz')
-                            .doc(widget.postId)
-                            .collection('comments')
-                            .orderBy('timestamp', descending: true)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) return const SizedBox();
-                          return Column(
-                            children: snapshot.data!.docs.map((doc) {
-                              var data = doc.data() as Map<String, dynamic>;
-                              return FutureBuilder<DocumentSnapshot>(
-                                future: _firestore
-                                    .collection('users')
-                                    .doc(data['userId'])
-                                    .get(),
-                                builder: (context, userSnapshot) {
-                                  String userName = 'Người dùng';
-                                  if (userSnapshot.hasData &&
-                                      userSnapshot.data != null &&
-                                      userSnapshot.data!.exists) {
-                                    userName = (userSnapshot.data!.data()
-                                                as Map<String, dynamic>?)?[
-                                            'name'] ??
-                                        'Người dùng';
-                                  }
-                                  return ListTile(
-                                    leading: CircleAvatar(
-                                      child: Text(userName[0].toUpperCase()),
-                                    ),
-                                    title: Text(userName),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(data['comment'] as String? ?? ''),
-                                        _formatTimestamp(
-                                            data['timestamp'] as Timestamp?),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            }).toList(),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-      bottomSheet: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _commentController,
-                decoration: InputDecoration(
-                  hintText: 'Viết nhận xét...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.send, color: Colors.pink),
-              onPressed: _addComment,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

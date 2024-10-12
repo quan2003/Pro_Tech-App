@@ -16,6 +16,7 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
   final TextEditingController _markdownController = TextEditingController();
   bool _isPreview = false;
   String? _currentDetailId;
+  String _errorMessage = '';
 
   @override
   void initState() {
@@ -29,68 +30,91 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
     super.dispose();
   }
 
-  Future<void> _loadLatestDetail() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('posts_quiz')
-          .doc(widget.postId)
-          .collection('PostDetail')
-          .orderBy('timestamp', descending: true)
-          .limit(1)
-          .get();
-
-      if (snapshot.docs.isNotEmpty) {
-        final doc = snapshot.docs.first;
-        setState(() {
-          _markdownController.text = doc['detail'] ?? '';
-          _currentDetailId = doc.id;
-        });
-      }
-    } catch (e) {
-      _showErrorSnackBar('Error loading latest detail: $e');
-    }
-  }
-
   void _togglePreview() {
     setState(() {
       _isPreview = !_isPreview;
     });
   }
 
+ Future<void> _loadLatestDetail() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('posts_quiz')
+          .doc(widget.postId)
+          .get();
+
+      if (snapshot.exists) {
+        final data = snapshot.data();
+        if (data != null && data.containsKey('detail')) {
+          var detail = data['detail'];
+          print('Loaded detail type: ${detail.runtimeType}');
+          print('Loaded detail value: $detail');
+          
+          setState(() {
+            _markdownController.text = detail.toString();
+            _currentDetailId = snapshot.id;
+            _errorMessage = '';
+          });
+        } else {
+          setState(() {
+            _errorMessage = 'No detail field found in document';
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Document does not exist';
+        });
+      }
+    } catch (e) {
+      print('Error loading latest detail: $e');
+      setState(() {
+        _errorMessage = 'Error loading latest detail: $e';
+      });
+    }
+  }
+
+  String _convertDetailToString(dynamic detail) {
+    if (detail is String) {
+      return detail;
+    } else if (detail is int) {
+      return detail.toString();
+    } else if (detail is Iterable) {
+      return detail.join('\n');
+    } else {
+      return 'Unsupported detail format';
+    }
+  }
+
   Future<void> _savePostDetail() async {
     if (_markdownController.text.isEmpty) {
-      _showErrorSnackBar('Please enter some content');
+      setState(() {
+        _errorMessage = 'Please enter some content';
+      });
       return;
     }
 
     try {
-      final postDetailRef = FirebaseFirestore.instance
-          .collection('posts_quiz')
-          .doc(widget.postId)
-          .collection('PostDetail');
-
       final data = {
         'detail': _markdownController.text,
         'timestamp': FieldValue.serverTimestamp(),
       };
 
-      if (_currentDetailId != null) {
-        await postDetailRef.doc(_currentDetailId).update(data);
-      } else {
-        await postDetailRef.add(data);
-      }
+      await FirebaseFirestore.instance
+          .collection('posts_quiz')
+          .doc(widget.postId)
+          .set(data, SetOptions(merge: true));
 
+      setState(() {
+        _errorMessage = '';
+      });
       _showSuccessSnackBar('PostDetail saved successfully');
       await _loadLatestDetail();
     } catch (e) {
-      _showErrorSnackBar('Error saving PostDetail: $e');
+      print('Error saving PostDetail: $e');
+      setState(() {
+        _errorMessage = 'Error saving PostDetail: $e';
+      });
     }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
   }
 
   void _showSuccessSnackBar(String message) {
@@ -99,7 +123,7 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
     );
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -118,14 +142,25 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
         ],
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth > 600) {
-              return _buildWideLayout();
-            } else {
-              return _buildNarrowLayout();
-            }
-          },
+        child: Column(
+          children: [
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(_errorMessage, style: const TextStyle(color: Colors.red)),
+              ),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth > 600) {
+                    return _buildWideLayout();
+                  } else {
+                    return _buildNarrowLayout();
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -146,7 +181,7 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
     );
   }
 
-  Widget _buildNarrowLayout() {
+   Widget _buildNarrowLayout() {
     return Column(
       children: [
         Expanded(
@@ -176,15 +211,14 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
   }
 
   Widget _buildDetailHistory() {
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('posts_quiz')
           .doc(widget.postId)
-          .collection('PostDetail')
-          .orderBy('timestamp', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          print('Error in StreamBuilder: ${snapshot.error}');
           return Text('Error: ${snapshot.error}');
         }
 
@@ -192,30 +226,72 @@ class _AdminPostDetailPageState extends State<AdminPostDetailPage> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return ListView.builder(
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (context, index) {
-            var doc = snapshot.data!.docs[index];
-            var data = doc.data() as Map<String, dynamic>;
-            var timestamp = data['timestamp'] as Timestamp?;
-            var formattedDate = timestamp != null
-                ? DateFormat('yyyy-MM-dd HH:mm').format(timestamp.toDate())
-                : 'No date';
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          print('No data available for this post');
+          return Center(
+            child: ElevatedButton(
+              onPressed: _addNewDetail,
+              child: const Text('Add New Post Detail'),
+            ),
+          );
+        }
 
-            return ListTile(
-              title: Text('Version ${snapshot.data!.docs.length - index}'),
-              subtitle: Text(formattedDate),
-              onTap: () {
-                setState(() {
-                  _markdownController.text = data['detail'] ?? '';
-                  _currentDetailId = doc.id;
-                  _isPreview = false;
-                });
-              },
-            );
-          },
+        var postData = snapshot.data!.data() as Map<String, dynamic>?;
+        if (postData == null) {
+          print('Post data is null');
+          return const Text('No data available');
+        }
+
+        var detail = postData['detail'];
+        print('Detail type in history: ${detail.runtimeType}');
+        print('Detail value in history: $detail');
+
+        if (detail == null) {
+          return Center(
+            child: ElevatedButton(
+              onPressed: _addNewDetail,
+              child: const Text('Add Post Detail'),
+            ),
+          );
+        }
+
+        String displayDetail = detail.toString();
+
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Current Version', style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 8),
+                Text(displayDetail),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => _editDetail(displayDetail),
+                  child: const Text('Edit This Version'),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
+  }
+
+  void _addNewDetail() {
+    setState(() {
+      _markdownController.clear();
+      _currentDetailId = null;
+      _isPreview = false;
+    });
+  }
+
+  void _editDetail(String detail) {
+    setState(() {
+      _markdownController.text = detail;
+      _currentDetailId = widget.postId;
+      _isPreview = false;
+    });
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// For formatting dates
 
 import 'HealthScreen.dart';
 import 'HomeScreen.dart';
@@ -18,6 +17,7 @@ class BulletinBoardScreen extends StatefulWidget {
 class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
   int _selectedIndex = 3;
   Map<String, String?> selectedOptions = {};
+  Map<String, bool> answeredQuizzes = {};
 
   void _onItemTapped(int index) {
     setState(() {
@@ -46,7 +46,7 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
     }
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -81,22 +81,12 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                       return const Center(
                           child: Text('Không có bài đăng nào.'));
                     }
-                    int parseNumericValue(dynamic value) {
-                      if (value == null) return 0;
-                      if (value is int) return value;
-                      if (value is double) return value.toInt();
-                      if (value is String) return int.tryParse(value) ?? 0;
-                      if (value is List && value.isNotEmpty) {
-                        return parseNumericValue(value.first);
-                      }
-                      return 0;
-                    }
 
-                    return ListView(
-                      children:
-                          snapshot.data!.docs.map((DocumentSnapshot document) {
-                        Map<String, dynamic> data =
-                            document.data() as Map<String, dynamic>;
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot document = snapshot.data!.docs[index];
+                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
                         String docId = document.id;
 
                         String imageUrl = data['imageUrl'] ?? '';
@@ -105,35 +95,39 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                         Timestamp? timestamp = data['timestamp'] as Timestamp?;
 
                         if (description.isEmpty && timestamp != null) {
-                          description =
-                              _generateTimeBasedDescription(timestamp);
+                          description = _generateTimeBasedDescription(timestamp);
                         }
 
-                        List<String> options =
-                            List<String>.from(data['options'] ?? []);
-                        int responses = parseNumericValue(data['responses']);
-                        String? correctOption =
-                            data['correctAnswer']?.toString();
+                        List<String> options = List<String>.from(data['options'] ?? []);
+                        int responses = _parseNumericValue(data['responses']);
+                        String? correctOption = data['correctAnswer']?.toString();
                         String? type = data['type'];
-                        int views = parseNumericValue(data['views']);
-                        int commentCount =
-                            parseNumericValue(data['commentCount']);
-                        int likeCount = parseNumericValue(data['likeCount']);
+                        int views = _parseNumericValue(data['views']);
+                        int commentCount = _parseNumericValue(data['commentCount']);
+                        int likeCount = _parseNumericValue(data['likeCount']);
 
-                        return _buildBulletinCard(
-                          docId: docId,
-                          imageAsset: imageUrl,
-                          title: title,
-                          description: description,
-                          options: options,
-                          responses: responses,
-                          correctOption: correctOption,
-                          type: type,
-                          views: views,
-                          likeCount: likeCount,
-                          commentCount: commentCount,
+                        return GestureDetector(
+                          onTap: () {
+                            if (type?.toLowerCase() == 'post') {
+                              _incrementPostViews(docId);
+                              _showPostDetails(docId);
+                            }
+                          },
+                          child: _buildBulletinCard(
+                            docId: docId,
+                            imageAsset: imageUrl,
+                            title: title,
+                            description: description,
+                            options: options,
+                            responses: responses,
+                            correctOption: correctOption,
+                            type: type,
+                            views: views,
+                            likeCount: likeCount,
+                            commentCount: commentCount,
+                          ),
                         );
-                      }).toList(),
+                      },
                     );
                   },
                 ),
@@ -159,7 +153,6 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
     );
   }
 
-  // Function to generate time-based description
   String _generateTimeBasedDescription(Timestamp timestamp) {
     DateTime postTime = timestamp.toDate();
     DateTime now = DateTime.now();
@@ -174,6 +167,17 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
     } else {
       return 'Pro - Tech: ${difference.inDays} ngày trước';
     }
+  }
+
+  int _parseNumericValue(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    if (value is List && value.isNotEmpty) {
+      return _parseNumericValue(value.first);
+    }
+    return 0;
   }
 
   Widget _buildBulletinCard({
@@ -223,76 +227,74 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
             ),
             const SizedBox(height: 8),
             if (type?.toLowerCase() == 'quiz')
-              Column(
-                children: options.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  String option = entry.value;
+              StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return Column(
+                    children: options.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      String option = entry.value;
 
-                  bool isCorrect = int.tryParse(correctOption ?? '') == index;
-                  bool isSelected = selectedOptions[docId] == option;
+                      bool isCorrect = int.tryParse(correctOption ?? '') == index;
+                      bool isSelected = selectedOptions[docId] == option;
+                      bool hasAnswered = answeredQuizzes[docId] ?? false;
 
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedOptions[docId] = option;
-                        _incrementQuizResponses(docId);
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 12.0),
-                      margin: const EdgeInsets.symmetric(vertical: 4.0),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? (isCorrect ? Colors.green[100] : Colors.red[100])
-                            : Colors.white,
-                        border: Border.all(
-                          color: isSelected
-                              ? (isCorrect ? Colors.green : Colors.red)
-                              : Colors.grey,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          if (isSelected)
-                            Icon(
-                              isCorrect ? Icons.check_circle : Icons.cancel,
-                              color: isCorrect ? Colors.green : Colors.red,
+                      return GestureDetector(
+                        onTap: () {
+                          if (!hasAnswered) {
+                            setState(() {
+                              selectedOptions[docId] = option;
+                              answeredQuizzes[docId] = true;
+                            });
+                            _incrementQuizResponses(docId);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 12.0),
+                          margin: const EdgeInsets.symmetric(vertical: 4.0),
+                          decoration: BoxDecoration(
+                            color: hasAnswered
+                                ? (isCorrect ? Colors.green[100] : (isSelected ? Colors.red[100] : Colors.white))
+                                : (isSelected ? Colors.blue[100] : Colors.white),
+                            border: Border.all(
+                              color: hasAnswered
+                                  ? (isCorrect ? Colors.green : (isSelected ? Colors.red : Colors.grey))
+                                  : (isSelected ? Colors.blue : Colors.grey),
                             ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              option,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: isSelected
-                                    ? (isCorrect ? Colors.green : Colors.red)
-                                    : Colors.black,
-                              ),
-                            ),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ],
-                      ),
-                    ),
+                          child: Row(
+                            children: [
+                              if (hasAnswered && (isCorrect || isSelected))
+                                Icon(
+                                  isCorrect ? Icons.check_circle : Icons.cancel,
+                                  color: isCorrect ? Colors.green : Colors.red,
+                                ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  option,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: hasAnswered
+                                        ? (isCorrect ? Colors.green : (isSelected ? Colors.red : Colors.black))
+                                        : (isSelected ? Colors.blue : Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   );
-                }).toList(),
+                },
               ),
             if (type?.toLowerCase() == 'post') ...[
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.remove_red_eye,
-                          color: Colors.grey, size: 20),
-                      const SizedBox(width: 4),
-                      Text('$views lượt xem',
-                          style: const TextStyle(
-                              fontSize: 14, color: Colors.grey)),
-                    ],
-                  ),
                   Row(
                     children: [
                       const Icon(Icons.thumb_up, color: Colors.grey, size: 20),
@@ -313,17 +315,6 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    _incrementPostViews(docId);
-                    _showPostDetails(docId);
-                  },
-                  child: const Text('Xem chi tiết'),
-                ),
-              ),
             ],
             const SizedBox(height: 8),
             Text(
@@ -338,7 +329,6 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
     );
   }
 
-  // Function to show post details in a new page or dialog
   void _showPostDetails(String docId) {
     Navigator.push(
       context,

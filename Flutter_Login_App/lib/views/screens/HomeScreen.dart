@@ -30,42 +30,40 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../controller/StepTrackingService.dart';
 
 // Function to show running reminder notification
-// void _showRunningReminder() {
-//   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-//       FlutterLocalNotificationsPlugin();
-//   flutterLocalNotificationsPlugin.show(
-//     0,
-//     'Nhắc nhở chạy bộ',
-//     'Đã đến giờ chạy bộ buổi sáng rồi!',
-//     const NotificationDetails(
-//       android: AndroidNotificationDetails(
-//         'running_reminder_channel',
-//         'Running Reminder',
-//         importance: Importance.max,
-//         priority: Priority.high,
-//       ),
-//     ),
-//   );
-// }
+void _showRunningReminder() {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  flutterLocalNotificationsPlugin.show(
+    0,
+    'Nhắc nhở chạy bộ',
+    'Đã đến giờ chạy bộ buổi sáng rồi!',
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'running_reminder_channel',
+        'Running Reminder',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+    ),
+  );
+}
 
-// // Function to show step count reminder notification
-// void _showStepCountReminder() {
-//   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-//       FlutterLocalNotificationsPlugin();
-//   flutterLocalNotificationsPlugin.show(
-//     1,
-//     'Thống kê bước chạy',
-//     'Hãy kiểm tra số bước chạy của bạn hôm nay!',
-//     const NotificationDetails(
-//       android: AndroidNotificationDetails(
-//         'step_count_channel',
-//         'Step Count Reminder',
-//         importance: Importance.max,
-//         priority: Priority.high,
-//       ),
-//     ),
-//   );
-// }
+// Function to show step count reminder notification
+void _showStepCountReminder() {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  flutterLocalNotificationsPlugin.show(
+    1,
+    'Thống kê bước chạy',
+    'Hãy kiểm tra số bước chạy của bạn hôm nay!',
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'step_count_channel',
+        'Step Count Reminder',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+    ),
+  );
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -128,115 +126,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return 'Khách';
   }
-
-   void _onItemTapped(int index) async {
-    if (index == 1) {
-      // Index 1 tương ứng với tab "Sức khoẻ"
-      await Get.to(() => const HealthScreen());
-    } else if (index == 2) {
-      // Index 2 tương ứng với tab "Thuốc"
-      Get.to(() => const MedicineScreen());
-    } else if (index == 3) {
-      // Index 3 tương ứng với tab "Phần thưởng"
-      Get.to(() => const BulletinBoardScreen());
-    }
-
-    // Cập nhật lại chỉ số sau khi quay lại từ trang khác
-    setState(() {
-      _selectedIndex = index;
-    });
+void _onItemTapped(int index) async {
+  if (index == 1) { // Index 1 tương ứng với tab "Sức khoẻ"
+    await Get.to(() => const HealthScreen());
+  } else if (index == 2) { // Index 2 tương ứng với tab "Thuốc"
+   Get.to(() =>  const MedicineScreen());
+  } else if (index == 3) { // Index 3 tương ứng với tab "Phần thưởng"
+    Get.to(() => const BulletinBoardScreen());
   }
 
-   void _showOptionsMenu() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.2,
-          maxChildSize: 0.75,
-          builder: (_, controller) {
-            return Stack(
-              children: [
-                CustomOptionsBottomSheet(
-                  options: [
-                    OptionItem(
-                      icon: Icons.science, 
-                      title: 'Xét nghiệm HbA1c', 
-                      subtitle: 'thêm kết quả',
-                      onTap: () {
-                        Get.to(() => const Hba1cTestScreen());
-                      },
-                    ),
-                    OptionItem(
-                      icon: Icons.opacity, 
-                      title: 'Đường huyết', 
-                      subtitle: 'thêm chỉ số đo',
-                      onTap: () {
-                        // Handle blood sugar action
-                      },
-                    ),
-                    OptionItem(
-                      icon: Icons.favorite, 
-                      title: 'Huyết áp', 
-                      subtitle: 'thêm chỉ số đo',
-                      onTap: () {
-                        // Handle blood pressure action
-                      },
-                    ),
-                    OptionItem(
-                      icon: Icons.coronavirus, 
-                      title: 'Cholesterol', 
-                      subtitle: 'thêm kết quả',
-                      onTap: () {
-                        // Handle cholesterol action
-                      },
-                    ),
-                    OptionItem(
-                      icon: Icons.monitor_weight, 
-                      title: 'Cân nặng', 
-                      subtitle: 'thêm chỉ số đo',
-                      onTap: () {
-                        Get.to(() => const WeightInputTodayScreen());
-                      },
-                    ),
-                    OptionItem(
-                      icon: Icons.medication, 
-                      title: 'Thuốc', 
-                      subtitle: 'thêm/sửa thuốc',
-                      onTap: () {
-                        Get.to(() => const MedicineScreen());
-                      },
-                    ),
-                  ],
-                ),
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.grey),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-   Widget _buildMenuItem(IconData icon, String title, String subtitle) {
-    return ListTile(
-      leading: Icon(icon, size: 40),
-      title: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      subtitle: Text(subtitle),
-      onTap: () {
-        // Xử lý khi người dùng nhấn vào mục
-      },
-    );
-  }
+  // Cập nhật lại chỉ số sau khi quay lại từ trang khác
+  setState(() {
+    _selectedIndex = index;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -701,7 +605,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             _buildHealthGoal(
                               onTap: () {
-                                Get.to(() => const WeightInputTodayScreen());
+                                Get.to(() => const StepTrackingScreen());
                               },
                               icon: Image.asset(
                                 'assets/images/weigh.png', // Đường dẫn đến tệp weigh.png trong thư mục assets

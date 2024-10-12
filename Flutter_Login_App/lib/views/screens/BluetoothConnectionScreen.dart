@@ -7,7 +7,8 @@ class BluetoothConnectionScreen extends StatefulWidget {
   const BluetoothConnectionScreen({super.key});
 
   @override
-  _BluetoothConnectionScreenState createState() => _BluetoothConnectionScreenState();
+  _BluetoothConnectionScreenState createState() =>
+      _BluetoothConnectionScreenState();
 }
 
 class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
@@ -18,13 +19,16 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
   int _heartRate = 0;
   int _stepCount = 0;
 
-  final String targetMacAddress = "D0:62:2C:0B:D6:73"; // MAC Address cho Xiaomi Band 8
+  final String targetMacAddress =
+      "D0:62:2C:0B:D6:73"; // MAC Address cho Xiaomi Band 8
 
   // UUIDs
   final String HEART_RATE_SERVICE_UUID = "0000180d-0000-1000-8000-00805f9b34fb";
-  final String HEART_RATE_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb";
-  final String STEP_COUNT_SERVICE_UUID = "0000fee0-0000-1000-8000-00805f9b34fb"; 
-  final String STEP_COUNT_CHARACTERISTIC_UUID = "00000007-0000-3512-2118-0009af100700"; 
+  final String HEART_RATE_CHARACTERISTIC_UUID =
+      "00002a37-0000-1000-8000-00805f9b34fb";
+  final String STEP_COUNT_SERVICE_UUID = "0000fee0-0000-1000-8000-00805f9b34fb";
+  final String STEP_COUNT_CHARACTERISTIC_UUID =
+      "00000007-0000-3512-2118-0009af100700";
 
   @override
   void initState() {
@@ -93,11 +97,14 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
       flutterBlue.scanResults.listen((results) {
         setState(() {
           for (var result in results) {
-            if (!scanResults.any((existing) => existing.device.id == result.device.id)) {
+            if (!scanResults
+                .any((existing) => existing.device.id == result.device.id)) {
               scanResults.add(result);
-              print("Found device: ${result.device.name} with ID: ${result.device.id}");
+              print(
+                  "Found device: ${result.device.name} with ID: ${result.device.id}");
 
-              if (result.device.id.toString().toUpperCase() == targetMacAddress) {
+              if (result.device.id.toString().toUpperCase() ==
+                  targetMacAddress) {
                 _connectToDevice(result.device);
               }
             }
@@ -124,7 +131,9 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
   void _connectToDevice(BluetoothDevice device) async {
     try {
       await device.disconnect();
-      await device.connect(autoConnect: false).timeout(const Duration(seconds: 10));
+      await device
+          .connect(autoConnect: false)
+          .timeout(const Duration(seconds: 10));
       setState(() {
         connectedDevices.add(device);
       });
@@ -146,12 +155,12 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
       print('Service UUID: ${service.uuid}');
       for (var characteristic in service.characteristics) {
         print('  Characteristic UUID: ${characteristic.uuid}');
-        
+
         if (service.uuid.toString() == HEART_RATE_SERVICE_UUID &&
             characteristic.uuid.toString() == HEART_RATE_CHARACTERISTIC_UUID) {
           _subscribeToHeartRate(characteristic);
         } else if (service.uuid.toString() == STEP_COUNT_SERVICE_UUID &&
-                   characteristic.uuid.toString() == STEP_COUNT_CHARACTERISTIC_UUID) {
+            characteristic.uuid.toString() == STEP_COUNT_CHARACTERISTIC_UUID) {
           _subscribeToStepCount(characteristic);
         }
       }

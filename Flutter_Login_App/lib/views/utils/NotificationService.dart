@@ -10,8 +10,10 @@ import 'dart:io' show Platform;
 import 'package:workmanager/workmanager.dart';
 
 class NotificationService {
-  static final NotificationService _notificationService = NotificationService._internal();
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static final NotificationService _notificationService =
+      NotificationService._internal();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   factory NotificationService() {
@@ -58,7 +60,7 @@ class NotificationService {
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
       final DarwinInitializationSettings initializationSettingsIOS =
-          DarwinInitializationSettings(
+          const DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestSoundPermission: true,
@@ -82,13 +84,30 @@ class NotificationService {
         },
       );
 
+<<<<<<< HEAD
+      if (Platform.isIOS) {
+        await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                IOSFlutterLocalNotificationsPlugin>()
+            ?.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            );
+      } else if (Platform.isAndroid) {
+=======
       if (Platform.isAndroid) {
+>>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
         final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
             flutterLocalNotificationsPlugin
                 .resolvePlatformSpecificImplementation<
                     AndroidFlutterLocalNotificationsPlugin>();
 
         if (androidImplementation != null) {
+<<<<<<< HEAD
+          // Request notification permission on Android 13+
+=======
+>>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
           final bool? granted =
               await androidImplementation.requestNotificationsPermission();
           print('Android notification permission granted: $granted');
@@ -140,6 +159,8 @@ class NotificationService {
 
   Future<void> showNotification(
       int id, String title, String body, DateTime scheduledDate) async {
+<<<<<<< HEAD
+=======
     print("Attempting to schedule notification:");
     print("ID: $id");
     print("Title: $title");
@@ -147,6 +168,7 @@ class NotificationService {
     print("Scheduled Date: $scheduledDate");
     print(
         "Scheduling notification: id=$id, title=$title, body=$body, scheduledDate=$scheduledDate");
+>>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
     try {
       final tz.TZDateTime scheduledTZDate =
           tz.TZDateTime.from(scheduledDate, tz.local);
@@ -175,6 +197,10 @@ class NotificationService {
             presentBadge: true,
             presentSound: true,
           ),
+<<<<<<< HEAD
+          iOS: DarwinNotificationDetails(),
+=======
+>>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
         ),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
@@ -200,8 +226,11 @@ class NotificationService {
 
   Future<void> _saveNotification(
       int id, String title, String body, DateTime scheduledDate) async {
+<<<<<<< HEAD
+=======
     print(
         "Saving notification: id=$id, title=$title, body=$body, scheduledDate=$scheduledDate");
+>>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
     final prefs = await SharedPreferences.getInstance();
     final notifications = prefs.getStringList('notifications') ?? [];
     notifications.add(jsonEncode({

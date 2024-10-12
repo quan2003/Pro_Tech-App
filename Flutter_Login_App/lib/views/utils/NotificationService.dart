@@ -10,10 +10,8 @@ import 'dart:io' show Platform;
 import 'package:workmanager/workmanager.dart';
 
 class NotificationService {
-  static final NotificationService _notificationService =
-      NotificationService._internal();
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  static final NotificationService _notificationService = NotificationService._internal();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   factory NotificationService() {
@@ -33,34 +31,34 @@ class NotificationService {
   }
 
   Future<void> showImmediateNotification() async {
-  const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    'your channel id',
-    'your channel name',
-    channelDescription: 'your channel description',
-    importance: Importance.max,
-    priority: Priority.high,
-  );
-  const NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(
-    0,
-    'Thông báo tức thì',
-    'Đây là một thông báo test',
-    platformChannelSpecifics,
-  );
-}
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'your channel id',
+      'your channel name',
+      channelDescription: 'your channel description',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Thông báo tức thì',
+      'Đây là một thông báo test',
+      platformChannelSpecifics,
+    );
+  }
 
   Future<void> _initializeLocalNotifications() async {
     print("Initializing local notifications");
     try {
       tz.initializeTimeZones();
-     String timeZoneName = await FlutterTimezone.getLocalTimezone();
+      String timeZoneName = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(timeZoneName));
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
       final DarwinInitializationSettings initializationSettingsIOS =
-          const DarwinInitializationSettings(
+          DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestSoundPermission: true,
@@ -84,30 +82,13 @@ class NotificationService {
         },
       );
 
-<<<<<<< HEAD
-      if (Platform.isIOS) {
-        await flutterLocalNotificationsPlugin
-            .resolvePlatformSpecificImplementation<
-                IOSFlutterLocalNotificationsPlugin>()
-            ?.requestPermissions(
-              alert: true,
-              badge: true,
-              sound: true,
-            );
-      } else if (Platform.isAndroid) {
-=======
       if (Platform.isAndroid) {
->>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
         final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
             flutterLocalNotificationsPlugin
                 .resolvePlatformSpecificImplementation<
                     AndroidFlutterLocalNotificationsPlugin>();
 
         if (androidImplementation != null) {
-<<<<<<< HEAD
-          // Request notification permission on Android 13+
-=======
->>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
           final bool? granted =
               await androidImplementation.requestNotificationsPermission();
           print('Android notification permission granted: $granted');
@@ -159,16 +140,11 @@ class NotificationService {
 
   Future<void> showNotification(
       int id, String title, String body, DateTime scheduledDate) async {
-<<<<<<< HEAD
-=======
     print("Attempting to schedule notification:");
     print("ID: $id");
     print("Title: $title");
     print("Body: $body");
     print("Scheduled Date: $scheduledDate");
-    print(
-        "Scheduling notification: id=$id, title=$title, body=$body, scheduledDate=$scheduledDate");
->>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
     try {
       final tz.TZDateTime scheduledTZDate =
           tz.TZDateTime.from(scheduledDate, tz.local);
@@ -178,7 +154,7 @@ class NotificationService {
         title,
         body,
         tz.TZDateTime.from(scheduledDate, tz.local),
-        const NotificationDetails(
+        NotificationDetails(
           android: AndroidNotificationDetails(
             'medication_channel',
             'Medication Reminders',
@@ -188,8 +164,6 @@ class NotificationService {
             showWhen: true,
             enableLights: true,
             enableVibration: true,
-            // playSound: true,
-            // sound: RawResourceAndroidNotificationSound('notification'),
             visibility: NotificationVisibility.public,
           ),
           iOS: DarwinNotificationDetails(
@@ -197,10 +171,6 @@ class NotificationService {
             presentBadge: true,
             presentSound: true,
           ),
-<<<<<<< HEAD
-          iOS: DarwinNotificationDetails(),
-=======
->>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
         ),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
@@ -215,22 +185,20 @@ class NotificationService {
       print('Stack trace: ${StackTrace.current}');
     }
   }
+
   Future<void> _printSavedNotifications() async {
-  final prefs = await SharedPreferences.getInstance();
-  final notifications = prefs.getStringList('notifications') ?? [];
-  print("Saved notifications:");
-  for (var notification in notifications) {
-    print(notification);
+    final prefs = await SharedPreferences.getInstance();
+    final notifications = prefs.getStringList('notifications') ?? [];
+    print("Saved notifications:");
+    for (var notification in notifications) {
+      print(notification);
+    }
   }
-}
 
   Future<void> _saveNotification(
       int id, String title, String body, DateTime scheduledDate) async {
-<<<<<<< HEAD
-=======
     print(
         "Saving notification: id=$id, title=$title, body=$body, scheduledDate=$scheduledDate");
->>>>>>> c2743c352119d667c6dd627b8bd0a08e4573c95b
     final prefs = await SharedPreferences.getInstance();
     final notifications = prefs.getStringList('notifications') ?? [];
     notifications.add(jsonEncode({
@@ -311,7 +279,8 @@ class NotificationService {
     );
     print("WorkManager initialized successfully");
   }
-Future<void> setupFirebaseMessaging() async {
+
+  Future<void> setupFirebaseMessaging() async {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("Received a foreground message: ${message.notification?.title}");
       handleBackgroundMessage(message);
@@ -328,6 +297,7 @@ Future<void> setupFirebaseMessaging() async {
       handleBackgroundMessage(initialMessage);
     }
   }
+
   Future<void> handleBackgroundMessage(RemoteMessage message) async {
     print("Handling a background message: ${message.messageId}");
     if (message.notification != null &&
@@ -342,7 +312,7 @@ Future<void> setupFirebaseMessaging() async {
     }
   }
 
-  // New methods for medication reminders
+  // Methods for medication reminders
   Future<void> scheduleMedicationReminder(
       int id, String medicineName, DateTime scheduledDate) async {
     print(
@@ -394,7 +364,6 @@ Future<void> setupFirebaseMessaging() async {
     print("Medication reminders rescheduled successfully");
   }
 
-  // Method to cancel a specific medication reminder
   Future<void> cancelMedicationReminder(int id) async {
     print("Cancelling medication reminder with id: $id");
     await flutterLocalNotificationsPlugin.cancel(id);
@@ -402,7 +371,6 @@ Future<void> setupFirebaseMessaging() async {
     print("Medication reminder cancelled successfully");
   }
 
-  // Method to remove a medication reminder from SharedPreferences
   Future<void> _removeMedicationReminder(int id) async {
     final prefs = await SharedPreferences.getInstance();
     final reminders = prefs.getStringList('medicationReminders') ?? [];
@@ -414,7 +382,6 @@ Future<void> setupFirebaseMessaging() async {
     print("Medication reminder removed from storage");
   }
 
-  // Method to get all scheduled medication reminders
   Future<List<Map<String, dynamic>>> getScheduledMedicationReminders() async {
     final prefs = await SharedPreferences.getInstance();
     final reminders = prefs.getStringList('medicationReminders') ?? [];
@@ -431,6 +398,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final notificationService = NotificationService();
   await notificationService.handleBackgroundMessage(message);
 }
+
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {

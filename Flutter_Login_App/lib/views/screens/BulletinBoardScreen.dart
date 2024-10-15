@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import 'HealthScreen.dart';
 import 'HomeScreen.dart';
 import 'MedicineScreen.dart';
 import 'PostDetailScreen.dart';
+import 'ChatScreen.dart';
+import 'ProfileScreen.dart';
+import '../Routes/AppRoutes.dart';
 
 class BulletinBoardScreen extends StatefulWidget {
-  const BulletinBoardScreen({super.key});
+  const BulletinBoardScreen({Key? key}) : super(key: key);
 
   @override
   _BulletinBoardScreenState createState() => _BulletinBoardScreenState();
@@ -18,6 +24,20 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
   int _selectedIndex = 3;
   Map<String, String?> selectedOptions = {};
   Map<String, bool> answeredQuizzes = {};
+
+  Future<String> _fetchUserName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      if (userDoc.exists) {
+        return userDoc['name'] ?? 'Khách';
+      }
+    }
+    return 'Khách';
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -46,94 +66,115 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
     }
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              const Text(
-                'Bảng tin cộng đồng',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('posts_quiz')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                          child: Text('Đã xảy ra lỗi: ${snapshot.error}'));
-                    }
-
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(
-                          child: Text('Không có bài đăng nào.'));
-                    }
-
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        DocumentSnapshot document = snapshot.data!.docs[index];
-                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                        String docId = document.id;
-
-                        String imageUrl = data['imageUrl'] ?? '';
-                        String title = data['title'] ?? 'Không có tiêu đề';
-                        String description = data['description'] ?? '';
-                        Timestamp? timestamp = data['timestamp'] as Timestamp?;
-
-                        if (description.isEmpty && timestamp != null) {
-                          description = _generateTimeBasedDescription(timestamp);
-                        }
-
-                        List<String> options = List<String>.from(data['options'] ?? []);
-                        int responses = _parseNumericValue(data['responses']);
-                        String? correctOption = data['correctAnswer']?.toString();
-                        String? type = data['type'];
-                        int views = _parseNumericValue(data['views']);
-                        int commentCount = _parseNumericValue(data['commentCount']);
-                        int likeCount = _parseNumericValue(data['likeCount']);
-
-                        return GestureDetector(
-                          onTap: () {
-                            if (type?.toLowerCase() == 'post') {
-                              _incrementPostViews(docId);
-                              _showPostDetails(docId);
-                            }
-                          },
-                          child: _buildBulletinCard(
-                            docId: docId,
-                            imageAsset: imageUrl,
-                            title: title,
-                            description: description,
-                            options: options,
-                            responses: responses,
-                            correctOption: correctOption,
-                            type: type,
-                            views: views,
-                            likeCount: likeCount,
-                            commentCount: commentCount,
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text("Bảng tin"),
+        backgroundColor: Colors.teal,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.message),
+            onPressed: () {
+              User? user = FirebaseAuth.instance.currentUser;
+              if (user != null) {
+                Get.to(() => ChatScreen(userId: user.uid));
+              } else {
+                Get.snackbar('Lỗi', 'Vui lòng đăng nhập trước khi trò chuyện.');
+              }
+            },
           ),
+          IconButton(
+            icon: const Icon(Icons.add_circle_sharp),
+            onPressed: () {
+              // Implement add post functionality
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              // Implement notification functionality
+            },
+          ),
+        ],
+      ),
+      drawer: _buildDrawer(context),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('posts_quiz')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                        child: Text('Đã xảy ra lỗi: ${snapshot.error}'));
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                        child: Text('Không có bài đăng nào.'));
+                  }
+
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot document = snapshot.data!.docs[index];
+                      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                      String docId = document.id;
+
+                      String imageUrl = data['imageUrl'] ?? '';
+                      String title = data['title'] ?? 'Không có tiêu đề';
+                      String description = data['description'] ?? '';
+                      Timestamp? timestamp = data['timestamp'] as Timestamp?;
+
+                      if (description.isEmpty && timestamp != null) {
+                        description = _generateTimeBasedDescription(timestamp);
+                      }
+
+                      List<String> options = List<String>.from(data['options'] ?? []);
+                      int responses = _parseNumericValue(data['responses']);
+                      String? correctOption = data['correctAnswer']?.toString();
+                      String? type = data['type'];
+                      int views = _parseNumericValue(data['views']);
+                      int commentCount = _parseNumericValue(data['commentCount']);
+                      int likeCount = _parseNumericValue(data['likeCount']);
+
+                      return GestureDetector(
+                        onTap: () {
+                          if (type?.toLowerCase() == 'post') {
+                            _incrementPostViews(docId);
+                            _showPostDetails(docId);
+                          }
+                        },
+                        child: _buildBulletinCard(
+                          docId: docId,
+                          imageAsset: imageUrl,
+                          title: title,
+                          description: description,
+                          options: options,
+                          responses: responses,
+                          correctOption: correctOption,
+                          type: type,
+                          views: views,
+                          likeCount: likeCount,
+                          commentCount: commentCount,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: ConvexAppBar(
@@ -150,6 +191,87 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
         initialActiveIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          FutureBuilder<String>(
+            future: _fetchUserName(),
+            builder: (context, snapshot) {
+              String userName = snapshot.data ?? 'Khách';
+              User? user = FirebaseAuth.instance.currentUser;
+              return UserAccountsDrawerHeader(
+                accountName: Text(userName),
+                accountEmail: Text(user?.email ?? 'Không có email'),
+                currentAccountPicture: CircleAvatar(
+                  backgroundImage: user?.photoURL != null
+                      ? NetworkImage(user!.photoURL!)
+                      : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.teal,
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text("Hồ sơ"),
+            onTap: () {
+              User? user = FirebaseAuth.instance.currentUser;
+              if (user != null) {
+                Get.to(() => ProfileScreen(userId: user.uid));
+              } else {
+                Get.snackbar('Lỗi', 'Vui lòng đăng nhập để xem hồ sơ.');
+              }
+            },
+          ),
+          // Add other ListTiles as in HealthScreen
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              Get.offNamed(AppRoutes.SIGNINSCREEN);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return FutureBuilder<String>(
+      future: _fetchUserName(),
+      builder: (context, snapshot) {
+        String userName = snapshot.data ?? 'Khách';
+        String formattedDate = DateFormat('EEEE, d MMMM yyyy').format(DateTime.now());
+        String formattedTime = DateFormat('HH:mm').format(DateTime.now());
+
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Xin chào, $userName!",
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                '$formattedDate, $formattedTime',
+                style: const TextStyle(color: Colors.grey),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

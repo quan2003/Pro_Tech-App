@@ -5,18 +5,15 @@ import 'package:flutter_login_app/views/screens/BluetoothConnectionScreen.dart';
 import 'package:flutter_login_app/views/screens/CookiePolicyScreen.dart';
 
 import 'package:flutter_login_app/views/screens/FirstDayIntroduction.dart';
-import 'package:flutter_login_app/views/screens/Hba1cTestScreen.dart';
 import 'package:flutter_login_app/views/screens/HealthScreen.dart';
 import 'package:flutter_login_app/views/screens/PrivacyPolicyScreen.dart';
 import 'package:flutter_login_app/views/screens/SleepTrackingScreen.dart';
 
 import 'package:flutter_login_app/views/screens/StepTrackerScreen.dart';
 import 'package:flutter_login_app/views/screens/TearmsAndConditionsScreen.dart';
-import 'package:flutter_login_app/views/screens/WeightInputTodayScreen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../model/OptionItem.dart';
 import 'BulletinBoardScreen.dart';
 import 'MedicineScreen.dart';
 import 'ProfileScreen.dart';
@@ -239,7 +236,7 @@ void _onItemTapped(int index) async {
                   leading: const Icon(Icons.language), // Language icon
                   title: const Text('Ngôn ngữ'),
                   onTap: () {
-                    // Get.to(() => LanguageSelector());
+
                   },
                 ),
                 ListTile(
@@ -300,7 +297,7 @@ void _onItemTapped(int index) async {
                   leading: const Icon(Icons.bluetooth),
                   title: const Text('Thiết bị Bluetooth'),
                   onTap: () {
-                    Get.to(() => const BluetoothConnectionScreen());
+                    Get.to(() => FindDevicesScreen());
                   },
                 ),
 

@@ -121,53 +121,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 8),
-                            StreamBuilder<QuerySnapshot>(
-                              stream: _firestore
-                                  .collection('posts_quiz')
-                                  .doc(widget.postId)
-                                  .collection('comments')
-                                  .orderBy('timestamp', descending: true)
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) return const SizedBox();
-                                return Column(
-                                  children: snapshot.data!.docs.map((doc) {
-                                    var data = doc.data() as Map<String, dynamic>;
-                                    return FutureBuilder<DocumentSnapshot>(
-                                      future: _firestore
-                                          .collection('users')
-                                          .doc(data['userId'])
-                                          .get(),
-                                      builder: (context, userSnapshot) {
-                                        String userName = 'Người dùng';
-                                        if (userSnapshot.hasData &&
-                                            userSnapshot.data != null &&
-                                            userSnapshot.data!.exists) {
-                                          userName = (userSnapshot.data!.data()
-                                                      as Map<String, dynamic>?)?['name'] ??
-                                              'Người dùng';
-                                        }
-                                        return ListTile(
-                                          leading: CircleAvatar(
-                                            child: Text(userName[0].toUpperCase()),
-                                          ),
-                                          title: Text(userName),
-                                          subtitle: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(data['comment'] as String? ?? ''),
-                                              _formatTimestamp(
-                                                  data['timestamp'] as Timestamp?),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  }).toList(),
-                                );
-                              },
-                            ),
+                            _buildCommentsList(),
                           ],
                         ),
                       ),
@@ -205,6 +159,77 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildCommentsList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore
+          .collection('posts_quiz')
+          .doc(widget.postId)
+          .collection('comments')
+          .orderBy('timestamp', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox();
+        return Column(
+          children: snapshot.data!.docs.map((doc) {
+            var data = doc.data() as Map<String, dynamic>;
+            return FutureBuilder<DocumentSnapshot>(
+              future: _firestore.collection('users').doc(data['userId']).get(),
+              builder: (context, userSnapshot) {
+                String userName = 'Người dùng';
+                if (userSnapshot.hasData && userSnapshot.data != null && userSnapshot.data!.exists) {
+                  userName = (userSnapshot.data!.data() as Map<String, dynamic>?)?['name'] ?? 'Người dùng';
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      leading: CircleAvatar(
+                        child: Text(userName[0].toUpperCase()),
+                      ),
+                      title: Text(userName),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(data['comment'] as String? ?? ''),
+                          _formatTimestamp(data['timestamp'] as Timestamp?),
+                        ],
+                      ),
+                    ),
+                    if (data['replies'] != null && (data['replies'] as List).isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: (data['replies'] as List).map((reply) {
+                            return ListTile(
+                              leading: const CircleAvatar(
+                                child: Icon(Icons.admin_panel_settings),
+                              ),
+                              title: const Text('Admin'),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(reply['text'] ?? ''),
+                                  _formatTimestamp(reply['timestamp'] is Timestamp 
+                                      ? reply['timestamp'] as Timestamp 
+                                      : Timestamp.fromMillisecondsSinceEpoch(reply['timestamp'] as int)),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    const Divider(),
+                  ],
+                );
+              },
+            );
+          }).toList(),
+        );
+      },
     );
   }
 

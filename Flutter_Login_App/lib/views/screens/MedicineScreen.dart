@@ -15,7 +15,7 @@ import 'ProfileScreen.dart';
 import '../Routes/AppRoutes.dart';
 
 class MedicineScreen extends StatefulWidget {
-  const MedicineScreen({Key? key}) : super(key: key);
+  const MedicineScreen({super.key});
 
   @override
   _MedicineScreenState createState() => _MedicineScreenState();
@@ -288,6 +288,8 @@ class _MedicineScreenState extends State<MedicineScreen> {
 }
 
 class EditMedicationsScreen extends StatelessWidget {
+  const EditMedicationsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -355,7 +357,7 @@ class EditMedicationsScreen extends StatelessWidget {
 class EditMedicationScreen extends StatefulWidget {
   final String medicationId;
 
-  EditMedicationScreen({required this.medicationId});
+  const EditMedicationScreen({super.key, required this.medicationId});
 
   @override
   _EditMedicationScreenState createState() => _EditMedicationScreenState();
@@ -503,7 +505,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
 class DateSlider extends StatefulWidget {
   final Function(DateTime) onDateSelected;
 
-  const DateSlider({Key? key, required this.onDateSelected}) : super(key: key);
+  const DateSlider({super.key, required this.onDateSelected});
 
   @override
   _DateSliderState createState() => _DateSliderState();
@@ -585,7 +587,7 @@ class _DateSliderState extends State<DateSlider> {
 class MedicationList extends StatelessWidget {
   final DateTime selectedDate;
 
-  const MedicationList({Key? key, required this.selectedDate}) : super(key: key);
+  const MedicationList({super.key, required this.selectedDate});
 
   @override
   Widget build(BuildContext context) {
@@ -743,7 +745,7 @@ class MedicationList extends StatelessWidget {
 class MedicationItem extends StatelessWidget {
   final QueryDocumentSnapshot medication;
 
-  const MedicationItem({Key? key, required this.medication}) : super(key: key);
+  const MedicationItem({super.key, required this.medication});
 
   @override
   Widget build(BuildContext context) {

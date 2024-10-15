@@ -20,7 +20,7 @@ import '../Routes/AppRoutes.dart';
 import 'TearmsAndConditionsScreen.dart';
 
 class HealthScreen extends StatefulWidget {
-  const HealthScreen({Key? key}) : super(key: key);
+  const HealthScreen({super.key});
 
   @override
   _HealthScreenState createState() => _HealthScreenState();

@@ -32,26 +32,32 @@ class CommentManagementPage extends StatelessWidget {
               columns: const [
                 DataColumn(label: Text('STT')),
                 DataColumn(label: Text('Title')),
+                DataColumn(label: Text('Views')),
                 DataColumn(label: Text('Likes')),
                 DataColumn(label: Text('Comments')),
                 DataColumn(label: Text('Actions')),
               ],
-              rows: posts.map((post) {
-                Map<String, dynamic> postData = post.data() as Map<String, dynamic>;
-                return DataRow(
-                  cells: [
-                    DataCell(Text(postData['title'] ?? 'Untitled')),
-                    DataCell(Text(postData['likeCount']?.toString() ?? '0')),
-                    DataCell(Text(postData['commentCount']?.toString() ?? '0')),
-                    DataCell(
-                      ElevatedButton(
-                        child: const Text('View Comments'),
-                        onPressed: () => _showCommentsDialog(context, post.id, postData['title']),
+              rows: List<DataRow>.generate(
+                posts.length,
+                (index) {
+                  Map<String, dynamic> postData = posts[index].data() as Map<String, dynamic>;
+                  return DataRow(
+                    cells: [
+                      DataCell(Text('${index + 1}')),
+                      DataCell(Text(postData['title'] ?? 'Untitled')),
+                      DataCell(Text(postData['views']?.toString() ?? '0')),
+                      DataCell(Text(postData['likeCount']?.toString() ?? '0')),
+                      DataCell(Text(postData['commentCount']?.toString() ?? '0')),
+                      DataCell(
+                        ElevatedButton(
+                          child: const Text('View Comments'),
+                          onPressed: () => _showCommentsDialog(context, posts[index].id, postData['title']),
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              }).toList(),
+                    ],
+                  );
+                },
+              ),
             ),
           );
         },
@@ -67,6 +73,7 @@ class CommentManagementPage extends StatelessWidget {
           title: Text('Comments for: $postTitle'),
           content: SizedBox(
             width: double.maxFinite,
+            height: 400,
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('posts_quiz')
@@ -79,33 +86,28 @@ class CommentManagementPage extends StatelessWidget {
                   return Text('Error: ${snapshot.error}');
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const Center(child: CircularProgressIndicator());
                 }
                 
-                List<DocumentSnapshot> comments = snapshot.data!.docs;
+                List<DocumentSnapshot> comments = snapshot.data?.docs ?? [];
+                
+                if (comments.isEmpty) {
+                  return const Center(child: Text('No comments yet.'));
+                }
                 
                 return ListView.builder(
                   itemCount: comments.length,
                   itemBuilder: (context, index) {
                     Map<String, dynamic> commentData = comments[index].data() as Map<String, dynamic>;
                     return ListTile(
-                      title: Text(commentData['text'] ?? ''),
-                      subtitle: FutureBuilder<DocumentSnapshot>(
-                        future: FirebaseFirestore.instance.collection('users').doc(commentData['userId']).get(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            Map<String, dynamic>? userData = snapshot.data?.data() as Map<String, dynamic>?;
-                            return Text('By: ${userData?['name'] ?? 'Unknown'} (${userData?['email'] ?? 'No email'})');
-                          }
-                          return const Text('Loading user info...');
-                        },
-                      ),
+                      title: Text(commentData['comment']?.toString() ?? 'No comment text'),
+                      subtitle: Text('User ID: ${commentData['userId']?.toString() ?? 'Unknown'}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
                             icon: const Icon(Icons.reply),
-                            onPressed: () => _replyToComment(context, postId, comments[index].id),
+                            onPressed: () => _replyToComment(context, postId, comments[index].id, commentData['comment']?.toString() ?? 'No comment text'),
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete),
@@ -130,17 +132,24 @@ class CommentManagementPage extends StatelessWidget {
     );
   }
 
-  void _replyToComment(BuildContext context, String postId, String commentId) {
-    // Implement reply functionality
+  void _replyToComment(BuildContext context, String postId, String commentId, String originalComment) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         final TextEditingController replyController = TextEditingController();
         return AlertDialog(
           title: const Text('Reply to Comment'),
-          content: TextField(
-            controller: replyController,
-            decoration: const InputDecoration(hintText: "Enter your reply"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Original comment: $originalComment', style: TextStyle(fontStyle: FontStyle.italic)),
+              SizedBox(height: 10),
+              TextField(
+                controller: replyController,
+                decoration: const InputDecoration(hintText: "Enter your reply"),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -150,19 +159,13 @@ class CommentManagementPage extends StatelessWidget {
             TextButton(
               child: const Text('Reply'),
               onPressed: () {
-                // Add reply to Firestore
-                FirebaseFirestore.instance
-                    .collection('posts_quiz')
-                    .doc(postId)
-                    .collection('comments')
-                    .doc(commentId)
-                    .collection('replies')
-                    .add({
-                  'text': replyController.text,
-                  'user': 'Admin', // You might want to get the actual user
-                  'timestamp': FieldValue.serverTimestamp(),
-                });
-                Navigator.of(context).pop();
+                if (replyController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Reply cannot be empty')),
+                  );
+                  return;
+                }
+                _addReplyToFirestore(context, postId, commentId, replyController.text);
               },
             ),
           ],
@@ -171,14 +174,60 @@ class CommentManagementPage extends StatelessWidget {
     );
   }
 
+  void _addReplyToFirestore(BuildContext context, String postId, String commentId, String replyText) {
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      try {
+        // Thực hiện tất cả các thao tác đọc trước
+        DocumentReference commentRef = FirebaseFirestore.instance
+            .collection('posts_quiz')
+            .doc(postId)
+            .collection('comments')
+            .doc(commentId);
+        
+        DocumentReference postRef = FirebaseFirestore.instance.collection('posts_quiz').doc(postId);
+        
+        DocumentSnapshot commentSnapshot = await transaction.get(commentRef);
+        DocumentSnapshot postSnapshot = await transaction.get(postRef);
+
+        // Sau khi đã đọc xong, thực hiện các thao tác ghi
+        if (commentSnapshot.exists) {
+          Map<String, dynamic> commentData = commentSnapshot.data() as Map<String, dynamic>;
+          List<dynamic> currentReplies = commentData['replies'] ?? [];
+          
+          DateTime now = DateTime.now();
+          currentReplies.add({
+            'text': replyText,
+            'user': 'Admin', // Bạn có thể muốn lấy user thực tế
+            'timestamp': Timestamp.now(),
+          });
+          
+          transaction.update(commentRef, {'replies': currentReplies});
+
+          if (postSnapshot.exists) {
+            transaction.update(postRef, {'commentCount': FieldValue.increment(1)});
+          }
+        }
+      } catch (e) {
+        print('Error in transaction: $e');
+        rethrow;
+      }
+    }).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Reply added successfully')));
+      Navigator.of(context).pop();
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add reply: $error')));
+    });
+  }
+
   void _deleteComment(BuildContext context, String postId, String commentId) {
-    // Implement delete functionality
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Comment'),
-          content: const Text('Are you sure you want to delete this comment?'),
+          content: const Text('Are you sure you want to delete this comment? This action cannot be undone.'),
           actions: [
             TextButton(
               child: const Text('Cancel'),
@@ -187,20 +236,39 @@ class CommentManagementPage extends StatelessWidget {
             TextButton(
               child: const Text('Delete'),
               onPressed: () {
-                FirebaseFirestore.instance
-                    .collection('posts_quiz')
-                    .doc(postId)
-                    .collection('comments')
-                    .doc(commentId)
-                    .delete()
-                    .then((_) {
+                FirebaseFirestore.instance.runTransaction((transaction) async {
+                  // Thực hiện tất cả các thao tác đọc trước
+                  DocumentReference commentRef = FirebaseFirestore.instance
+                      .collection('posts_quiz')
+                      .doc(postId)
+                      .collection('comments')
+                      .doc(commentId);
+                  DocumentReference postRef = FirebaseFirestore.instance.collection('posts_quiz').doc(postId);
+                  
+                  DocumentSnapshot commentSnapshot = await transaction.get(commentRef);
+                  DocumentSnapshot postSnapshot = await transaction.get(postRef);
+
+                  // Sau khi đã đọc xong, thực hiện các thao tác ghi
+                  if (commentSnapshot.exists) {
+                    transaction.delete(commentRef);
+
+                    if (postSnapshot.exists) {
+                      int currentCommentCount = postSnapshot.get('commentCount') ?? 0;
+                      if (currentCommentCount > 0) {
+                        transaction.update(postRef, {'commentCount': FieldValue.increment(-1)});
+                      }
+                    }
+                  }
+                }).then((_) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Comment deleted successfully')));
+                  Navigator.of(context).pop(); // Close the confirmation dialog
+                  Navigator.of(context).pop(); // Close the comments dialog
                 }).catchError((error) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Failed to delete comment: $error')));
+                  Navigator.of(context).pop(); // Close the confirmation dialog
                 });
-                Navigator.of(context).pop();
               },
             ),
           ],

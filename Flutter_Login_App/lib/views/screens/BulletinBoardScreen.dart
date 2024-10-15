@@ -14,7 +14,7 @@ import 'ProfileScreen.dart';
 import '../Routes/AppRoutes.dart';
 
 class BulletinBoardScreen extends StatefulWidget {
-  const BulletinBoardScreen({Key? key}) : super(key: key);
+  const BulletinBoardScreen({super.key});
 
   @override
   _BulletinBoardScreenState createState() => _BulletinBoardScreenState();
@@ -108,6 +108,7 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('posts_quiz')
+                    .where('isHidden', isEqualTo: false)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
@@ -120,17 +121,19 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(
-                        child: Text('Không có bài đăng nào.'));
+                    return const Center(child: Text('Không có bài đăng nào.'));
                   }
 
                   return ListView.builder(
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) {
                       DocumentSnapshot document = snapshot.data!.docs[index];
-                      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                      Map<String, dynamic> data =
+                          document.data() as Map<String, dynamic>;
                       String docId = document.id;
-
+                      if (data['isHidden'] == true) {
+                        return Container(); // Return an empty container for hidden posts
+                      }
                       String imageUrl = data['imageUrl'] ?? '';
                       String title = data['title'] ?? 'Không có tiêu đề';
                       String description = data['description'] ?? '';
@@ -140,12 +143,14 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                         description = _generateTimeBasedDescription(timestamp);
                       }
 
-                      List<String> options = List<String>.from(data['options'] ?? []);
+                      List<String> options =
+                          List<String>.from(data['options'] ?? []);
                       int responses = _parseNumericValue(data['responses']);
                       String? correctOption = data['correctAnswer']?.toString();
                       String? type = data['type'];
                       int views = _parseNumericValue(data['views']);
-                      int commentCount = _parseNumericValue(data['commentCount']);
+                      int commentCount =
+                          _parseNumericValue(data['commentCount']);
                       int likeCount = _parseNumericValue(data['likeCount']);
 
                       return GestureDetector(
@@ -210,7 +215,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                 currentAccountPicture: CircleAvatar(
                   backgroundImage: user?.photoURL != null
                       ? NetworkImage(user!.photoURL!)
-                      : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                      : const AssetImage('assets/images/default_avatar.png')
+                          as ImageProvider,
                 ),
                 decoration: const BoxDecoration(
                   color: Colors.teal,
@@ -250,7 +256,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
       future: _fetchUserName(),
       builder: (context, snapshot) {
         String userName = snapshot.data ?? 'Khách';
-        String formattedDate = DateFormat('EEEE, d MMMM yyyy').format(DateTime.now());
+        String formattedDate =
+            DateFormat('EEEE, d MMMM yyyy').format(DateTime.now());
         String formattedTime = DateFormat('HH:mm').format(DateTime.now());
 
         return Padding(
@@ -260,7 +267,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
             children: [
               Text(
                 "Xin chào, $userName!",
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
@@ -356,7 +364,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                       int index = entry.key;
                       String option = entry.value;
 
-                      bool isCorrect = int.tryParse(correctOption ?? '') == index;
+                      bool isCorrect =
+                          int.tryParse(correctOption ?? '') == index;
                       bool isSelected = selectedOptions[docId] == option;
                       bool hasAnswered = answeredQuizzes[docId] ?? false;
 
@@ -376,11 +385,19 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                           margin: const EdgeInsets.symmetric(vertical: 4.0),
                           decoration: BoxDecoration(
                             color: hasAnswered
-                                ? (isCorrect ? Colors.green[100] : (isSelected ? Colors.red[100] : Colors.white))
-                                : (isSelected ? Colors.blue[100] : Colors.white),
+                                ? (isCorrect
+                                    ? Colors.green[100]
+                                    : (isSelected
+                                        ? Colors.red[100]
+                                        : Colors.white))
+                                : (isSelected
+                                    ? Colors.blue[100]
+                                    : Colors.white),
                             border: Border.all(
                               color: hasAnswered
-                                  ? (isCorrect ? Colors.green : (isSelected ? Colors.red : Colors.grey))
+                                  ? (isCorrect
+                                      ? Colors.green
+                                      : (isSelected ? Colors.red : Colors.grey))
                                   : (isSelected ? Colors.blue : Colors.grey),
                             ),
                             borderRadius: BorderRadius.circular(10),
@@ -399,8 +416,14 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: hasAnswered
-                                        ? (isCorrect ? Colors.green : (isSelected ? Colors.red : Colors.black))
-                                        : (isSelected ? Colors.blue : Colors.black),
+                                        ? (isCorrect
+                                            ? Colors.green
+                                            : (isSelected
+                                                ? Colors.red
+                                                : Colors.black))
+                                        : (isSelected
+                                            ? Colors.blue
+                                            : Colors.black),
                                   ),
                                 ),
                               ),

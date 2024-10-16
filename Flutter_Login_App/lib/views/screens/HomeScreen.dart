@@ -252,7 +252,7 @@ void _onItemTapped(int index) async {
                   leading: const Icon(Icons.health_and_safety),
                   title: const Text('Tình trạng sức khỏe'),
                   onTap: () {
-                    // Navigate to Health Status
+                    Get.toNamed(AppRoutes.HEALTH_DASHBOARD);
                   },
                 ),
                 ListTile(

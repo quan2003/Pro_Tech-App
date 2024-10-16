@@ -10,7 +10,9 @@ import 'package:flutter/foundation.dart';
 // Conditional import for Workmanager
 import './views/utils/workmanager_helper.dart'
     if (dart.library.js) './views/utils/workmanager_web_stub.dart';
+import 'views/controller/health_service.dart';
 import 'views/utils/NotificationService.dart';
+
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -27,6 +29,7 @@ Future<void> _ensureFirebaseInitialized() async {
   }
 }
 
+final HealthService healthService = HealthService();
 
 void main() async {
   await runZonedGuarded(() async {
@@ -46,6 +49,15 @@ void main() async {
           DeviceOrientation.portraitUp,
           DeviceOrientation.portraitDown,
         ]);
+
+        // Initialize HealthService
+        await healthService.initialize();
+        bool authorized = await healthService.requestAuthorization();
+        if (authorized) {
+          print('Health data access authorized');
+        } else {
+          print('Health data access not authorized');
+        }
       }
 
       runApp(const MyApp());
@@ -90,14 +102,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg',
-    appId:
-        '1:989890578847:web:903a936a3b2278ed9d95aa', // Giữ nguyên giá trị web app ID nếu bạn đã có
+    appId: '1:989890578847:web:903a936a3b2278ed9d95aa',
     messagingSenderId: '989890578847',
     projectId: 'signin-example-b56ee',
     storageBucket: 'signin-example-b56ee.appspot.com',
-    authDomain:
-        'signin-example-b56ee.firebaseapp.com', // Thêm authDomain nếu cần thiết cho web
-    measurementId:
-        'G-6C63FNQH88', // Giữ nguyên nếu bạn đã có Measurement ID cho web
+    authDomain: 'signin-example-b56ee.firebaseapp.com',
+    measurementId: 'G-6C63FNQH88',
   );
 }

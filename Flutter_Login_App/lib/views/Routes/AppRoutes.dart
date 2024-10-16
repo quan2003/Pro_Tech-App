@@ -16,6 +16,7 @@ import '../screens/HeightInputScreen.dart';
 import '../screens/WelcomeScreen.dart';
 import '../screens/HealthConditionsScreen.dart';
 import '../screens/WeightFrequencyScreen.dart';
+import '../screens/HealthDashboardScreen.dart';
 
 
 class AppRoutes {
@@ -34,6 +35,7 @@ class AppRoutes {
   static const HEALTH_CONDITION_SCREEN = '/health_condition';
   static const WEIGHT_GOALS_SCREEN = '/weight_goals';
   static const WEIGHT_FREQUENCY_SCREEN = '/weight_frequency';
+  static const HEALTH_DASHBOARD = '/health_dashboard';
   static const SPLASH_SCREEN = '/';
 
   static final routes = [
@@ -100,6 +102,10 @@ class AppRoutes {
     GetPage(
       name: WEIGHT_FREQUENCY_SCREEN,
       page: () => const WeightFrequencyScreen(),
+    ),
+    GetPage(
+      name: HEALTH_DASHBOARD,
+      page: () => HealthDashboardScreen(),
     ),
     GetPage(
       name: '/profile',
